@@ -1,0 +1,15 @@
+uvicorn[standard]
+gunicorn
+fastapi[all]
+fastapi-sessions
+Pillow
+pydantic
+requests
+python-dateutil
+openai
+groq
+python-jose[cryptography] # needed for JWT token
+pytest # needed for tests, httpx too?
+sse-starlette # for streaming
+asyncio # for streaming
+

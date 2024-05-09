@@ -1,0 +1,14 @@
+version: '3'
+services:
+  fastapibackend:
+    build: fastapi
+    mem_limit: 1024m
+    ports:
+      - "${PORT_PYTHON_BACKEND}:8000"
+    restart: on-failure
+    volumes:
+      - ./storage-fastapi-backend:/app
+      - ./storage-common:/storage
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      NODE_ENV: "local"
