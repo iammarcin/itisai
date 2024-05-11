@@ -1,9 +1,9 @@
 #https://tech.clevertap.com/streaming-openai-app-in-python/
 
 import requests
-# HOME
+## ES
 #url = "http://192.168.1.19:8000/chatstream"
-# PT
+## PT
 url = "http://192.168.23.66:8000/chatstream"
 response = requests.post(
     url,
