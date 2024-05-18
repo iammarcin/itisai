@@ -11,4 +11,5 @@ services:
       - ./storage-common:/storage
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
       NODE_ENV: "local"
