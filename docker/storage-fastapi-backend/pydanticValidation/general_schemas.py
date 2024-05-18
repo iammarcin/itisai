@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, validator
 
 class TestModel(BaseModel):
+    category: str = ""
     action: str = ""
     userInput: Dict = {}
     assetInput: Optional[List] = []

@@ -3,17 +3,10 @@ from pydanticValidation.general_schemas import MediaModel
 from openai import OpenAI
 import traceback
 
-#from helperUploadDownload import downloadContentFromURL
-
-
 import logconfig, os, re
 logger = logconfig.logger
 
-# chat stream helpers
-#from textGenerators.StreamHelpers import *
-#from textGenerators.ChatHelpers import *
-
-class OpenAITextGenerator:
+class GroqTextGenerator:
   def __init__(self, openai_api_key):
     self.openai_api_key = openai_api_key
     #self.options = self.get_options()

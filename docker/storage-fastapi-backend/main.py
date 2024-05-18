@@ -48,7 +48,7 @@ async def read_root():
     # return {'status_code': 200, 'success': True, "message": message }
     return JSONResponse(content={'status_code': 200, 'success': True, "message": message}, media_type="application/json")
 
-@app.post("/chat")
+@app.post("/chatold")
 async def chat(job_request: TestModel):
     logger.info("*"*20)
     logger.info(job_request.userInput)
@@ -57,14 +57,17 @@ async def chat(job_request: TestModel):
     #logger.info(abc)
     return JSONResponse(content={'status_code': 200, 'success': True, "message": abc}, media_type="application/json")
 
-@app.post("/chatstream")
+@app.post("/chat")
 async def chat(job_request: TestModel):
     logger.info("*"*20)
     logger.info(job_request.userInput)
-    mygen = get_generator(job_request.action, { "generator": job_request.userSettings["generator"]})
-    #abc = 
-    #logger.info(abc)
-    return StreamingResponse(mygen.streamnow(job_request.action, { "input": job_request.userInput['prompt']}, {}, userSettings=job_request.userSettings), media_type="text/event-stream")
+    logger.info(job_request)
+    my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+    if my_generator is None:
+        return JSONResponse(content={'status_code': 400, 'success': False, "message": "Invalid generator"}, media_type="application/json")
+    logger.info(my_generator)
+
+    return StreamingResponse(my_generator.process_job_request(job_request), media_type="text/event-stream")
 
 import time
 def generate_data():

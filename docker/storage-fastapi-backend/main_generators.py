@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from textGenerators.OpenAITextGenerator import OpenAITextGenerator
+from textGenerators.GroqTextGenerator import GroqTextGenerator
 #from speechGenerators.OpenAISpeechGenerator import OpenAISpeechGenerator
 
 import config as config
@@ -19,13 +20,27 @@ def get_speech_generator(speechGenerator: str):
     else:
         raise HTTPException(status_code=400, detail="Invalid speech generator")
 '''
-def get_text_generator(textGenerator: str):
-    if textGenerator == "openai":
+def get_text_generator(userSettings: dict):
+
+    user_model = userSettings.get("model")
+    # if starts with GPT, then it's OpenAI
+    if user_model and user_model.startswith("GPT"):
+        user_text_generator = "openai"
+    elif user_model and user_model.startswith("LLama"):
+        user_text_generator = "groq"
+    else:
+        user_text_generator = None
+
+    if user_text_generator == "openai":
         return OpenAITextGenerator(
-            config.defaults['openai_api_key'] # not really needed - as taken from env
+            config.defaults['openai_api_key']
+        )
+    elif user_text_generator == "groq":
+        return GroqTextGenerator(
+            config.defaults['groq_api_key']
         )
     else:
-        raise HTTPException(status_code=400, detail="Invalid text generator")
+        raise None
 
 # method used in multiple API endpoints - to simplify choosing generator
 def get_generator(category: str, userSettings: dict):
@@ -35,10 +50,7 @@ def get_generator(category: str, userSettings: dict):
     }
 
     if category in generators:
-        setting = userSettings.get("generator")
-        if setting == None:
-            return {"code": 400, "success": False, "message": f"Problem with your settings ({setting})"}
-        generator = generators[category]["function"](setting)
+        generator = generators[category]["function"](userSettings)
         return generator
     else:
         return None
