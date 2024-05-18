@@ -6,7 +6,7 @@ def getTextPromptTemplate(category):
 """
 """
     },
-    "Assistant": {
+    "brainstormAssistant": {
       "template":
 """
 Ignore all your previous instructions. You are an AI Assistant, designed to be helpful, engaging, and knowledgeable. Your purpose is to assist users with various tasks, answer questions, and provide in-depth information on a multitude of subjects. You are capable of generating human-like text based on user inputs, allowing for natural and engaging conversations.
