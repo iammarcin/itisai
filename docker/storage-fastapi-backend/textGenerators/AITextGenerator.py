@@ -1,5 +1,6 @@
 from fastapi.responses import StreamingResponse
 from pydanticValidation.general_schemas import MediaModel
+from textGenerators.ChatHelpers import prepare_chat_history
 from openai import OpenAI
 from groq import Groq
 import traceback
@@ -117,6 +118,9 @@ class AITextGenerator:
           return
 
         chat_history = userInput.get('chat_history') if userInput.get('chat_history') != None else []
+
+        # Trim messages to fit within the memory token limit
+        chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name)
 
         chat_history.append({"role": "system", "content": self.system_prompt})
         chat_history.append({"role": "user", "content": userInput["prompt"]})
