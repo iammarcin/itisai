@@ -125,8 +125,6 @@ class AITextGenerator:
         chat_history.append({"role": "system", "content": self.system_prompt})
         chat_history.append({"role": "user", "content": userInput["prompt"]})
 
-        logger.info(chat_history)
-
         response = self.llm.chat.completions.create(
             model=self.model_name,
             messages=chat_history,
