@@ -116,12 +116,16 @@ class AITextGenerator:
           yield f"data: Test response from Text generator"
           return
 
+        chat_history = userInput.get('chat_history') if userInput.get('chat_history') != None else []
+
+        chat_history.append({"role": "system", "content": self.system_prompt})
+        chat_history.append({"role": "user", "content": userInput["prompt"]})
+
+        logger.info(chat_history)
+
         response = self.llm.chat.completions.create(
             model=self.model_name,
-            messages=[
-              {"role": "system", "content": self.system_prompt},
-              {"role": "user", "content": userInput["prompt"]}
-            ],
+            messages=chat_history,
             temperature=self.temperature,
             stream=self.streaming,
         )
@@ -130,7 +134,7 @@ class AITextGenerator:
           for chunk in response:
               current_content = chunk.choices[0].delta.content
               if current_content is not None:
-                  logger.info(str(current_content))
+                  logger.debug(str(current_content))
 
                   yield f"data: {current_content}\n\n"  # Format the output as a proper SSE message
         else:
