@@ -2,14 +2,6 @@ from pydantic import BaseModel, constr
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, validator
 
-class TestModel(BaseModel):
-    category: str = ""
-    action: str = ""
-    userInput: Dict = {}
-    assetInput: Optional[List] = []
-    userSettings: Dict = {}
-    customerId: int = 1
-
 # 422 error code - if pydantic doesnt like the data
 # pydantic data validation for processFile
 # taking into account that most data is optional

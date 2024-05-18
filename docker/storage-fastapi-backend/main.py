@@ -9,7 +9,7 @@ import logconfig
 import json
 import sys
 #from main_chat_methods import router as chat_router
-from pydanticValidation.general_schemas import TestModel, MediaModel #, GenerateAssetOrSuggestion, ProcessWebUrl, ProcessYTSubmit
+from pydanticValidation.general_schemas import MediaModel #, GenerateAssetOrSuggestion, ProcessWebUrl, ProcessYTSubmit
 #from pydanticValidation.video_schemas import *
 from main_generators import startup_event_generators, get_generator
 import config as config
@@ -49,7 +49,7 @@ async def read_root():
     return JSONResponse(content={'status_code': 200, 'success': True, "message": message}, media_type="application/json")
 
 @app.post("/chatold")
-async def chat(job_request: TestModel):
+async def chat(job_request: MediaModel):
     logger.info("*"*20)
     logger.info(job_request.userInput)
     mygen = get_generator(job_request.action, { "generator": job_request.userSettings["generator"]})
@@ -58,14 +58,13 @@ async def chat(job_request: TestModel):
     return JSONResponse(content={'status_code': 200, 'success': True, "message": abc}, media_type="application/json")
 
 @app.post("/chat")
-async def chat(job_request: TestModel):
+async def chat(job_request: MediaModel):
     logger.info("*"*20)
     logger.info(job_request.userInput)
     logger.info(job_request)
     my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
     if my_generator is None:
-        return JSONResponse(content={'status_code': 400, 'success': False, "message": "Invalid generator"}, media_type="application/json")
-    logger.info(my_generator)
+        return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
 
     return StreamingResponse(my_generator.process_job_request(job_request), media_type="text/event-stream")
 
@@ -80,6 +79,6 @@ def generate_data():
     yield "data: END\n\n"
 
 @app.post("/chatstream2")
-async def stream(job_request: TestModel):
+async def stream(job_request: MediaModel):
     return StreamingResponse(generate_data(), media_type="text/event-stream")
 
