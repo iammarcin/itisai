@@ -110,11 +110,7 @@ class AITextGenerator:
       return { "success": False, "message": "Unknown action", "code": 400 }
 
   def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
-    logger.info("*"*100)
-    logger.info(userInput)
-    logger.info(userInput["prompt"])
-    logger.info(self.system_prompt)
-    logger.info(self.streaming)
+
     try:
         if self.use_test_data:
           yield f"data: Test response from Text generator"
