@@ -1,43 +1,64 @@
 from fastapi.responses import StreamingResponse
 from pydanticValidation.general_schemas import MediaModel
+from openai import OpenAI
 from groq import Groq
-from prompts.text import getTextPromptTemplate
 import traceback
+from prompts.text import getTextPromptTemplate
+#from helperUploadDownload import downloadContentFromURL
+
 
 import logconfig, os, re
 logger = logconfig.logger
 
-class GroqTextGenerator:
-  def __init__(self, openai_api_key):
-    self.openai_api_key = openai_api_key
-    #self.options = self.get_options()
-    self.model_name = "llama3-8b-8192"
-    #self.model_name = "gpt-4"
-    #self.model_name = "ada"
+# chat stream helpers
+#from textGenerators.StreamHelpers import *
+#from textGenerators.ChatHelpers import *
+
+class AITextGenerator:
+  def __init__(self):
+    self.model_name = "gpt-3.5-turbo"
     self.save_to_file = True
     self.save_to_file_iterator = 0
-    self.streamingOn = False
+    self.streaming = False
     self.memory_token_limit = 1000
     self.prompt_total_limit = 2000
     # text generation timeout
     self.request_timeout = 180
     self.temperature = 0
-    self.llm = Groq( api_key=os.environ.get("GROQ_API_KEY") )
-
+    self.system_prompt = "You are an expert!"
+    self.use_test_data = False
+    self.llm = OpenAI()
 
   def set_settings(self, user_settings={}):
     if user_settings:
         logger.debug("Setting user_settings: %s", user_settings)
         # Update model name
         if "model" in user_settings:
-            if user_settings["model"] == "LLama 3 70b":
+            if user_settings["model"] == "GPT-3.5":
+              self.model_name = "gpt-3.5-turbo"
+              self.llm = OpenAI()
+            elif user_settings["model"] == "GPT-4":
+              self.model_name = "gpt-4-turbo"
+              self.llm = OpenAI()
+            elif user_settings["model"] == "GPT-4o":
+              self.model_name = "gpt-4o"
+              self.llm = OpenAI()
+            elif user_settings["model"] == "LLama 3 70b":
               self.model_name = "llama3-70b-8192"
+              self.llm = Groq()
+            elif user_settings["model"] == "LLama 3 8b":
+              self.model_name = "llama3-8b-8192"
+              self.llm = Groq()
             elif user_settings["model"] == "Mixtral 8x7b":
               self.model_name = "mixtral-8x7b-32768"
+              self.llm = Groq()
             elif user_settings["model"] == "Gemma 7b":
               self.model_name = "gemma-7b-it"
+              self.llm = Groq()
             else:
-              self.model_name = "llama3-8b-8192"
+              # if not specified, use GPT-3.5
+              self.model_name = "gpt-3.5-turbo"
+              self.llm = OpenAI()
 
         # Set system prompt
         self.set_system_prompt(user_settings["ai_character"] if "ai_character" in user_settings else "Assistant")
@@ -59,7 +80,6 @@ class GroqTextGenerator:
   def set_system_prompt(self, ai_character: str):
 
     template = getTextPromptTemplate("brainstorm%s" % ai_character)['template']
-    logger.info("template: %s" % template)
     self.system_prompt = template
 
   def process_job_request(self, api_input: dict):
@@ -97,7 +117,7 @@ class GroqTextGenerator:
     logger.info(self.streaming)
     try:
         if self.use_test_data:
-          yield f"data: Test response from Groq"
+          yield f"data: Test response from Text generator"
           return
 
         response = self.llm.chat.completions.create(
@@ -121,8 +141,7 @@ class GroqTextGenerator:
           # if no streaming - just throw whole response
           yield f"data: {response.choices[0].message.content}"
     except Exception as e:
-        logger.error("Error in streaming from Groq:", str(e))
+        logger.error("Error in streaming from Text generator:", str(e))
         yield "data: Error in streaming data.\n\n"  # Error message in SSE format
-
 
 

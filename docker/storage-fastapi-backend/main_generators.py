@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from textGenerators.OpenAITextGenerator import OpenAITextGenerator
-from textGenerators.GroqTextGenerator import GroqTextGenerator
+from textGenerators.AITextGenerator import AITextGenerator
+
 #from speechGenerators.OpenAISpeechGenerator import OpenAISpeechGenerator
 
 import config as config
@@ -8,7 +8,7 @@ import config as config
 # Define the helper classes as dependencies (suggested by chatgpt)
 # it's better to use dependency injection to avoid tight coupling between the classes.
 async def startup_event_generators(app: FastAPI):
-    app.dependency_overrides[OpenAITextGenerator] = get_text_generator
+    app.dependency_overrides[AITextGenerator] = get_text_generator
     #app.dependency_overrides[OpenAISpeechGenerator] = get_speech_generator
 
 '''
@@ -20,27 +20,8 @@ def get_speech_generator(speechGenerator: str):
     else:
         raise HTTPException(status_code=400, detail="Invalid speech generator")
 '''
-def get_text_generator(userSettings: dict):
-
-    user_model = userSettings.get("model")
-    # if starts with GPT, then it's OpenAI
-    if user_model and user_model.startswith("GPT"):
-        user_text_generator = "openai"
-    elif user_model and user_model.startswith("LLama"):
-        user_text_generator = "groq"
-    else:
-        user_text_generator = None
-
-    if user_text_generator == "openai":
-        return OpenAITextGenerator(
-            config.defaults['openai_api_key']
-        )
-    elif user_text_generator == "groq":
-        return GroqTextGenerator(
-            config.defaults['groq_api_key']
-        )
-    else:
-        raise None
+def get_text_generator():
+    return AITextGenerator()
 
 # method used in multiple API endpoints - to simplify choosing generator
 def get_generator(category: str, userSettings: dict):
@@ -50,7 +31,7 @@ def get_generator(category: str, userSettings: dict):
     }
 
     if category in generators:
-        generator = generators[category]["function"](userSettings)
+        generator = generators[category]["function"]()
         return generator
     else:
         return None
