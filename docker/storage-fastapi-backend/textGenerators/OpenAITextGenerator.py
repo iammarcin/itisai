@@ -2,7 +2,7 @@ from fastapi.responses import StreamingResponse
 from pydanticValidation.general_schemas import MediaModel
 from openai import OpenAI
 import traceback
-
+from prompts.text import getTextPromptTemplate
 #from helperUploadDownload import downloadContentFromURL
 
 
@@ -62,12 +62,10 @@ class OpenAITextGenerator:
     return {'success': True, 'message': { "status": "completed" }, "code": 200 }
 
   def set_system_prompt(self, ai_character: str):
-    if ai_character == "Assistant":
-      self.system_prompt = "You are an expert!"
-    elif ai_character == "Elon":
-      self.system_prompt = "You are Elon Musk!"
-    else:
-      self.system_prompt = "You are an expert!"
+
+    template = getTextPromptTemplate("brainstorm%s" % ai_character)['template']
+    logger.info("template: %s" % template)
+    self.system_prompt = template
 
   def process_job_request(self, api_input: dict):
     logger.info("--"*20)
