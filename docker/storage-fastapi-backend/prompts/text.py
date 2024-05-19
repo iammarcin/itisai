@@ -372,6 +372,6 @@ As a bonus - I'm really good technical person, being able to build powerful AI t
   }
 
   if category not in template:
-    return template["Assistant"]
+    return template["brainstormAssistant"]
   else:
     return template[category]
