@@ -5,8 +5,11 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from media.media_methods import *
+
 from prompts.text import getTextPromptTemplate
 
+import traceback
 import logconfig
 import json
 import sys
@@ -46,18 +49,55 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.get("/monitorback")
 async def read_root():
-    message = f"Hello world! From FastAPI running on Uvicorn with Gunicorn. Using Python {version}"
+    message = f"Hello world! I work fine!"
     # return {'status_code': 200, 'success': True, "message": message }
     return JSONResponse(content={'status_code': 200, 'success': True, "message": message}, media_type="application/json")
 
-@app.post("/chatold")
-async def chat(job_request: MediaModel):
-    logger.info("*"*20)
-    logger.info(job_request.userInput)
-    mygen = get_generator(job_request.action, { "generator": job_request.userSettings["generator"]})
-    abc = await mygen.process_job_request(job_request.action, { "input": job_request.userInput['prompt']}, {}, userSettings=job_request.userSettings)
-    #logger.info(abc)
-    return JSONResponse(content={'status_code': 200, 'success': True, "message": abc}, media_type="application/json")
+@app.post("/generate")
+async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_token)):
+    logger.info("!"*100)
+    logger.info("generating data. returnTestData Mode: " + str(job_request.userSettings["general"].get("returnTestData", False)))
+    logger.info("Job request: " + str(job_request))
+
+    if job_request.category == "speech":
+        logger.info("*"*20)
+        logger.info(job_request.userInput)
+        logger.info(job_request)
+        my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+        if my_generator is None:
+            return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
+
+        return JSONResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="application/json")
+
+    if job_request.category == "text":
+        logger.info("*"*20)
+        logger.info(job_request.userInput)
+        logger.info(job_request)
+        my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+        if my_generator is None:
+            return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
+
+        result = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
+        return JSONResponse(content=result, media_type="application/json")
+
+    if job_request.category == "textOKKKKK" or job_request.category == "audio" or job_request.category == "image":# or job_request.category == "speech":
+        try:
+            generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+            if generator == None:
+                return {"code": 400, "success": False, "message": "No generator found"}
+
+            response_data = await media_methods(job_request, generator)
+
+            if response_data.status_code != 200:
+                return {"code": response_data.status_code, "success": False, "message": f"Error while generating media. {response_data.content}"}
+
+        except Exception as e:
+            logger.error(e)
+            traceback.print_exc()  # useful!
+            return {"code": 400, "success": False, "error": f"Error while generating media ", "message": str(e)}
+
+    else:
+        return {"code": 400, "success": False, "error": "Invalid category"}
 
 @app.post("/chat")
 async def chat(job_request: MediaModel):
@@ -68,7 +108,7 @@ async def chat(job_request: MediaModel):
     if my_generator is None:
         return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
 
-    return StreamingResponse(my_generator.process_job_request(job_request), media_type="text/event-stream")
+    return StreamingResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="text/event-stream")
 
 import time
 def generate_data():

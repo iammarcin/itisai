@@ -23,7 +23,7 @@ class AITextGenerator:
     self.streaming = False
     self.memory_token_limit = 1000
     self.prompt_total_limit = 2000
-    # text generation timeout
+    # text generation timeout - can it be set?!
     self.request_timeout = 180
     self.temperature = 0
     self.system_prompt = "You are an expert!"
@@ -32,6 +32,11 @@ class AITextGenerator:
 
   def set_settings(self, user_settings={}):
     if user_settings:
+        # if we want to return test data
+        self.use_test_data = user_settings["general"]["returnTestData"]
+
+        # and now process text settings
+        user_settings = user_settings.get("text", {})
         logger.debug("Setting user_settings: %s", user_settings)
         # Update model name
         if "model" in user_settings:
@@ -75,34 +80,17 @@ class AITextGenerator:
         if "streaming" in user_settings:
             self.streaming = user_settings["streaming"]
 
-  async def job_status(self, job_id):
-    return {'success': True, 'message': { "status": "completed" }, "code": 200 }
-
   def set_system_prompt(self, ai_character: str):
 
     template = getTextPromptTemplate("brainstorm%s" % ai_character)['template']
     self.system_prompt = template
 
-  def process_job_request(self, api_input: dict):
-    logger.info("--"*20)
-    logger.info(api_input)
-    # PROCESS API INPUT
-    action = api_input.action
-    userInput = api_input.userInput
-    # if set
-    assetInput = api_input.assetInput if "assetInput" in api_input else {}
-    customerId = api_input.customerId
-    userSettings = api_input.userSettings
-
+  async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     # OPTIONS
-    self.set_settings(userSettings[api_input.category])
-
-    # if we want to return test data
-    self.use_test_data = userSettings["general"]["returnTestData"]
+    self.set_settings(userSettings)
 
     if action == "generate" or action == "summary" or action == "rewrite":
-      return { "success": False, "message": "Not ready", "code": 400 }
-      #return await self.tools(action, userInput, assetInput, customerId, requestId, userSettings, returnTestData)
+      return await self.tools(action, userInput, assetInput, customerId)
     elif action == "chat":
       return self.chat(userInput, assetInput, customerId)
     elif action == "job_status":
@@ -110,11 +98,32 @@ class AITextGenerator:
     else:
       return { "success": False, "message": "Unknown action", "code": 400 }
 
+  async def tools(self, action: str, userInput: dict, assetInput: dict, customerId: int = None):
+    if self.use_test_data:
+      response = f"data: Test response from Text generator"
+      return response
+
+    chat_history = []
+    chat_history.append({"role": "user", "content": userInput["prompt"]})
+
+    response = self.llm.chat.completions.create(
+      model=self.model_name,
+      messages=chat_history,
+      temperature=self.temperature,
+      stream=False,
+    )
+
+    logger.info("Response from Text generator: %s", response)
+
+    response_content = response.choices[0].message.content
+    return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_content}}
+
+
   def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
 
     try:
         if self.use_test_data:
-          yield f"data: Test response from Text generator"
+          yield f"data: Test response from Text generator (streaming)"
           return
 
         chat_history = userInput.get('chat_history') if userInput.get('chat_history') != None else []
