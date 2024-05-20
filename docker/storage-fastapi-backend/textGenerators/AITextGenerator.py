@@ -1,19 +1,14 @@
 from fastapi.responses import StreamingResponse
+from fastapi import HTTPException
 from pydanticValidation.general_schemas import MediaModel
 from textGenerators.ChatHelpers import prepare_chat_history
 from openai import OpenAI
 from groq import Groq
 import traceback
 from prompts.text import getTextPromptTemplate
-#from helperUploadDownload import downloadContentFromURL
-
 
 import logconfig, os, re
 logger = logconfig.logger
-
-# chat stream helpers
-#from textGenerators.StreamHelpers import *
-#from textGenerators.ChatHelpers import *
 
 class AITextGenerator:
   def __init__(self):
@@ -96,7 +91,7 @@ class AITextGenerator:
     elif action == "job_status":
       return self.job_status(userInput)
     else:
-      return { "success": False, "message": "Unknown action", "code": 400 }
+      raise HTTPException(status_code=400, detail="Unknown action")
 
   async def tools(self, action: str, userInput: dict, assetInput: dict, customerId: int = None):
     if self.use_test_data:
@@ -145,7 +140,7 @@ class AITextGenerator:
           for chunk in response:
               current_content = chunk.choices[0].delta.content
               if current_content is not None:
-                  logger.debug(str(current_content))
+                  logger.info(str(current_content))
 
                   yield f"data: {current_content}\n\n"  # Format the output as a proper SSE message
         else:
@@ -154,5 +149,3 @@ class AITextGenerator:
     except Exception as e:
         logger.error("Error in streaming from Text generator:", str(e))
         yield "data: Error in streaming data.\n\n"  # Error message in SSE format
-
-

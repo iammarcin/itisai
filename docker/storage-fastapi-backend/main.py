@@ -101,17 +101,22 @@ async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_
 
 @app.post("/chat")
 async def chat(job_request: MediaModel):
-    logger.info("*"*20)
+    logger.info("*" * 20)
     logger.info(job_request.userInput)
     logger.info(job_request)
+
     my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
     if my_generator is None:
-        return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
+        return JSONResponse(content={'code': 400, 'success': False, 'message': 'Problem with getting proper generator. Verify your settings'}, status_code=400)
 
-    return StreamingResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="text/event-stream")
+    try:
+        stream = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
+        return StreamingResponse(stream, media_type="text/event-stream")
+    except Exception as e:
+        logger.error("Error processing job request: %s", str(e))
+        return JSONResponse(content={'code': 500, 'success': False, 'message': 'Internal server error'}, status_code=500)
 
 ##############################
-# CHAT OTHERS
 # this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
 # we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unforunately different code is needed
 @app.post("/chat_audio2text")
