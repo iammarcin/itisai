@@ -81,14 +81,14 @@ class OpenAISpeechRecognitionGenerator:
     if action == "transcribe" or action == "translate" or action == "chat":
       return await self.whisper(action,userInput, assetInput, customerId, userSettings)
     else:
-      return { "success": False, "message": "Unknown action", "code": 400 }
+      raise HTTPException(status_code=400, detail="Unknown action")
 
   async def whisper(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     logger.debug("OpenAISpeechGenerator whisper - start")
 
     if self.use_test_data:
-      return {'code': 200, 'success': True, 'message': { "status": "completed", "result": "Hello! (transcribed)" }}
-
+        return {'code': 200, 'success': True, 'message': {"status": "completed", "result": "Hello! (transcribed)"}}
+    
     try:
       # only for chat - we have to save blob to file (as its coming from recorder from Chat in react)
       if action == "chat":
@@ -116,23 +116,19 @@ class OpenAISpeechRecognitionGenerator:
           temperature=self.temperature,
           language=self.language)
 
-      try:
-        response = response.text
-      except:
-        response = response
+      response_text = response.text if hasattr(response, 'text') else response
 
-      logger.info("OpenAISpeechGenerator whisper - response: %s" % response)
-
+      logger.info("OpenAISpeechGenerator whisper - response: %s" % response_text)
       logger.debug("OpenAISpeechGenerator whisper - success")
 
-      return {'code': 200, 'success': True, 'message': { "status": "completed", "result": response }}
+      return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_text}}
 
     except HTTPException as e:
-      logger.error("Error while making speech API call to OpenAI - HTTPException ")
-      logger.error(e)
-      return {'code': e.status_code, 'success': False, 'message': e.detail }
+        logger.error("Error while making speech API call to OpenAI - HTTPException ")
+        logger.error(e)
+        raise
     except Exception as e:
-      logger.error("Error while making speech API call to OpenAI - exception ")
-      logger.error(e)
-      traceback.print_exc()
-      return {'code': 500, 'success': False, 'message': str(e) }
+        logger.error("Error while making speech API call to OpenAI - exception ")
+        logger.error(e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

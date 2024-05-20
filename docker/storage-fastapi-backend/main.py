@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends, Form, File, UploadFile
+from fastapi import FastAPI, Request, Depends, Form, File, UploadFile, HTTPException, status
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
@@ -124,16 +124,27 @@ async def chat_audio2text(
         audio: UploadFile = File(...),
         #token = Depends(auth_user_token)
     ):
-    logger.info("Processing recording!")
-    logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, audio: %s" % (action, category, userInput, userSettings, customerId, audio))
+    try:
+        logger.info("Processing recording!")
+        logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, audio: %s" % 
+                    (action, category, userInput, userSettings, customerId, audio.filename))
 
-    userInput = json.loads(userInput)
-    userInput['audio'] = audio
-    userSettings = json.loads(userSettings)
-    generator = get_generator(category, userSettings[category])
-    if generator == None:
-        return {"code": 400, "success": False, "message": "No speech generator found"}
+        userInput = json.loads(userInput)
+        userInput['audio'] = audio
+        userSettings = json.loads(userSettings)
+        generator = get_generator(category, userSettings[category])
 
-    response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
-    # this already consist of code, success, message
-    return response
+        if generator is None:
+            raise HTTPException(status_code=400, detail="No speech generator found")
+
+        response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
+        return JSONResponse(content=response, status_code=status.HTTP_200_OK)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
+    except Exception as e:
+        logger.error("Error while processing request")
+        logger.error(e)
+        traceback.print_exc()
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"code": 500, "success": False, "message": str(e)})
+
