@@ -4,7 +4,7 @@ import traceback
 import re, json, os
 logger = logconfig.logger
 from openai import OpenAI
-
+from helperUploadDownload import saveContentToFile
 #from helperUploadDownload import downloadFileFromURL, saveContentToFile, putFilesInStorage
 
 class OpenAISpeechRecognitionGenerator:
@@ -74,7 +74,6 @@ class OpenAISpeechRecognitionGenerator:
       return False
     return filename
 
-
   async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     # OPTIONS
     self.set_settings(userSettings)
@@ -86,15 +85,21 @@ class OpenAISpeechRecognitionGenerator:
 
   async def whisper(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     logger.debug("OpenAISpeechGenerator whisper - start")
-    # if its chat we dont want to save results to file (only incoming blob - before going to whisper)
 
     if self.use_test_data:
-      #yield f"data: Test response from Text generator"
-      return {'code': 200, 'success': True, 'message': { "status": "completed", "result_type": "ready_file", "result": "/storage/testApi/11/853/output_1.txt" }}
+      return {'code': 200, 'success': True, 'message': { "status": "completed", "result": "Hello! (transcribed)" }}
 
-    # TEMP TEST
-    audio_file = open("/storage/testApi/20230419_391sa2_output_1.mp3", "rb")
     try:
+      # only for chat - we have to save blob to file (as its coming from recorder from Chat in react)
+      if action == "chat":
+        upload_file = userInput.get('audio')
+        audio_file = await saveContentToFile(customerId, upload_file, 1)
+        file = audio_file['message']
+        audio_file = open(file, "rb")
+      else: # for rest we have file that we need to feed to whisper
+        # TEMP TEST
+        audio_file = open("/storage/testApi/20230419_391sa2_output_1.mp3", "rb")
+
       if action == "translate":
         response = self.client.audio.translations.create(
             model=self.model_name,
@@ -118,14 +123,9 @@ class OpenAISpeechRecognitionGenerator:
 
       logger.info("OpenAISpeechGenerator whisper - response: %s" % response)
 
-
       logger.debug("OpenAISpeechGenerator whisper - success")
 
-      if action == "chat":
-        #return {'code': 200, 'success': True, 'message': { "status": "chat", "result_type": "chat", "result": response }}
-        return {'code': 200, 'success': True, 'message': { "status": "completed", "result_type": "chat", "result": response }}
-
-      return {'code': 200, 'success': True, 'message': { "status": "completed", "result_type": "ready_file", "result": response }}
+      return {'code': 200, 'success': True, 'message': { "status": "completed", "result": response }}
 
     except HTTPException as e:
       logger.error("Error while making speech API call to OpenAI - HTTPException ")

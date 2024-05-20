@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, Form, File, UploadFile
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
@@ -110,17 +110,30 @@ async def chat(job_request: MediaModel):
 
     return StreamingResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="text/event-stream")
 
-import time
-def generate_data():
+##############################
+# CHAT OTHERS
+# this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
+# we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unforunately different code is needed
+@app.post("/chat_audio2text")
+async def chat_audio2text(
+        action: str = Form(...),
+        category: str = Form(...),
+        userInput: str = Form(...),
+        userSettings: str = Form(...),
+        customerId: int = Form(...),
+        audio: UploadFile = File(...),
+        #token = Depends(auth_user_token)
+    ):
+    logger.info("Processing recording!")
+    logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, audio: %s" % (action, category, userInput, userSettings, customerId, audio))
 
-    for i in range(1, 3):
-        yield f"data: {str(i)}\n\n"
-        logger.info("!!!")
-        logger.info(str(i))
-        time.sleep(0.5)  # Simulate delay
-    yield "data: END\n\n"
+    userInput = json.loads(userInput)
+    userInput['audio'] = audio
+    userSettings = json.loads(userSettings)
+    generator = get_generator(category, userSettings[category])
+    if generator == None:
+        return {"code": 400, "success": False, "message": "No speech generator found"}
 
-@app.post("/chatstream2")
-async def stream(job_request: MediaModel):
-    return StreamingResponse(generate_data(), media_type="text/event-stream")
-
+    response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
+    # this already consist of code, success, message
+    return response
