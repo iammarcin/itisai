@@ -84,9 +84,7 @@ async function sendToS3(req, res, next) {
 
     const s3UploadResult = await uploadImage(file, customerId);
 
-    //return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_text}}
     return res.status(200).json({ "success": true, "code": 200, "message": {"status": "completed", "result": s3UploadResult} });
-    
 
   } catch (error) {
     if (settings.VERBOSE_SUPERB == 1) {
