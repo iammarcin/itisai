@@ -27,36 +27,6 @@ app.use(function (req,res,next) {
     next();
 });
 
-app.use(function (req, res, next) {
-    // after changing ssl cert to wildcard - this is not needed anymore
-    /*
-    if (process.env.NODE_ENV == 'local') {
-
-        if (req.headers.origin === "http://192.168.100.26:3000") {
-            //res.header("Access-Control-Allow-Origin", req.headers.origin);
-        } else {
-            res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, x-access-token, Content-Type, Accept");
-            res.header("Access-Control-Allow-Credentials", "true");
-        }
-
-        // Handle preflight requests
-        if (req.method === "OPTIONS") {
-            //res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
-            return res.status(200).json({});
-        }
-    } else {
-        // headers set in apache2 - when set here too - it was failing
-        // Handle preflight requests
-        if (req.method === "OPTIONS") {
-            //res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
-            return res.status(200).json({});
-        }
-    } */
-
-    next();
-});
-
 /* AWS */
 app.post("/api/sendToS3",awsRoute.sendToS3);
 

@@ -126,16 +126,16 @@ async def chat_audio2text(
         userInput: str = Form(...),
         userSettings: str = Form(...),
         customerId: int = Form(...),
-        audio: UploadFile = File(...),
+        file: UploadFile = File(...),
         #token = Depends(auth_user_token)
     ):
     try:
         logger.info("Processing recording!")
         logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, audio: %s" % 
-                    (action, category, userInput, userSettings, customerId, audio.filename))
+                    (action, category, userInput, userSettings, customerId, file.filename))
 
         userInput = json.loads(userInput)
-        userInput['audio'] = audio
+        userInput['file'] = file
         userSettings = json.loads(userSettings)
         generator = get_generator(category, userSettings[category])
 

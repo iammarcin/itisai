@@ -76,14 +76,17 @@ async function sendToS3(req, res, next) {
         }
       });
 
-      const fullPath = `https://${settings.AWS_S3_BUCKET}.s3.amazonaws.com/${fullS3Path}`;
-      console.log(fullPath);
-      return { filename: fullPath };
+      // https://myaiapps3bucket.s3.eu-west-1.amazonaws.com/1/assets/chat/1/20240521_ywjoah_IMG-20240521-WA0000.jpg
+      const fullPath = `https://${settings.AWS_S3_BUCKET}.s3.${settings.AWS_REGION}.amazonaws.com/${fullS3Path}`;
+      logger.info(fullPath);
+      return fullPath;
     }
 
     const s3UploadResult = await uploadImage(file, customerId);
 
-    return res.status(200).json({ success: true, code: 200, message: s3UploadResult.filename });
+    //return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_text}}
+    return res.status(200).json({ "success": true, "code": 200, "message": {"status": "completed", "result": s3UploadResult} });
+    
 
   } catch (error) {
     if (settings.VERBOSE_SUPERB == 1) {

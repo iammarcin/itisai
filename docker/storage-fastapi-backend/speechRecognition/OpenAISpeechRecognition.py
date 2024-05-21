@@ -92,7 +92,7 @@ class OpenAISpeechRecognitionGenerator:
     try:
       # only for chat - we have to save blob to file (as its coming from recorder from Chat in react)
       if action == "chat":
-        upload_file = userInput.get('audio')
+        upload_file = userInput.get('file')
         audio_file = await saveContentToFile(customerId, upload_file, 1)
         file = audio_file['message']
         audio_file = open(file, "rb")
