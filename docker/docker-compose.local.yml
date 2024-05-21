@@ -1,4 +1,3 @@
-version: '3'
 services:
   fastapibackend:
     build: fastapi
@@ -12,4 +11,16 @@ services:
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
+      NODE_ENV: "local"
+  nodejsmyapi:
+    build: nodejs
+    volumes:
+      - ./storage-nodejs:/app
+      - ./storage-common:/storage
+    ports:
+      - "${PORT_NODEJS}:3000"
+    mem_limit: 512m
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       NODE_ENV: "local"

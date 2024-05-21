@@ -7,10 +7,6 @@ docker/storage-nodejs/node_modules/*
 docker/storage-nodejs/node_modules/
 docker/storage-nodejs/uploads
 docker/storage-common
-docker/storage-fastapi/OLD/
-docker/storage-react/src/pages/OLD-files
-python/azureVoiceTests/grief/
-python/azureVoiceTests/happy/
 *mp3
 *png
 *wav
