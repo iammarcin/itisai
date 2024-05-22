@@ -117,17 +117,22 @@ class AITextGenerator:
   def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
 
     try:
-        if self.use_test_data:
-          yield f"data: Test response from Text generator (streaming)"
-          return
-
-        chat_history = userInput.get('chat_history') if userInput.get('chat_history') != None else []
+        chat_history = userInput.get('chat_history') if userInput.get('chat_history') is not None else []
+        latest_user_message = userInput.get('prompt')
 
         # Trim messages to fit within the memory token limit
         chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name)
 
+        # Add system prompt and latest user message to chat history
         chat_history.append({"role": "system", "content": self.system_prompt})
-        chat_history.append({"role": "user", "content": userInput["prompt"]})
+        chat_history.append({"role": "user", "content": latest_user_message})
+
+        logger.info("."*20)
+        logger.info("Chat history: %s", chat_history)
+
+        if self.use_test_data:
+          yield f"data: Test response from Text generator (streaming)"
+          return
 
         response = self.llm.chat.completions.create(
             model=self.model_name,
