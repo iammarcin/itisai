@@ -157,7 +157,7 @@ class AITextGenerator:
               if current_content is not None:
                   logger.debug(str(current_content))
 
-                  yield f"data: {current_content}\n\n"  # Format the output as a proper SSE message
+                  yield f"{current_content}"  # Format the output as a proper SSE message
         else:
           # if no streaming - just throw whole response
           yield f"data: {response.choices[0].message.content}"
