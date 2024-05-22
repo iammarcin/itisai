@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const logger = require('./winston.js');
 const awsRoute = require('./awsRoute');
+const dbRoute = require('./dbRoute');
 const settings = require('./nodejs_settings.js');
 
 /**for frontend parser  */
@@ -30,6 +31,11 @@ app.use(function (req,res,next) {
 /* AWS */
 app.post("/api/sendToS3",awsRoute.sendToS3);
 
+/* DB */
+app.post("/api/createChatSession",dbRoute.createChatSession);
+app.post("/api/addMessageToChatSession",dbRoute.addMessageToChatSession);
+app.get("/api/getUsersChats", dbRoute.getUsersChats);
+app.post("/api/newMessageInChat", dbRoute.newMessageInChat);
 
 app.listen(3000, function () {
     logger.info('Environment: ' + process.env.NODE_ENV);
