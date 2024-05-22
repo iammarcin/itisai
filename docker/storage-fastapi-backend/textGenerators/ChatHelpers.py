@@ -45,6 +45,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name):
             if total_tokens + message_tokens > memory_token_limit:
                 remaining_tokens = memory_token_limit - total_tokens
 
+                # trick with percentage - described above
                 if message_tokens > 0:  # Avoid division by zero
                     trim_percentage = (message_tokens - remaining_tokens) / message_tokens
                     trim_index = int(len(message["content"]) * trim_percentage)
