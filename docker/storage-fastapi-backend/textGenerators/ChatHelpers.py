@@ -21,6 +21,11 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             # Calculate the number of tokens for the text part of the message
             for i, content_item in enumerate(message["content"]):
                 if content_item["type"] == "text":
+                    # sometimes message can empty and then it looks like :
+                    #{'role': 'user', 'content': [{'type': 'text', 'text': ''}]}
+                    # in this case we should skip it
+                    if content_item["text"] == "":
+                        continue
                     message_tokens = num_tokens_from_string(content_item["text"], model=model_name)
                     text_content_index = i
                     break
