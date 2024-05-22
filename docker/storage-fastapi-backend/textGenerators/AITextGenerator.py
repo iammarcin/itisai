@@ -16,6 +16,8 @@ class AITextGenerator:
     self.save_to_file = True
     self.save_to_file_iterator = 0
     self.streaming = False
+    # some model support images as input, some not
+    self.support_image_input = False
     self.memory_token_limit = 1000
     self.prompt_total_limit = 2000
     # text generation timeout - can it be set?!
@@ -37,28 +39,36 @@ class AITextGenerator:
         if "model" in user_settings:
             if user_settings["model"] == "GPT-3.5":
               self.model_name = "gpt-3.5-turbo"
+              self.support_image_input = False
               self.llm = OpenAI()
             elif user_settings["model"] == "GPT-4":
               self.model_name = "gpt-4-turbo"
+              self.support_image_input = True
               self.llm = OpenAI()
             elif user_settings["model"] == "GPT-4o":
               self.model_name = "gpt-4o"
+              self.support_image_input = True
               self.llm = OpenAI()
             elif user_settings["model"] == "LLama 3 70b":
               self.model_name = "llama3-70b-8192"
+              self.support_image_input = False
               self.llm = Groq()
             elif user_settings["model"] == "LLama 3 8b":
               self.model_name = "llama3-8b-8192"
+              self.support_image_input = False
               self.llm = Groq()
             elif user_settings["model"] == "Mixtral 8x7b":
               self.model_name = "mixtral-8x7b-32768"
+              self.support_image_input = False
               self.llm = Groq()
             elif user_settings["model"] == "Gemma 7b":
               self.model_name = "gemma-7b-it"
+              self.support_image_input = False
               self.llm = Groq()
             else:
               # if not specified, use GPT-3.5
               self.model_name = "gpt-3.5-turbo"
+              self.support_image_input = False
               self.llm = OpenAI()
 
         # Set system prompt
@@ -121,7 +131,7 @@ class AITextGenerator:
         latest_user_message = userInput.get('prompt')
 
         # Trim messages to fit within the memory token limit
-        chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name)
+        chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input)
 
         # Add system prompt and latest user message to chat history
         chat_history.append({"role": "system", "content": self.system_prompt})
