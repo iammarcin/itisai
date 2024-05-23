@@ -5,8 +5,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from media.media_methods import *
-
 from prompts.text import getTextPromptTemplate
 
 import traceback
@@ -80,22 +78,6 @@ async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_
 
         result = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
         return JSONResponse(content=result, media_type="application/json")
-
-    if job_request.category == "textOKKKKK" or job_request.category == "audio" or job_request.category == "image":# or job_request.category == "speech":
-        try:
-            generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
-            if generator == None:
-                return {"code": 400, "success": False, "message": "No generator found"}
-
-            response_data = await media_methods(job_request, generator)
-
-            if response_data.status_code != 200:
-                return {"code": response_data.status_code, "success": False, "message": f"Error while generating media. {response_data.content}"}
-
-        except Exception as e:
-            logger.error(e)
-            traceback.print_exc()  # useful!
-            return {"code": 400, "success": False, "error": f"Error while generating media ", "message": str(e)}
 
     else:
         return {"code": 400, "success": False, "error": "Invalid category"}
