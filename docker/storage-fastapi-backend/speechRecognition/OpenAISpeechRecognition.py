@@ -5,7 +5,6 @@ import re, json, os
 logger = logconfig.logger
 from openai import OpenAI
 from helperUploadDownload import saveContentToFile
-#from helperUploadDownload import downloadFileFromURL, saveContentToFile, putFilesInStorage
 
 class OpenAISpeechRecognitionGenerator:
   def __init__(self):
@@ -42,37 +41,6 @@ class OpenAISpeechRecognitionGenerator:
 
         if "optional_prompt" in user_settings:
             self.optional_prompt = user_settings["optional_prompt"]
-
-  # getter and setter for save_to_file variable
-  def get_save_to_file(self):
-    return self.save_to_file
-
-  def set_save_to_file(self, save_to_file):
-    self.save_to_file = save_to_file
-
-  # getter and setter for save_to_file_iterator variable
-  def get_save_to_file_iterator(self):
-    return self.save_to_file_iterator
-
-  def set_save_to_file_iterator(self, save_to_file_iterator):
-    self.save_to_file_iterator = save_to_file_iterator
-
-  def save2file(self, content, customerId, requestId):
-    self.save_to_file_iterator += 1
-    filename = f"output_{self.save_to_file_iterator}.txt"
-    # save to /storage/testApi/1
-    filename = f"/storage/testApi/{customerId}/{requestId}/{filename}"
-
-    try:
-      if not os.path.exists(os.path.dirname(filename)):
-        os.makedirs(os.path.dirname(filename))
-      with open(filename, "w") as f:
-        f.write(content)
-
-    except Exception as e:
-      logger.info("Error writing file : %s - exception: %s" % (filename, e))
-      return False
-    return filename
 
   async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     # OPTIONS

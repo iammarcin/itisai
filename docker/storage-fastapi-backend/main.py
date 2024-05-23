@@ -13,6 +13,7 @@ import traceback
 import logconfig
 import json
 import sys
+
 #from main_chat_methods import router as chat_router
 from pydanticValidation.general_schemas import MediaModel #, GenerateAssetOrSuggestion, ProcessWebUrl, ProcessYTSubmit
 #from pydanticValidation.video_schemas import *
@@ -152,3 +153,47 @@ async def chat_audio2text(
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"code": 500, "success": False, "message": str(e)})
 
+
+###########################################
+  ### SECTIONS FOR INTERNAL METHODS ####
+########### AWS ###########################
+
+# Endpoint to handle file upload and send to S3
+@app.post("/api/sendToS3")
+async def send_to_s3(
+        action: str = Form(...),
+        category: str = Form(...),
+        userInput: str = Form(...),
+        userSettings: str = Form(...),
+        customerId: int = Form(...),
+        file: UploadFile = File(...),
+        #token = Depends(auth_user_token)
+    ):
+    try:
+        logger.info("Processing file upload!")
+        logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, file: %s" % 
+                    (action, category, userInput, userSettings, customerId, file.filename))
+
+        userInput = json.loads(userInput)
+        userInput['file'] = file
+        userSettings = json.loads(userSettings)
+        generator = get_generator(category, "doesntmatter")
+
+        if generator is None:
+            raise HTTPException(status_code=400, detail="No speech generator found")
+
+        response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
+
+        response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+
+        logger.info("SADIUHDSIUAHDIUSAHIUDSAHUIADSHIUAS")
+        logger.info(response_content)
+        return JSONResponse(content=json.loads(response_content), status_code=status.HTTP_200_OK, media_type="application/json")
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
+    except Exception as e:
+        logger.error("Error while processing request")
+        logger.error(e)
+        traceback.print_exc()
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"code": 500, "success": False, "message": {"status": "fail", "result": str(e)}})
