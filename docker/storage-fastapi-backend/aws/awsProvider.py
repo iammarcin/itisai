@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import config
 from tempfile import NamedTemporaryFile
 
-import logconfig, os, re
+import logconfig
 import re, os, shutil, datetime
 
 import boto3

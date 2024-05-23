@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from textGenerators.AITextGenerator import AITextGenerator
 from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
 from aws.awsProvider import awsProvider
+from db.dbProvider import dbProvider
 
 import config as config
 
@@ -20,12 +21,16 @@ def get_text_generator():
 def get_s3_provider():
     return awsProvider()
 
+def get_db_provider():
+    return None
+
 # method used in multiple API endpoints - to simplify choosing generator
 def get_generator(category: str, userSettings: dict):
     generators = {
         "text": {"function": get_text_generator},
         "speech": {"function": get_speech_generator},
         "provider.s3": {"function": get_s3_provider},
+        "provider.db": {"function": get_db_provider},
     }
 
     if category in generators:
