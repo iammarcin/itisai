@@ -13,7 +13,10 @@ python-jose[cryptography] # needed for JWT token
 pytest # needed for tests, httpx too?
 sse-starlette # for streaming
 asyncio # for streaming
-# aws 
+# aws
 boto3
-
+# Db
+sqlalchemy
+databases
+mysql-connector-python
 
