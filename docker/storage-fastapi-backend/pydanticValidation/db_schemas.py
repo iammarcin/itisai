@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict
 from sqlalchemy import func, create_engine, DateTime, Column, Integer, String, Text, JSON, Boolean, TIMESTAMP, ForeignKey, CHAR, VARCHAR, text
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
@@ -34,7 +34,10 @@ class User(Base):
     email = Column(String(100))
     created_at = Column(DateTime, default=func.now())
 
-class ChatSessionCreate(BaseModel):
-    session_id: Optional[str] = None
-    user_id: int
-    session_name: Optional[str] = None
+class ChatSessionResponse(BaseModel):
+    session_id: str
+    user_id: Optional[int]
+    session_name: Optional[str]
+    chat_history: Optional[Dict]
+    created_at: Optional[str]
+    last_update: Optional[str]
