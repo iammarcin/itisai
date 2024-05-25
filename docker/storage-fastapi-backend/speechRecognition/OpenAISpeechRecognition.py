@@ -1,4 +1,6 @@
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
+
 import logconfig
 import traceback
 import re, json, os
@@ -89,7 +91,7 @@ class OpenAISpeechRecognitionGenerator:
       logger.info("OpenAISpeechGenerator whisper - response: %s" % response_text)
       logger.debug("OpenAISpeechGenerator whisper - success")
 
-      return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_text}}
+      return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response_text}}, status_code=200)
 
     except HTTPException as e:
         logger.error("Error while making speech API call to OpenAI - HTTPException ")

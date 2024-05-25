@@ -123,7 +123,10 @@ async def chat_audio2text(
             raise HTTPException(status_code=400, detail="No speech generator found")
 
         response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
-        return JSONResponse(content=response, status_code=status.HTTP_200_OK)
+        response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+
+        logger.info(response_content)
+        return JSONResponse(content=json.loads(response_content), status_code=status.HTTP_200_OK, media_type="application/json")
     except HTTPException as e:
         return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
     except Exception as e:
@@ -189,7 +192,12 @@ async def db_methods(job_request: MediaModel): #, token = Depends(auth_user_toke
         if my_generator is None:
             return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
 
-        return JSONResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="application/json")
+        response = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
+
+        response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+
+        logger.info(response_content)
+        return JSONResponse(content=json.loads(response_content), status_code=status.HTTP_200_OK, media_type="application/json")
 
     except HTTPException as e:
         return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
