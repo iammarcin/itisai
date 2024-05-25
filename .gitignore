@@ -7,6 +7,7 @@ docker/storage-nodejs/node_modules/*
 docker/storage-nodejs/node_modules/
 docker/storage-nodejs/uploads
 docker/storage-common
+docker/storage-fastapi-backend/itisai_brain
 *mp3
 *png
 *wav
