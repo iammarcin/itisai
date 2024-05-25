@@ -5,7 +5,7 @@ from textGenerators.ChatHelpers import prepare_chat_history
 from openai import OpenAI
 from groq import Groq
 import traceback
-from prompts.text import getTextPromptTemplate
+from itisai_brain.text import getTextPromptTemplate
 
 import logconfig, os, re
 logger = logconfig.logger
