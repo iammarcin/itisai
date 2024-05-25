@@ -22,7 +22,7 @@ def get_s3_provider():
     return awsProvider()
 
 def get_db_provider():
-    return None
+    return dbProvider()
 
 # method used in multiple API endpoints - to simplify choosing generator
 def get_generator(category: str, userSettings: dict):

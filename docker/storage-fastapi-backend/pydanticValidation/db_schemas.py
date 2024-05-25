@@ -1,9 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
-from sqlalchemy import func, create_engine, DateTime, Column, Integer, String, Text, Boolean, TIMESTAMP, ForeignKey, CHAR, VARCHAR, text
+from sqlalchemy import func, create_engine, DateTime, Column, Integer, String, Text, JSON, Boolean, TIMESTAMP, ForeignKey, CHAR, VARCHAR, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, Session
 import uuid
 
 Base = declarative_base()
@@ -15,8 +13,8 @@ class ChatMessage(Base):
     user_id = Column(Integer, ForeignKey('Users.user_id'), nullable=False)
     sender = Column(String(255), nullable=False)
     message = Column(Text)
-    image_url = Column(Text)
-    file_path = Column(Text)
+    image_locations = Column(JSON)
+    file_locations = Column(JSON)
     created_at = Column(DateTime, default=func.now())
 
 class ChatSession(Base):
@@ -24,6 +22,7 @@ class ChatSession(Base):
     session_id = Column(String(36), primary_key=True, index=True, default=uuid.uuid4)
     user_id = Column(Integer, ForeignKey('Users.user_id'))
     session_name = Column(String(100))
+    chat_history = Column(JSON)
     created_at = Column(DateTime, default=func.now())
     last_update = Column(DateTime, default=func.now(), onupdate=func.now())
 

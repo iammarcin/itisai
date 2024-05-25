@@ -19,4 +19,5 @@ boto3
 sqlalchemy
 databases
 mysql-connector-python
+aiomysql
 
