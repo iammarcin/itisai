@@ -14,6 +14,8 @@ defaults = dict(
     MYSQL_USER = "aitools",
     MYSQL_PASSWORD = os.environ.get('AWS_DB_PASS', None),
     ALLOWED_FILE_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'mp3', 'mpeg', 'mpga', 'webm', 'wav', 'm4a', 'txt', 'mp4'],
+    # error message - in config - because it is used in multiple places (for sending error, but also for NOT storing data in DB)
+    ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!",
 )
 
 if defaults['environment'] == 'production':

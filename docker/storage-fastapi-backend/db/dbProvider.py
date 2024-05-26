@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, MetaData, func, select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 import logconfig
+import config as config
 
 logger = logconfig.logger
 
@@ -60,7 +61,7 @@ class dbProvider:
       return await self.create_new_chat_session(userInput, customerId)
     elif action == "db_all_sessions_for_user":
       return await self.get_all_chat_sessions_for_user(customerId)
-    elif action == "db_user_session":
+    elif action == "db_get_user_session":
       return await self.get_chat_session(userInput['session_id'], customerId)
     elif action == "db_new_message":
       return await self.create_chat_message(userInput)
@@ -112,6 +113,8 @@ class dbProvider:
   async def create_chat_message(self, userInput: dict):
       async with AsyncSessionLocal() as session:
           async with session.begin():
+              if userInput['message'] == config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
+                 return JSONResponse(content={"success": False, "code": 400, "message": {"status": "completed", "result": 'Pb with text gen. not saving to DB'}}, status_code=200)
               try:
                 # first create new item in chat message
                 new_message = ChatMessage(
@@ -123,7 +126,6 @@ class dbProvider:
                     file_locations=userInput.get('file_locations')
                 )
                 session.add(new_message)
-                logger.info("!"*100)
 
                 # Update chat session's chat_history and last_update
                 chat_session = await session.get(ChatSession, userInput['session_id'])
@@ -137,7 +139,7 @@ class dbProvider:
                 result = await session.commit()
                 logger.info("Result of commit: %s", result)
 
-                return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": result}}, status_code=200)
+                return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "New message recorded"}}, status_code=200)
               except Exception as e:
                 logger.error("Error in create_chat_message: %s", str(e))
                 return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)

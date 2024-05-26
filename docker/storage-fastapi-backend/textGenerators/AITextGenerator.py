@@ -7,6 +7,7 @@ from groq import Groq
 import traceback
 from itisai_brain.text import getTextPromptTemplate
 
+import config as config
 import logconfig, os, re
 logger = logconfig.logger
 
@@ -163,4 +164,4 @@ class AITextGenerator:
           yield f"data: {response.choices[0].message.content}"
     except Exception as e:
         logger.error("Error in streaming from Text generator:", str(e))
-        yield "data: Error in streaming data.\n\n"  # Error message in SSE format
+        yield config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN'] # Error message in SSE format
