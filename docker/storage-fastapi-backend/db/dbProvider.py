@@ -112,54 +112,32 @@ class dbProvider:
   async def create_chat_message(self, userInput: dict):
       async with AsyncSessionLocal() as session:
           async with session.begin():
-              # first create new item in chat message
-              new_message = ChatMessage(
-                  session_id=userInput['session_id'],
-                  customer_id=userInput['customer_id'],
-                  sender=userInput['sender'],
-                  message=userInput['message'],
-                  image_locations=userInput.get('image_locations'),
-                  file_locations=userInput.get('file_locations')
-              )
-              session.add(new_message)
-              logger.info("!"*100)
+              try:
+                # first create new item in chat message
+                new_message = ChatMessage(
+                    session_id=userInput['session_id'],
+                    customer_id=userInput['customer_id'],
+                    sender=userInput['sender'],
+                    message=userInput['message'],
+                    image_locations=userInput.get('image_locations'),
+                    file_locations=userInput.get('file_locations')
+                )
+                session.add(new_message)
+                logger.info("!"*100)
 
-              # Update chat session's chat_history and last_update
-              chat_session = await session.get(ChatSession, userInput['session_id'])
-              if chat_session:
-                  # Use chat_history from userInput directly
-                  chat_session.chat_history = json.dumps(userInput['chat_history'])
-                  chat_session.last_update = func.now()
-              else:
-                  raise HTTPException(status_code=404, detail="Chat session not found")
+                # Update chat session's chat_history and last_update
+                chat_session = await session.get(ChatSession, userInput['session_id'])
+                if chat_session:
+                    # Use chat_history from userInput directly
+                    chat_session.chat_history = json.dumps(userInput['chat_history'])
+                    chat_session.last_update = func.now()
+                else:
+                    raise HTTPException(status_code=404, detail="Chat session not found")
 
-              '''
-              chat_session = await session.get(ChatSession, userInput['session_id'])
-              if chat_session:
-                  #chat_history = chat_session.chat_history or []
-                  #chat_history = json.loads(chat_session.chat_history) if chat_session.chat_history else []
-                  chat_history = json.loads(chat_session.chat_history) if chat_session.chat_history else []
-                  logger.info("chat_history: %s", chat_history)
-                  logger.info("Chat history from user input: %s", userInput['chat_history'])
-                  logger.info("JSON: %s", json.loads(userInput['chat_history']))
-                  #chat_history.append(userInput['message'])
-                  chat_item = {
-                        "message": userInput['message'],
-                        "isUserMessage": userInput['sender'] != "AI",  # Assuming 'sender' indicates if it's AI or user
-                        "imageLocations": userInput.get('image_locations', []),
-                        "fileNames": userInput.get('file_locations', []),
-                        "aiCharacterImageResId": None  # This can be set based on your logic
-                  }
-                  chat_history.append(chat_item)
-                  chat_session.chat_history = json.dumps(chat_history)
-                  logger.info("chat_history: %s", chat_history)
-                  #chat_session.chat_history = chat_history
-                  chat_session.last_update = func.now()
-                  logger.info("chat_session: %s", chat_session)
-              else:
-                  raise HTTPException(status_code=404, detail="Chat session not found")
-              '''
-              result = await session.commit()
-              logger.info("Result of commit: %s", result)
+                result = await session.commit()
+                logger.info("Result of commit: %s", result)
 
-              return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": result}}, status_code=200)
+                return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": result}}, status_code=200)
+              except Exception as e:
+                logger.error("Error in create_chat_message: %s", str(e))
+                return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
