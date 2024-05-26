@@ -62,11 +62,11 @@ class dbProvider:
     elif action == "db_all_sessions_for_user":
       return await self.get_all_chat_sessions_for_user(customerId)
     elif action == "db_get_user_session":
-      return await self.get_chat_session(userInput['session_id'], customerId)
+      return await self.get_chat_session(userInput, customerId)
     elif action == "db_new_message":
-      return await self.create_chat_message(userInput)
+      return await self.create_chat_message(userInput, customerId)
     elif action == "db_search_messages":
-      return await self.search_chat_messages_for_user(userInput['customer_id'], userInput['search_text'])
+      return await self.search_chat_messages_for_user(userInput, customerId)
     else:
         raise HTTPException(status_code=400, detail="Unknown action")
 
@@ -84,23 +84,24 @@ class dbProvider:
         logger.info("New session ID: %s", new_session.session_id)
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_session.session_id}}, status_code=200)
 
-  async def get_all_chat_sessions_for_user(self, customer_id: int):
+  async def get_all_chat_sessions_for_user(self, customerId: int):
     async with AsyncSessionLocal() as session:
       result = await session.execute(
-        select(ChatSession).where(ChatSession.customer_id == customer_id).order_by(ChatSession.last_update.desc())
+        select(ChatSession).where(ChatSession.customer_id == customerId).order_by(ChatSession.last_update.desc())
       )
 
       sessions = result.scalars().all()
       sessions_list = [self.to_dict(session) for session in sessions]
 
-      logger.info("All sessions for user %s: %s", customer_id, sessions_list)
+      logger.info("All sessions for user %s: %s", customerId, sessions_list)
       return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
 
-  async def get_chat_session(self, session_id: str, customer_id: int):
+  async def get_chat_session(self, userInput: dict, customerId: int):
+    session_id = userInput['session_id']
     async with AsyncSessionLocal() as session:
       async with session.begin():
         result = await session.execute(
-          select(ChatSession).where(ChatSession.session_id == session_id, ChatSession.customer_id == customer_id)
+          select(ChatSession).where(ChatSession.session_id == session_id, ChatSession.customer_id == customerId)
         )
         chat_session = result.scalars().first()
         chat_session_content = self.to_dict(chat_session)
@@ -109,7 +110,7 @@ class dbProvider:
           raise HTTPException(status_code=404, detail="Chat session not found")
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": chat_session_content}}, status_code=200)
 
-  async def create_chat_message(self, userInput: dict):
+  async def create_chat_message(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
         if userInput['message'] == config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
@@ -118,7 +119,7 @@ class dbProvider:
           # first create new item in chat message
           new_message = ChatMessage(
             session_id=userInput['session_id'],
-            customer_id=userInput['customer_id'],
+            customer_id=customerId,
             sender=userInput['sender'],
             message=userInput['message'],
             image_locations=userInput.get('image_locations'),
@@ -143,17 +144,18 @@ class dbProvider:
           logger.error("Error in create_chat_message: %s", str(e))
           return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
 
-  async def search_chat_messages_for_user(self, customer_id: int, search_text: str):
+  async def search_chat_messages_for_user(self, userInput: dict, customerId: int):
+    search_text = userInput['search_text']
     async with AsyncSessionLocal() as session:
       async with session.begin():
         stmt = select(ChatMessage).join(ChatSession).where(
-          ChatMessage.customer_id == customer_id,
+          ChatMessage.customer_id == customerId,
           ChatMessage.message.ilike(f"%{search_text}%")
         ).order_by(ChatMessage.created_at.desc())
         result = await session.execute(stmt)
         messages = result.scalars().all()
         sessions_list = [self.to_dict(message)['session_id'] for message in messages] 
 
-        logger.info("All sessions with search message for user %s: %s", customer_id, sessions_list)
+        logger.info("All sessions with search message for user %s: %s", customerId, sessions_list)
         #logger.info("All session ids for user %s: %s", customer_id, session_ids)
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
