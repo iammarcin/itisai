@@ -22,6 +22,7 @@ class ChatSession(Base):
     session_id = Column(String(36), primary_key=True, index=True, default=uuid.uuid4)
     customer_id = Column(Integer, ForeignKey('Users.customer_id'))
     session_name = Column(String(100))
+    ai_character_name = Column(String(50))
     chat_history = Column(JSON)
     created_at = Column(DateTime, default=func.now())
     last_update = Column(DateTime, default=func.now(), onupdate=func.now())
