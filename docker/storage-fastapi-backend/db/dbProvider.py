@@ -148,13 +148,13 @@ class dbProvider:
     search_text = userInput['search_text']
     async with AsyncSessionLocal() as session:
       async with session.begin():
-        stmt = select(ChatMessage).join(ChatSession).where(
+        stmt = select(ChatSession).join(ChatMessage).where(
           ChatMessage.customer_id == customerId,
           ChatMessage.message.ilike(f"%{search_text}%")
-        ).order_by(ChatMessage.created_at.desc())
+        ).order_by(ChatSession.last_update.desc())
         result = await session.execute(stmt)
         messages = result.scalars().all()
-        sessions_list = [self.to_dict(message)['session_id'] for message in messages] 
+        sessions_list = [self.to_dict(message) for message in messages] 
 
         logger.info("All sessions with search message for user %s: %s", customerId, sessions_list)
         #logger.info("All session ids for user %s: %s", customer_id, session_ids)
