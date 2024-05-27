@@ -114,7 +114,7 @@ class dbProvider:
     async with AsyncSessionLocal() as session:
       async with session.begin():
         if userInput['message'] == config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
-          return JSONResponse(content={"success": False, "code": 400, "message": {"status": "completed", "result": 'Pb with text gen. not saving to DB'}}, status_code=200)
+          return JSONResponse(content={"success": False, "code": 400, "message": {"status": "completed", "result": 'Pb with text gen. not saving to DB'}}, status_code=400)
         try:
           # first create new item in chat message
           new_message = ChatMessage(
@@ -126,6 +126,9 @@ class dbProvider:
             file_locations=userInput.get('file_locations')
           )
           session.add(new_message)
+
+          logger.info("New message: %s", new_message)
+          new_message_id = new_message.message_id
 
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
@@ -139,7 +142,7 @@ class dbProvider:
           result = await session.commit()
           logger.info("Result of commit: %s", result)
 
-          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "New message recorded"}}, status_code=200)
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id}}, status_code=200)
         except Exception as e:
           logger.error("Error in create_chat_message: %s", str(e))
           return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
