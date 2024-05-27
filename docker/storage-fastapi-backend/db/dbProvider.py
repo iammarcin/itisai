@@ -75,23 +75,30 @@ class dbProvider:
   async def create_new_chat_session(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
-        new_session = ChatSession(
-          session_id=str(uuid.uuid4()),
-          customer_id=customerId,
-          session_name=userInput.get('session_name', "New chat"),
-          chat_history=userInput.get('chat_history', [])
-        )
-        session.add(new_session)
-        await session.commit()
-        logger.info("New session ID: %s", new_session.session_id)
-        return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_session.session_id}}, status_code=200)
+        try:
+          session_name = userInput.get('session_name', "New chat")
+          ai_character_name = userInput.get('ai_character_name', "Assistant")
+          chat_history = userInput.get('chat_history', [])
+
+          new_session_id = await self._create_new_chat_session_internal(session, customerId, session_name, ai_character_name, chat_history)
+
+          await session.commit()
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_session_id}}, status_code=200)
+        except Exception as e:
+          logger.error("Error in create_new_chat_session: %s", str(e))
+          return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
 
   async def create_chat_message(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
-        if userInput['message'] == config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
-          return JSONResponse(content={"success": False, "code": 400, "message": {"status": "completed", "result": 'Pb with text gen. not saving to DB'}}, status_code=400)
         try:
+          # Check if session_id is set, if not create a new session
+          if not userInput.get('session_id'):
+            userInput['session_id'] = await self._create_new_chat_session_internal(session, customerId)
+
+          if userInput['message'] == config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
+            return JSONResponse(content={"success": False, "code": 400, "message": {"status": "completed", "result": 'Pb with text gen. not saving to DB'}}, status_code=400)
+
           # first create new item in chat message
           new_message = ChatMessage(
             session_id=userInput['session_id'],
@@ -109,7 +116,20 @@ class dbProvider:
           chat_session = await session.get(ChatSession, userInput['session_id'])
           if chat_session:
             # Use chat_history from userInput directly
-            chat_session.chat_history = json.dumps(userInput['chat_history'])
+            chat_history = userInput['chat_history']
+            chat_session.chat_history = json.dumps(chat_history)
+
+            # OK this probably could have been done better and from different place, but well...
+            # we check first few messages in history (so later, in case of long chats - we skip simply this step and its minimally quicker)
+            # and then we get oldest AI message and read AI character... so we can set it as default for this chat (so later it will be displayed in chat lists on top left menu)
+            if len(chat_history) < 4:
+              # Find the oldest AI message
+              for message in chat_history:
+                if not message.get('isUserMessage'):
+                  ai_character_name = message.get('aiCharacterName')
+                  if ai_character_name:
+                    chat_session.ai_character_name = ai_character_name
+                    break
             chat_session.last_update = func.now()
           else:
             raise HTTPException(status_code=404, detail="Chat session not found")
@@ -119,7 +139,7 @@ class dbProvider:
           new_message_id = new_message.message_id
           logger.info("New message ID: %s", new_message_id)
 
-          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id}}, status_code=200)
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id, "sessionId": userInput['session_id'] }}, status_code=200)
         except Exception as e:
           logger.error("Error in create_chat_message: %s", str(e))
           return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
@@ -142,7 +162,7 @@ class dbProvider:
         message.message = update_text
         message.image_locations = image_locations
         message.file_locations = file_locations
-        
+
         # Update chat session's chat_history and last_update
         chat_session = await session.get(ChatSession, userInput['session_id'])
         if chat_session:
@@ -196,3 +216,17 @@ class dbProvider:
         logger.info("All sessions with search message for user %s: %s", customerId, sessions_list)
         #logger.info("All session ids for user %s: %s", customer_id, session_ids)
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
+
+  # Helper function to create a new chat session (it's used in two diff functions)
+  async def _create_new_chat_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
+    new_session = ChatSession(
+      session_id=str(uuid.uuid4()),
+      customer_id=customerId,
+      session_name=session_name,
+      ai_character_name=ai_character_name,
+      chat_history=chat_history
+    )
+    session.add(new_session)
+    await session.flush()
+    logger.info("New session ID: %s", new_session.session_id)
+    return new_session.session_id
