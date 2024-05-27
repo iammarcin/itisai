@@ -104,7 +104,6 @@ class dbProvider:
           session.add(new_message)
 
           logger.info("New message: %s", new_message)
-          new_message_id = new_message.message_id
 
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
@@ -117,6 +116,8 @@ class dbProvider:
 
           result = await session.commit()
           logger.info("Result of commit: %s", result)
+          new_message_id = new_message.message_id
+          logger.info("New message ID: %s", new_message_id)
 
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id}}, status_code=200)
         except Exception as e:
@@ -126,6 +127,8 @@ class dbProvider:
   async def edit_chat_message_for_user(self, userInput: dict, customerId: int):
     message_id = userInput['message_id']
     update_text = userInput['update_text']
+    image_locations = userInput['image_locations']
+    file_locations = userInput['file_locations']
     async with AsyncSessionLocal() as session:
       async with session.begin():
         # Check if the message exists and belongs to the user
@@ -137,8 +140,20 @@ class dbProvider:
 
         # Update the message text
         message.message = update_text
+        message.image_locations = image_locations
+        message.file_locations = file_locations
+        
+        # Update chat session's chat_history and last_update
+        chat_session = await session.get(ChatSession, userInput['session_id'])
+        if chat_session:
+          # Use chat_history from userInput directly
+          chat_session.chat_history = json.dumps(userInput['chat_history'])
+          chat_session.last_update = func.now()
+        else:
+          raise HTTPException(status_code=404, detail="Chat session not found")
+
         await session.commit()
-        return message
+        return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Edit completed"}}, status_code=200)
 
   async def get_all_chat_sessions_for_user(self, customerId: int):
     async with AsyncSessionLocal() as session:
