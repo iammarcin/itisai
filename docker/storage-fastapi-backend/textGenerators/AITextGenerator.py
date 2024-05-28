@@ -138,11 +138,11 @@ class AITextGenerator:
         chat_history.append({"role": "system", "content": self.system_prompt})
         chat_history.append({"role": "user", "content": latest_user_message})
 
-        logger.info("."*20)
-        logger.info("Chat history: %s", chat_history)
+        logger.debug("."*20)
+        logger.debug("Chat history: %s", chat_history)
 
         if self.use_test_data:
-          yield f"data: Test response from Text generator (streaming)"
+          yield f"Test response from Text generator (streaming)"
           return
 
         response = self.llm.chat.completions.create(
@@ -161,7 +161,7 @@ class AITextGenerator:
                   yield f"{current_content}"  # Format the output as a proper SSE message
         else:
           # if no streaming - just throw whole response
-          yield f"data: {response.choices[0].message.content}"
+          yield f"{response.choices[0].message.content}"
     except Exception as e:
         logger.error("Error in streaming from Text generator:", str(e))
         yield config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN'] # Error message in SSE format

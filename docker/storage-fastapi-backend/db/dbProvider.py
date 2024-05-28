@@ -110,13 +110,21 @@ class dbProvider:
           )
           session.add(new_message)
 
-          logger.info("New message: %s", new_message)
+          # Commit to generate message_id
+          await session.flush()
+          new_message_id = new_message.message_id
+          logger.info("New message ID: %s", new_message_id)
 
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
           if chat_session:
             # Use chat_history from userInput directly
             chat_history = userInput['chat_history']
+
+            # Update the last message in chat history with the new message_id (very important because later we save chat history in chat sessions for future restore)
+            if chat_history and isinstance(chat_history[-1], dict):
+                chat_history[-1]['messageId'] = new_message_id
+
             chat_session.chat_history = json.dumps(chat_history)
 
             # OK this probably could have been done better and from different place, but well...
@@ -136,8 +144,6 @@ class dbProvider:
 
           result = await session.commit()
           logger.info("Result of commit: %s", result)
-          new_message_id = new_message.message_id
-          logger.info("New message ID: %s", new_message_id)
 
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id, "sessionId": userInput['session_id'] }}, status_code=200)
         except Exception as e:
