@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, date, time
 import json
 
-from sqlalchemy import create_engine, MetaData, func, select
+from sqlalchemy import create_engine, MetaData, func, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 import logconfig
@@ -178,7 +178,14 @@ class dbProvider:
   async def get_all_chat_sessions_for_user(self, customerId: int):
     async with AsyncSessionLocal() as session:
       result = await session.execute(
-        select(ChatSession).where(ChatSession.customer_id == customerId).order_by(ChatSession.last_update.desc())
+        select(ChatSession)
+        .where(
+          and_(
+              ChatSession.customer_id == customerId,
+              func.json_length(ChatSession.chat_history) > 0
+          )
+        )
+        .order_by(ChatSession.last_update.desc())
       )
 
       sessions = result.scalars().all()
