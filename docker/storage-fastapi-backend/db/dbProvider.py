@@ -181,8 +181,8 @@ class dbProvider:
         select(ChatSession)
         .where(
           and_(
-              ChatSession.customer_id == customerId,
-              func.json_length(ChatSession.chat_history) > 0
+            ChatSession.customer_id == customerId,
+            func.json_length(ChatSession.chat_history) > 0
           )
         )
         .order_by(ChatSession.last_update.desc())
