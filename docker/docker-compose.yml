@@ -14,7 +14,8 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_DB_PASS: ${AWS_DB_PASS}
-      NODE_ENV: "local"
+      MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
+      NODE_ENV: "prod"
   phpmyadmin:
     image: phpmyadmin
     restart: always
