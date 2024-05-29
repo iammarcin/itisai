@@ -62,9 +62,12 @@ async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_
         logger.info(job_request)
         my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
         if my_generator is None:
-            return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
-
-        return JSONResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="application/json")
+            return JSONResponse(content={'status_code': 400, 'success': False, "message": {"status": "fail", "result": "Problem with your getting proper generator. Verify your settings"}}, media_type="application/json")
+        try:
+            return JSONResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="application/json")
+        except Exception as e:
+            logger.error("Error processing job request: %s", str(e))
+            return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
 
     if job_request.category == "text":
         logger.info("*"*20)
@@ -72,13 +75,13 @@ async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_
         logger.info(job_request)
         my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
         if my_generator is None:
-            return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
+            return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": "Problem with your getting proper generator. Verify your settings"}}, status_code=500)
 
         result = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
         return JSONResponse(content=result, media_type="application/json")
 
     else:
-        return {"code": 400, "success": False, "error": "Invalid category"}
+        return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": "Invalid category"}}, status_code=500)
 
 @app.post("/chat")
 async def chat(job_request: MediaModel):
@@ -87,14 +90,14 @@ async def chat(job_request: MediaModel):
 
     my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
     if my_generator is None:
-        return JSONResponse(content={'code': 400, 'success': False, 'message': 'Problem with getting proper generator. Verify your settings'}, status_code=400)
+        return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": 'Problem with getting proper generator. Verify your settings'}}, status_code=400)
 
     try:
         stream = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
         return StreamingResponse(stream, media_type="text/event-stream")
     except Exception as e:
         logger.error("Error processing job request: %s", str(e))
-        return JSONResponse(content={'code': 500, 'success': False, 'message': 'Internal server error'}, status_code=500)
+        return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
 
 ##############################
 # this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
@@ -126,15 +129,15 @@ async def chat_audio2text(
         response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
 
         logger.info(response_content)
-        return JSONResponse(content=json.loads(response_content), status_code=status.HTTP_200_OK, media_type="application/json")
+        return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
     except HTTPException as e:
-        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
     except Exception as e:
         logger.error("Error while processing request")
         logger.error(e)
         traceback.print_exc()
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            content={"code": 500, "success": False, "message": str(e)})
+                            content={"code": 500, "success": False, "message": {"status": "fail", "result": str(e)}})
 
 
 ###########################################
@@ -170,9 +173,10 @@ async def aws_methods(
         response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
 
         logger.info(response_content)
-        return JSONResponse(content=json.loads(response_content), status_code=status.HTTP_200_OK, media_type="application/json")
+        return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
+
     except HTTPException as e:
-        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
     except Exception as e:
         logger.error("Error while processing request")
         logger.error(e)
@@ -195,13 +199,15 @@ async def db_methods(job_request: MediaModel): #, token = Depends(auth_user_toke
         response = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
 
         response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
-
+        logger.info("ALL OK")
         logger.info(response_content)
-        return JSONResponse(content=json.loads(response_content), status_code=status.HTTP_200_OK, media_type="application/json")
+        return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
 
     except HTTPException as e:
-        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": e.detail})
+        logger.info("ALL NOT 1 OK")
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
     except Exception as e:
+        logger.info("ALL NOT 2 OK")
         logger.error("Error while processing request")
         logger.error(e)
         traceback.print_exc()
