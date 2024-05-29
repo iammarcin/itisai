@@ -10,10 +10,9 @@ import logconfig
 import json
 import sys
 
-#from main_chat_methods import router as chat_router
-from pydanticValidation.general_schemas import MediaModel #, GenerateAssetOrSuggestion, ProcessWebUrl, ProcessYTSubmit
-#from pydanticValidation.video_schemas import *
+from pydanticValidation.general_schemas import MediaModel
 from main_generators import startup_event_generators, get_generator
+from main_auth_token import auth_user_token
 import config as config
 
 logger = logconfig.logger
@@ -51,7 +50,7 @@ async def read_root():
     return JSONResponse(content={'status_code': 200, 'success': True, "message": message}, media_type="application/json")
 
 @app.post("/generate")
-async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_token)):
+async def generate_asset(job_request: MediaModel, token = Depends(auth_user_token)):
     logger.info("!"*100)
     logger.info("generating data. returnTestData Mode: " + str(job_request.userSettings["general"].get("returnTestData", False)))
     logger.info("Job request: " + str(job_request))
@@ -84,7 +83,7 @@ async def generate_asset(job_request: MediaModel): #, token = Depends(auth_user_
         return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": "Invalid category"}}, status_code=500)
 
 @app.post("/chat")
-async def chat(job_request: MediaModel):
+async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
     logger.info("*" * 20)
     logger.info(job_request)
 
@@ -110,7 +109,7 @@ async def chat_audio2text(
         userSettings: str = Form(...),
         customerId: int = Form(...),
         file: UploadFile = File(...),
-        #token = Depends(auth_user_token)
+        token = Depends(auth_user_token)
     ):
     try:
         logger.info("Processing recording!")
@@ -153,7 +152,7 @@ async def aws_methods(
         userSettings: str = Form(...),
         customerId: int = Form(...),
         file: UploadFile = File(...),
-        #token = Depends(auth_user_token)
+        token = Depends(auth_user_token)
     ):
     try:
         logger.info("Processing file upload!")
@@ -187,7 +186,7 @@ async def aws_methods(
 
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
 @app.post("/api/db")
-async def db_methods(job_request: MediaModel): #, token = Depends(auth_user_token)):
+async def db_methods(job_request: MediaModel, token = Depends(auth_user_token)):
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
 

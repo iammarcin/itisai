@@ -17,6 +17,7 @@ defaults = dict(
     # error message - in config - because it is used in multiple places (for sending error, but also for NOT storing data in DB)
     # if we change here - in restore function in android - it's also set (in ChatHelper)
     ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!",
+    JWT_SECRET_KEY = os.environ.get('MY_AUTH_TOKEN', None),
 )
 
 if defaults['environment'] == 'production':
