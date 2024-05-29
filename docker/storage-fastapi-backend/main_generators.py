@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from textGenerators.AITextGenerator import AITextGenerator
 from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
+from tts.OpenAITTS import OpenAITTSGenerator
 from aws.awsProvider import awsProvider
 from db.dbProvider import dbProvider
 
@@ -14,6 +15,9 @@ async def startup_event_generators(app: FastAPI):
 
 def get_speech_generator():
     return OpenAISpeechRecognitionGenerator()
+
+def get_tts_generator():
+    return OpenAITTSGenerator()
 
 def get_text_generator():
     return AITextGenerator()
@@ -29,6 +33,7 @@ def get_generator(category: str, userSettings: dict):
     generators = {
         "text": {"function": get_text_generator},
         "speech": {"function": get_speech_generator},
+        "audio": {"function": get_tts_generator},
         "provider.s3": {"function": get_s3_provider},
         "provider.db": {"function": get_db_provider},
     }

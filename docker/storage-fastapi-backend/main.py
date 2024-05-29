@@ -98,6 +98,26 @@ async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
         logger.error("Error processing job request: %s", str(e))
         return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
 
+
+##############################
+# this will be used for TTS
+@app.post("/tts")
+async def tts(job_request: MediaModel, token = Depends(auth_user_token)):
+    logger.info("*" * 20)
+    logger.info(job_request)
+
+    my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+    if my_generator is None:
+        return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": 'Problem with getting proper generator. Verify your settings'}}, status_code=400)
+
+    try:
+        #stream = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
+        #return StreamingResponse(stream, media_type="text/event-stream")
+        return await my_generator.process_tts_request(job_request.userInput['text'], job_request.userSettings)
+    except Exception as e:
+        logger.error("Error processing job request: %s", str(e))
+        return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
+
 ##############################
 # this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
 # we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unforunately different code is needed
