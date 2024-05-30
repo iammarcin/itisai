@@ -23,6 +23,7 @@ class OpenAITTSGenerator:
         self.voice = "alloy"
         self.format = "opus"
         self.streaming = False
+        self.speed = 1
         self.client = OpenAI()
 
     def set_settings(self, user_settings={}):
@@ -41,6 +42,9 @@ class OpenAITTSGenerator:
 
             if "streaming" in user_settings:
                 self.streaming = user_settings["streaming"]
+
+            if "speed" in user_settings:
+                self.speed = user_settings["speed"]
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS

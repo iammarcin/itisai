@@ -99,9 +99,9 @@ class OpenAISpeechRecognitionGenerator:
     except HTTPException as e:
         logger.error("Error while making speech API call to OpenAI - HTTPException ")
         logger.error(e)
-        raise
+        raise HTTPException(status_code=500, detail="Error generating speech")
     except Exception as e:
         logger.error("Error while making speech API call to OpenAI - exception ")
         logger.error(e)
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Error generating speech")

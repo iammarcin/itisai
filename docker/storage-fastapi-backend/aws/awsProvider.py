@@ -120,10 +120,4 @@ class awsProvider:
 
         except Exception as e:
             logger.error("Error in send_to_s3: %s", str(e))
-            return JSONResponse(
-                content={
-                    "False": True,
-                    "code": 400,
-                    "message": {"status": "fail", "result": e.detail},
-                }
-            )
+            raise HTTPException(status_code=500, detail="Error in upload file")
