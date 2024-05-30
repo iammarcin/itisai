@@ -65,6 +65,7 @@ class OpenAITTSGenerator:
             response = self.client.audio.speech.create(
                 model=self.model_name,
                 voice=self.voice,
+                speed=self.speed,
                 input=text,
             )
 
@@ -98,6 +99,7 @@ class OpenAITTSGenerator:
             response = self.llm.audio.speech.create(
                 model=self.model_name,
                 voice=self.voice,
+                format=self.format,
                 input=text,
             )
 
