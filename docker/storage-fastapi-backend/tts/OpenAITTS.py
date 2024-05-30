@@ -10,71 +10,81 @@ from tempfile import NamedTemporaryFile
 
 logger = logconfig.logger
 
+# little helper class - s3 upload in aws provider was already set and used by other functions
+# and it needs file and filename to process the file
+class FileWithFilename:
+    def __init__(self, file, filename):
+        self.file = file
+        self.filename = filename
+
 class OpenAITTSGenerator:
     def __init__(self):
         self.model_name = "tts-1"
         self.voice = "alloy"
         self.format = "opus"
         self.streaming = False
-        self.llm = OpenAI()
+        self.client = OpenAI()
 
     def set_settings(self, user_settings={}):
         if user_settings:
-            self.voice = user_settings.get("voice", "alloy")
-            self.format = user_settings.get("format", "opus")
-            self.streaming = user_settings.get("streaming", False)
+            # and now process aws settings (doubt it will be used)
+            # this is not in use - just for maybe future
+            user_settings = user_settings.get("tts", {})
+            if "model" in user_settings:
+                self.model_name = user_settings["model"]
 
-    async def process_tts_request(self, text: str, userSettings: dict = {}):
+            if "voice" in user_settings:
+                self.voice = user_settings["voice"]
+
+            if "format" in user_settings:
+                self.format = user_settings["format"]
+
+            if "streaming" in user_settings:
+                self.streaming = user_settings["streaming"]
+
+    async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
+        # OPTIONS
         self.set_settings(userSettings)
-
-        if self.streaming:
-            return self.stream_tts(text)
-        else:
-            return await self.generate_tts(text)
-
-    async def generate_tts(self, text: str):
         try:
-            response = self.llm.audio.speech.create(
+            if action == "tts_no_stream":
+                return await self.generate_tts(userInput, customerId)
+            else:
+                raise HTTPException(status_code=400, detail="Unknown action")
+        except Exception as e:
+            logger.error("Error processing TTS request: %s", str(e))
+            raise HTTPException(status_code=500, detail="Error processing TTS request")
+
+    async def generate_tts(self, userInput: dict, customerId: int = 1):
+        try:
+            text = userInput["text"]
+
+            response = self.client.audio.speech.create(
                 model=self.model_name,
                 voice=self.voice,
                 input=text,
             )
 
-            class FileWithFilename:
-                def __init__(self, file, filename):
-                    self.file = file
-                    self.filename = filename
-
-            file_path = Path(__file__).parent / "output.opus"
-            response.stream_to_file(file_path)
-            print("2")
-            print(file_path)
-            print(type(file_path))
-            '''
-            # Open the file and set the filename attribute for the BufferedReader object
-            with NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:
                 tmp_file_path = tmp_file.name
-                for chunk in response.with_streaming_response():
-                    tmp_file.write(chunk)
+                response.stream_to_file(tmp_file_path)
 
-            with open(tmp_file_path, "wb") as f:
-                for chunk in response.with_streaming_response():
-                    f.write(chunk)
-            '''
-            with open(file_path, "rb") as tmp_file:
-                file_with_filename = FileWithFilename(tmp_file, file_path.name)
+            with open(tmp_file_path, "rb") as tmp_file:
+                file_with_filename = FileWithFilename(tmp_file, Path(tmp_file_path).name)
+                logger.info("Uploading TTS to S3")
+                logger.info(file_with_filename)
                 s3_response = await awsProvider.s3_upload(
                     awsProvider,
                     action="s3_upload",
                     userInput={"file": file_with_filename},
-                    assetInput={},  # Add any required assetInput here
-                    customerId=1  # Replace with appropriate customerId
+                    assetInput={},
+                    customerId=customerId
                 )
 
             s3_response_content = json.loads(s3_response.body.decode("utf-8"))
+            logger.info("s3_response_content %s", s3_response_content)
             s3_url = s3_response_content["message"]["result"]
 
-            return JSONResponse(content={"message": "TTS generated successfully", "audio_url": s3_url}, status_code=200)
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": s3_url}}, status_code=200)
         except Exception as e:
             logger.error("Error generating TTS: %s", str(e))
             raise HTTPException(status_code=500, detail="Error generating TTS")

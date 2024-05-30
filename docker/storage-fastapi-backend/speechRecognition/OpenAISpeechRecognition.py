@@ -47,11 +47,14 @@ class OpenAISpeechRecognitionGenerator:
   async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     # OPTIONS
     self.set_settings(userSettings)
-
-    if action == "transcribe" or action == "translate" or action == "chat":
-      return await self.whisper(action,userInput, assetInput, customerId, userSettings)
-    else:
-      raise HTTPException(status_code=400, detail="Unknown action")
+    try:
+      if action == "transcribe" or action == "translate" or action == "chat":
+        return await self.whisper(action,userInput, assetInput, customerId, userSettings)
+      else:
+        raise HTTPException(status_code=400, detail="Unknown action")
+    except Exception as e:
+      logger.error("Error processing speech request: %s", str(e))
+      raise HTTPException(status_code=500, detail="Error processing speech request")
 
   async def whisper(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
     logger.debug("OpenAISpeechGenerator whisper - start")

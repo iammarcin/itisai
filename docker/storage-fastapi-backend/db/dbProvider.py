@@ -35,7 +35,7 @@ class dbProvider:
         user_settings = user_settings.get("aws", {})
         # Update model name
         if "aws_region" in user_settings:
-            user_settings["aws_region"] = user_settings["aws_region"]
+            self.aws_region = user_settings["aws_region"]
 
   # this is needed to serialize the data from the database
   # alchemy has its own structure and if we just put the object into JSON it will not work
@@ -57,20 +57,24 @@ class dbProvider:
     # OPTIONS
     self.set_settings(userSettings)
 
-    if action == "db_new_session":
-      return await self.create_new_chat_session(userInput, customerId)
-    elif action == "db_new_message":
-      return await self.create_chat_message(userInput, customerId)
-    elif action == "db_edit_message":
-      return await self.edit_chat_message_for_user(userInput, customerId)
-    elif action == "db_all_sessions_for_user":
-      return await self.get_all_chat_sessions_for_user(customerId)
-    elif action == "db_get_user_session":
-      return await self.get_chat_session(userInput, customerId)
-    elif action == "db_search_messages":
-      return await self.search_chat_messages_for_user(userInput, customerId)
-    else:
-      raise HTTPException(status_code=400, detail="Unknown action")
+    try:
+      if action == "db_new_session":
+        return await self.create_new_chat_session(userInput, customerId)
+      elif action == "db_new_message":
+        return await self.create_chat_message(userInput, customerId)
+      elif action == "db_edit_message":
+        return await self.edit_chat_message_for_user(userInput, customerId)
+      elif action == "db_all_sessions_for_user":
+        return await self.get_all_chat_sessions_for_user(customerId)
+      elif action == "db_get_user_session":
+        return await self.get_chat_session(userInput, customerId)
+      elif action == "db_search_messages":
+        return await self.search_chat_messages_for_user(userInput, customerId)
+      else:
+        raise HTTPException(status_code=400, detail="Unknown action")
+    except Exception as e:
+      logger.error("Error processing DB request: %s", str(e))
+      raise HTTPException(status_code=500, detail="Error processing DB request")
 
   async def create_new_chat_session(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:

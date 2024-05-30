@@ -33,7 +33,7 @@ def get_generator(category: str, userSettings: dict):
     generators = {
         "text": {"function": get_text_generator},
         "speech": {"function": get_speech_generator},
-        "audio": {"function": get_tts_generator},
+        "tts": {"function": get_tts_generator},
         "provider.s3": {"function": get_s3_provider},
         "provider.db": {"function": get_db_provider},
     }

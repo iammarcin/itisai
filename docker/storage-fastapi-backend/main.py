@@ -49,39 +49,39 @@ async def read_root():
     # return {'status_code': 200, 'success': True, "message": message }
     return JSONResponse(content={'status_code': 200, 'success': True, "message": message}, media_type="application/json")
 
+##############################
+# GENERAL generate functions (that do not need file upload or streaming)
 @app.post("/generate")
 async def generate_asset(job_request: MediaModel, token = Depends(auth_user_token)):
     logger.info("!"*100)
-    logger.info("generating data. returnTestData Mode: " + str(job_request.userSettings["general"].get("returnTestData", False)))
     logger.info("Job request: " + str(job_request))
+    try:
+        if job_request.category == "tts":
+            my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+            if my_generator is None:
+                return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
 
-    if job_request.category == "speech":
-        logger.info("*"*20)
-        logger.info(job_request.userInput)
-        logger.info(job_request)
-        my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
-        if my_generator is None:
-            return JSONResponse(content={'status_code': 400, 'success': False, "message": {"status": "fail", "result": "Problem with your getting proper generator. Verify your settings"}}, media_type="application/json")
-        try:
-            return JSONResponse(await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings), media_type="application/json")
-        except Exception as e:
-            logger.error("Error processing job request: %s", str(e))
-            return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
+            response = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
 
-    if job_request.category == "text":
-        logger.info("*"*20)
-        logger.info(job_request.userInput)
-        logger.info(job_request)
-        my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
-        if my_generator is None:
-            return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": "Problem with your getting proper generator. Verify your settings"}}, status_code=500)
+            response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+            logger.info("ALL OK")
+            logger.info(response_content)
+            return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
+        else:
+            return JSONResponse(content={'status_code': 400, 'success': False, "message": "Unknown category"}, media_type="application/json")
+    except HTTPException as e:
+        logger.info("ERROR: %s" % e)
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
+    except Exception as e:
+        logger.error("Error while processing request")
+        logger.error(e)
+        traceback.print_exc()
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"code": 500, "success": False, "message": {"status": "fail", "result": str(e)}})
 
-        result = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
-        return JSONResponse(content=result, media_type="application/json")
 
-    else:
-        return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": "Invalid category"}}, status_code=500)
-
+##############################
+# CHAT STREAMING (although used also for non streaming because it is possible)
 @app.post("/chat")
 async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
     logger.info("*" * 20)
@@ -98,29 +98,9 @@ async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
         logger.error("Error processing job request: %s", str(e))
         return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
 
-
-##############################
-# this will be used for TTS
-@app.post("/tts")
-async def tts(job_request: MediaModel, token = Depends(auth_user_token)):
-    logger.info("*" * 20)
-    logger.info(job_request)
-
-    my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
-    if my_generator is None:
-        return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": 'Problem with getting proper generator. Verify your settings'}}, status_code=400)
-
-    try:
-        #stream = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
-        #return StreamingResponse(stream, media_type="text/event-stream")
-        return await my_generator.process_tts_request(job_request.userInput['text'], job_request.userSettings)
-    except Exception as e:
-        logger.error("Error processing job request: %s", str(e))
-        return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
-
 ##############################
 # this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
-# we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unforunately different code is needed
+# we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unfortunately different code is needed
 @app.post("/chat_audio2text")
 async def chat_audio2text(
         action: str = Form(...),

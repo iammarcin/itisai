@@ -47,11 +47,14 @@ class awsProvider:
     ):
         # OPTIONS
         self.set_settings(userSettings)
-
-        if action == "s3_upload":
-            return await self.s3_upload(action, userInput, assetInput, customerId)
-        else:
-            raise HTTPException(status_code=400, detail="Unknown action")
+        try:
+            if action == "s3_upload":
+                return await self.s3_upload(action, userInput, assetInput, customerId)
+            else:
+                raise HTTPException(status_code=400, detail="Unknown action")
+        except Exception as e:
+            logger.error("Error processing AWS request: %s", str(e))
+            raise HTTPException(status_code=500, detail="Error processing AWS request")
 
     async def s3_upload(
         self, action: str, userInput: dict, assetInput: dict, customerId: int = None

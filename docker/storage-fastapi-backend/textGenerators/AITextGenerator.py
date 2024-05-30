@@ -95,14 +95,18 @@ class AITextGenerator:
     # OPTIONS
     self.set_settings(userSettings)
 
-    if action == "generate" or action == "summary" or action == "rewrite":
-      return await self.tools(action, userInput, assetInput, customerId)
-    elif action == "chat":
-      return self.chat(userInput, assetInput, customerId)
-    elif action == "job_status":
-      return self.job_status(userInput)
-    else:
-      raise HTTPException(status_code=400, detail="Unknown action")
+    try:
+      if action == "generate" or action == "summary" or action == "rewrite":
+        return await self.tools(action, userInput, assetInput, customerId)
+      elif action == "chat":
+        return self.chat(userInput, assetInput, customerId)
+      elif action == "job_status":
+        return self.job_status(userInput)
+      else:
+        raise HTTPException(status_code=400, detail="Unknown action")
+    except Exception as e:
+      logger.error("Error processing Text request: %s", str(e))
+      raise HTTPException(status_code=500, detail="Error processing Text request")
 
   async def tools(self, action: str, userInput: dict, assetInput: dict, customerId: int = None):
     if self.use_test_data:
