@@ -205,8 +205,8 @@ async def db_methods(job_request: MediaModel, token = Depends(auth_user_token)):
     except HTTPException as e:
         logger.error("ALL NOT 1 OK")
         logger.error(e)
-        #return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
+        #raise HTTPException(status_code=e.status_code, detail=e.detail)
     
     except Exception as e:
         logger.info("ALL NOT 2 OK")

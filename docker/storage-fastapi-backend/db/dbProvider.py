@@ -116,8 +116,8 @@ class dbProvider:
           session.add(new_message)
 
           # Commit to generate message_id
-          #await session.flush()
-          await session.commit()
+          await session.flush()
+
           new_message_id = new_message.message_id
           logger.info("New message ID: %s", new_message_id)
 
