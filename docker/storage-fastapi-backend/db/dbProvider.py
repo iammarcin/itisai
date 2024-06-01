@@ -75,7 +75,7 @@ class dbProvider:
       elif action == "db_edit_message":
         return await self.edit_chat_message_for_user(userInput, customerId)
       elif action == "db_all_sessions_for_user":
-        return await self.get_all_chat_sessions_for_user(customerId)
+        return await self.get_all_chat_sessions_for_user(userInput, customerId)
       elif action == "db_get_user_session":
         return await self.get_chat_session(userInput, customerId)
       elif action == "db_search_messages":
@@ -253,7 +253,9 @@ class dbProvider:
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! edit_chat_message_for_user"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! edit_chat_message_for_user")
 
-  async def get_all_chat_sessions_for_user(self, customerId: int):
+  async def get_all_chat_sessions_for_user(self, userInput: dict, customerId: int):
+    offset = userInput.get('offset', 0)
+    limit = userInput.get('limit', 30)
     async with AsyncSessionLocal() as session:
       try:
         result = await session.execute(
@@ -265,6 +267,8 @@ class dbProvider:
             )
           )
           .order_by(ChatSession.last_update.desc())
+          .offset(offset)
+          .limit(limit)
         )
 
         sessions = result.scalars().all()
