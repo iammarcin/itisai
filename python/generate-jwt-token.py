@@ -15,6 +15,7 @@ JWT_SECRET_KEY = os.environ.get('MY_AUTH_TOKEN', None)
 db_result = {
     'id': 1,
     'accountName': 'myUser',
+    'email': 'mn@gmail.com',
     'password': bcrypt.hashpw('testpassword'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
     'lang': 'en'
 }
