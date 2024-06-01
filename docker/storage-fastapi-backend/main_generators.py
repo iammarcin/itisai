@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from textGenerators.AITextGenerator import AITextGenerator
 from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
+from imageGenerators.OpenAIImageGenerator import OpenAIImageGenerator
 from tts.OpenAITTS import OpenAITTSGenerator
 from aws.awsProvider import awsProvider
 from db.dbProvider import dbProvider
@@ -22,6 +23,9 @@ def get_tts_generator():
 def get_text_generator():
     return AITextGenerator()
 
+def get_image_generator():
+    return OpenAIImageGenerator()
+
 def get_s3_provider():
     return awsProvider()
 
@@ -32,6 +36,7 @@ def get_db_provider():
 def get_generator(category: str, userSettings: dict):
     generators = {
         "text": {"function": get_text_generator},
+        "image": {"function": get_image_generator},
         "speech": {"function": get_speech_generator},
         "tts": {"function": get_tts_generator},
         "provider.s3": {"function": get_s3_provider},

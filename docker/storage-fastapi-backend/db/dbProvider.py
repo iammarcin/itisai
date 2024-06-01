@@ -6,6 +6,8 @@ import uuid
 from datetime import datetime, date, time
 import json
 import traceback
+from tenacity import retry, stop_after_attempt, wait_fixed
+
 
 from sqlalchemy import create_engine, MetaData, func, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -18,7 +20,14 @@ logger = logconfig.logger
 DATABASE_URL = f"mysql+aiomysql://{config.defaults['MYSQL_USER']}:{config.defaults['MYSQL_PASSWORD']}@{config.defaults['MYSQL_HOST']}/{config.defaults['MYSQL_DB']}"
 
 # Create async engine and session
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True,
+    pool_recycle=1800,  # Recycle connections after 1800 seconds (30 minutes)
+    pool_pre_ping=True  # Enable pre-ping to check connections before using them
+)
+
+
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     expire_on_commit=False,
@@ -77,6 +86,8 @@ class dbProvider:
       logger.error("Error processing DB request: %s", str(e))
       raise HTTPException(status_code=500, detail="Error processing DB request")
 
+  # TEST as sometimes db_new_session fails
+  #@retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
   async def create_new_chat_session(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():

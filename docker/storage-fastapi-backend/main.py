@@ -56,7 +56,7 @@ async def generate_asset(job_request: MediaModel, token = Depends(auth_user_toke
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
     try:
-        if job_request.category == "tts":
+        if job_request.category == "tts" or job_request.category == "image":
             my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
             if my_generator is None:
                 return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
