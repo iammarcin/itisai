@@ -4,7 +4,7 @@ import config
 from tempfile import NamedTemporaryFile
 
 import logconfig
-import re, os, shutil, datetime
+import re, os, shutil, datetime, traceback
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -120,4 +120,5 @@ class awsProvider:
 
         except Exception as e:
             logger.error("Error in send_to_s3: %s", str(e))
+            traceback.print_exc()
             raise HTTPException(status_code=500, detail="Error in upload file")

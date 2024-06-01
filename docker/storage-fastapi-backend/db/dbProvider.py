@@ -5,6 +5,7 @@ import config
 import uuid
 from datetime import datetime, date, time
 import json
+import traceback
 
 from sqlalchemy import create_engine, MetaData, func, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -90,6 +91,7 @@ class dbProvider:
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_session_id}}, status_code=200)
         except Exception as e:
           logger.error("Error in create_new_chat_session: %s", str(e))
+          traceback.print_exc()
           #return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
           raise HTTPException(status_code=500, detail="Error in DB! create_new_chat_session")
 
@@ -154,10 +156,12 @@ class dbProvider:
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id, "sessionId": userInput['session_id'] }}, status_code=200)
         except HTTPException as e:
           logger.error("HTTP error in create_chat_message: %s", str(e))
+          traceback.print_exc()
           #return JSONResponse(status_code=e.status_code, content={"success": False, "code": e.status_code, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! create_chat_message"}})
           raise HTTPException(status_code=500, detail="Error in DB! create_chat_message")
         except Exception as e:
           logger.error("Error in DB! create_chat_message: %s", str(e))
+          traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! create_chat_message"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! create_chat_message")
 
@@ -194,6 +198,7 @@ class dbProvider:
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Edit completed"}}, status_code=200)
         except Exception as e:
           logger.error("Error in DB! edit_chat_message_for_user: %s", str(e))
+          traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! edit_chat_message_for_user"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! edit_chat_message_for_user")
 
@@ -218,6 +223,7 @@ class dbProvider:
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
       except Exception as e:
         logger.error("Error in DB! get_all_chat_sessions_for_user: %s", str(e))
+        traceback.print_exc()
         #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! get_all_chat_sessions_for_user"}}, status_code=500)
         raise HTTPException(status_code=500, detail="Error in DB! get_all_chat_sessions_for_user")
 
@@ -238,6 +244,7 @@ class dbProvider:
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": chat_session_content}}, status_code=200)
         except Exception as e:
           logger.error("Error in DB! get_chat_session: %s", str(e))
+          traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! get_chat_session"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! get_chat_session")
 
@@ -260,6 +267,7 @@ class dbProvider:
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
         except Exception as e:
           logger.error("Error in DB! search_chat_messages_for_user: %s", str(e))
+          traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! search_chat_messages_for_user"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! search_chat_messages_for_user")
 
