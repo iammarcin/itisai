@@ -80,6 +80,8 @@ class dbProvider:
         return await self.get_chat_session(userInput, customerId)
       elif action == "db_search_messages":
         return await self.search_chat_messages_for_user(userInput, customerId)
+      elif action == "db_rename_session":
+        return await self.rename_session(userInput, customerId)
       else:
         raise HTTPException(status_code=400, detail="Unknown action")
     except Exception as e:
@@ -114,25 +116,45 @@ class dbProvider:
           if not userInput.get('session_id'):
             userInput['session_id'] = await self._create_new_chat_session_internal(session, customerId)
 
-          if userInput['message'] == config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
-            return JSONResponse(content={"success": False, "code": 400, "message": {"status": "completed", "result": 'Pb with text gen. not saving to DB'}}, status_code=400)
+          userMessage = userInput['userMessage']
+          aiResponse = userInput['aiResponse']
 
-          # first create new item in chat message
-          new_message = ChatMessage(
+          # first create new item for user message in chat message
+          new_user_message = ChatMessage(
             session_id=userInput['session_id'],
             customer_id=customerId,
-            sender=userInput['sender'],
-            message=userInput['message'],
-            image_locations=userInput.get('image_locations'),
-            file_locations=userInput.get('file_locations')
+            sender=userMessage['sender'],
+            message=userMessage['message'],
+            image_locations=userMessage.get('image_locations'),
+            file_locations=userMessage.get('file_locations')
           )
-          session.add(new_message)
+          session.add(new_user_message)
 
           # Commit to generate message_id
           await session.flush()
 
-          new_message_id = new_message.message_id
-          logger.info("New message ID: %s", new_message_id)
+          new_user_message_id = new_user_message.message_id
+
+          new_ai_response_id = 0
+          # if its not error message (because it means we dont have AI response)
+          if aiResponse['message'] != config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
+            # first create new item in chat message
+            new_ai_response = ChatMessage(
+              session_id=userInput['session_id'],
+              customer_id=customerId,
+              sender=aiResponse['sender'],
+              message=aiResponse['message'],
+              image_locations=aiResponse.get('image_locations'),
+              file_locations=aiResponse.get('file_locations')
+            )
+            session.add(new_ai_response)
+
+            # Commit to generate message_id
+            await session.flush()
+
+            new_ai_response_id = new_ai_response.message_id
+
+          logger.info("New messages IDs. User: %s, AI: %s", new_user_message_id, new_ai_response_id)
 
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
@@ -140,9 +162,12 @@ class dbProvider:
             # Use chat_history from userInput directly
             chat_history = userInput['chat_history']
 
-            # Update the last message in chat history with the new message_id (very important because later we save chat history in chat sessions for future restore)
-            if chat_history and isinstance(chat_history[-1], dict):
-                chat_history[-1]['messageId'] = new_message_id
+            # Update the last 2 messages in chat history with the new user and AI message_id (very important because later we save chat history in chat sessions for future restore)
+            if chat_history and isinstance(chat_history[-2], dict):
+                chat_history[-2]['messageId'] = new_user_message_id
+            # > 0 - to check if there was no error message (because then we dont need to do anything)
+            if chat_history and isinstance(chat_history[-1], dict) and new_ai_response_id > 0:
+                chat_history[-1]['messageId'] = new_ai_response_id
 
             chat_session.chat_history = json.dumps(chat_history)
 
@@ -164,7 +189,7 @@ class dbProvider:
           result = await session.commit()
           logger.info("Result of commit: %s", result)
 
-          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_message_id, "sessionId": userInput['session_id'] }}, status_code=200)
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": { "userMessageId": new_user_message_id, "aiMessageId": new_ai_response_id}, "sessionId": userInput['session_id'] }}, status_code=200)
         except HTTPException as e:
           logger.error("HTTP error in create_chat_message: %s", str(e))
           traceback.print_exc()
@@ -177,24 +202,39 @@ class dbProvider:
           raise HTTPException(status_code=500, detail="Error in DB! create_chat_message")
 
   async def edit_chat_message_for_user(self, userInput: dict, customerId: int):
-    message_id = userInput['message_id']
-    update_text = userInput['update_text']
-    image_locations = userInput['image_locations']
-    file_locations = userInput['file_locations']
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
+          userMessage = userInput['userMessage']
+          aiResponse = userInput['aiResponse']
+
+          user_message_id = userMessage['message_id']
+
           # Check if the message exists and belongs to the user
-          message = await session.get(ChatMessage, message_id)
-          if not message:
+          db_user_message = await session.get(ChatMessage, user_message_id)
+          if not db_user_message:
               raise HTTPException(status_code=404, detail="Message not found")
-          if message.customer_id != customerId:
+          if db_user_message.customer_id != customerId:
               raise HTTPException(status_code=403, detail="Not authorized to edit this message")
 
           # Update the message text
-          message.message = update_text
-          message.image_locations = image_locations
-          message.file_locations = file_locations
+          db_user_message.message = userMessage['message']
+          db_user_message.image_locations = userMessage['image_locations']
+          db_user_message.file_locations = userMessage['file_locations']
+
+          ai_message_id = aiResponse['message_id']
+
+          # Check if the message exists and belongs to the user
+          db_ai_message = await session.get(ChatMessage, ai_message_id)
+          if not db_ai_message:
+              raise HTTPException(status_code=404, detail="Message not found")
+          if db_ai_message.customer_id != customerId:
+              raise HTTPException(status_code=403, detail="Not authorized to edit this message")
+
+          # Update the message text
+          db_ai_message.message = aiResponse['message']
+          db_ai_message.image_locations = aiResponse['image_locations']
+          db_ai_message.file_locations = aiResponse['file_locations']
 
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
@@ -281,6 +321,26 @@ class dbProvider:
           traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! search_chat_messages_for_user"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! search_chat_messages_for_user")
+
+  async def rename_session(self, userInput: dict, customerId: int):
+    session_id = userInput['session_id']
+    new_session_name = userInput['new_session_name']
+    async with AsyncSessionLocal() as session:
+      async with session.begin():
+        try:
+          result = await session.execute(
+            select(ChatSession).where(ChatSession.session_id == session_id, ChatSession.customer_id == customerId)
+          )
+          chat_session = result.scalars().first()
+          if chat_session is None:
+            raise HTTPException(status_code=404, detail="Chat session not found")
+          chat_session.session_name = new_session_name
+          await session.commit()
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session renamed"}}, status_code=200)
+        except Exception as e:
+          logger.error("Error in DB! rename_session: %s", str(e))
+          traceback.print_exc()
+          raise HTTPException(status_code=500, detail="Error in DB! rename_session")
 
   # Helper function to create a new chat session (it's used in two diff functions)
   async def _create_new_chat_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
