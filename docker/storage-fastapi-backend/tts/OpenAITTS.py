@@ -52,6 +52,8 @@ class OpenAITTSGenerator:
         try:
             if action == "tts_no_stream":
                 return await self.generate_tts(userInput, customerId)
+            elif action == "tts_stream":
+                return self.stream_tts(userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
@@ -66,6 +68,7 @@ class OpenAITTSGenerator:
                 model=self.model_name,
                 voice=self.voice,
                 speed=self.speed,
+                response_format=self.format,
                 input=text,
             )
 
@@ -94,21 +97,32 @@ class OpenAITTSGenerator:
             logger.error("Error generating TTS: %s", str(e))
             raise HTTPException(status_code=500, detail="Error generating TTS")
 
-    def stream_tts(self, text: str):
+    def stream_tts(self, userInput: dict, customerId: int = 1):
+
+        text = "Yes you are "
+
         try:
-            response = self.llm.audio.speech.create(
+            with self.client.audio.speech.with_streaming_response.create(
                 model=self.model_name,
                 voice=self.voice,
-                format=self.format,
+                response_format=self.format,
+                #speed=self.speed,
                 input=text,
-            )
+            ) as response:
+                logger.info("-"*33)
+                for chunk in response.iter_bytes(1024):
+                    logger.info(chunk)
+                    #buffer.extend(chunk)
+                    # Ensure each chunk starts with proper MP3 headers
+                    yield chunk
 
-            def iter_audio_stream():
-                for chunk in response.with_streaming_response():
-                    if chunk:
-                        yield chunk
-
-            return StreamingResponse(iter_audio_stream(), media_type="audio/mpeg", headers={"Transfer-Encoding": "chunked"})
+            #return StreamingResponse(iter_audio_stream(), media_type="audio/mpeg", headers={"Transfer-Encoding": "chunked"})
         except Exception as e:
             logger.error("Error streaming TTS: %s", str(e))
             raise HTTPException(status_code=500, detail="Error streaming TTS")
+
+    def _generate_mp3_headers(self):
+        # Generate MP3 headers if required
+        headers = b""
+        # Append any necessary MP3 headers here
+        yield headers
