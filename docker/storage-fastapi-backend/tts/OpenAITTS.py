@@ -99,21 +99,21 @@ class OpenAITTSGenerator:
 
     def stream_tts(self, userInput: dict, customerId: int = 1):
 
-        text = "Yes you are "
+        text = userInput["text"]
+        #text = "Here we go!!!"
+        self.format = "opus"
 
         try:
             with self.client.audio.speech.with_streaming_response.create(
                 model=self.model_name,
                 voice=self.voice,
                 response_format=self.format,
-                #speed=self.speed,
+                speed=self.speed,
                 input=text,
             ) as response:
                 logger.info("-"*33)
                 for chunk in response.iter_bytes(1024):
-                    logger.info(chunk)
-                    #buffer.extend(chunk)
-                    # Ensure each chunk starts with proper MP3 headers
+                    logger.debug(chunk)
                     yield chunk
 
             #return StreamingResponse(iter_audio_stream(), media_type="audio/mpeg", headers={"Transfer-Encoding": "chunked"})

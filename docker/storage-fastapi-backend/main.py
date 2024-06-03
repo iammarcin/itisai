@@ -109,7 +109,7 @@ async def tts(job_request: MediaModel, token = Depends(auth_user_token)):
 
     try:
         stream = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, userSettings=job_request.userSettings)
-        return StreamingResponse(stream, media_type="audio/mpeg")
+        return StreamingResponse(stream, media_type="audio/opus")
     except Exception as e:
         logger.error("Error processing job request: %s", str(e))
         return JSONResponse(content={'code': 500, 'success': False, "message": {"status": "fail", "result": str(e)}}, status_code=500)
