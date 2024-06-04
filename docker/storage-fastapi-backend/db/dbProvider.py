@@ -80,8 +80,8 @@ class dbProvider:
         return await self.get_chat_session(userInput, customerId)
       elif action == "db_search_messages":
         return await self.search_chat_messages_for_user(userInput, customerId)
-      elif action == "db_rename_session":
-        return await self.rename_session(userInput, customerId)
+      elif action == "db_update_session":
+        return await self.update_chat_session(userInput, customerId)
       else:
         raise HTTPException(status_code=400, detail="Unknown action")
     except Exception as e:
@@ -326,9 +326,11 @@ class dbProvider:
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! search_chat_messages_for_user"}}, status_code=500)
           raise HTTPException(status_code=500, detail="Error in DB! search_chat_messages_for_user")
 
-  async def rename_session(self, userInput: dict, customerId: int):
+  async def update_chat_session(self, userInput: dict, customerId: int):
     session_id = userInput['session_id']
-    new_session_name = userInput['new_session_name']
+    new_session_name = userInput.get('new_session_name')
+    new_ai_character_name = userInput.get('new_ai_character_name')
+    chat_history = userInput.get('chat_history')
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
@@ -338,13 +340,20 @@ class dbProvider:
           chat_session = result.scalars().first()
           if chat_session is None:
             raise HTTPException(status_code=404, detail="Chat session not found")
-          chat_session.session_name = new_session_name
+          if new_session_name:
+            chat_session.session_name = new_session_name
+          if new_ai_character_name:
+            chat_session.ai_character_name = new_ai_character_name
+          if chat_history:
+            chat_session.chat_history = json.dumps(chat_history)
+          chat_session.last_update = func.now()
           await session.commit()
-          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session renamed"}}, status_code=200)
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session updated"}}, status_code=200)
         except Exception as e:
-          logger.error("Error in DB! rename_session: %s", str(e))
+          logger.error("Error in DB! update_chat_session: %s", str(e))
           traceback.print_exc()
-          raise HTTPException(status_code=500, detail="Error in DB! rename_session")
+          raise HTTPException(status_code=500, detail="Error in DB! update_chat_session")
+
 
   # Helper function to create a new chat session (it's used in two diff functions)
   async def _create_new_chat_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
