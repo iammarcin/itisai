@@ -34,8 +34,11 @@ class OpenAIImageGenerator:
             if user_settings["size_of_image"] < 1024:
                 self.size_of_image = 1024
 
-        if "quality" in user_settings:
-            self.quality = user_settings["quality"]
+        if "quality_hd" in user_settings:
+            if user_settings["quality"]:
+                self.quality = "hd"
+            else:
+                self.quality = "standard"
 
         if "disable_safe_prompt_adjust" in user_settings:
             self.disable_safe_prompt_adjust = user_settings["disable_safe_prompt_adjust"]
