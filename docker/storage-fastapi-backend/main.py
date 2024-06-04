@@ -88,7 +88,7 @@ async def generate_asset(job_request: MediaModel, token = Depends(auth_user_toke
 # CHAT STREAMING (although used also for non streaming because it is possible)
 @app.post("/chat")
 async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
-    logger.info("*" * 20)
+    logger.info("*" * 100)
     logger.info(job_request)
 
     my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
