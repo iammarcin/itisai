@@ -11,6 +11,7 @@ docker/storage-fastapi-backend/itisai_brain
 docker/storage-fastapi-backend/itisai_brain/
 docker/storage-fastapi-backend/itisai_brain/*
 *mp3
+*opus
 *png
 *wav
 *mp4
