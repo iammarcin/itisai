@@ -16,11 +16,15 @@ class OpenAIImageGenerator:
     # adding: I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:
     # result: revised_prompt
     self.disable_safe_prompt_adjust = False
+    self.use_test_data = False
     self.client = OpenAI()
 
-  def set_settings(self, userSettings={}):
-    if userSettings:
-        user_settings = userSettings.get("image", {})
+  def set_settings(self, user_settings={}):
+    if user_settings:
+        # if we want to return test data
+        self.use_test_data = user_settings["general"]["returnTestData"]
+
+        user_settings = user_settings.get("image", {})
         logger.debug("Setting user_settings: %s", user_settings)
 
         if "number_of_images" in user_settings:
@@ -56,7 +60,7 @@ class OpenAIImageGenerator:
         logger.error("Error processing image request: %s", str(e))
         raise HTTPException(status_code=500, detail="Error processing image request")
 
-  async def generate(self, userInput: dict, assetInput: dict, customerId: int = None, requestId: int = None, userSettings: dict = {}, returnTestData: bool = False):
+  async def generate(self, userInput: dict, assetInput: dict, customerId: int = None, requestId: int = None, userSettings: dict = {}):
     try:
         if userInput.get('text') is None:
             raise HTTPException(status_code=400, detail="Prompt is required")
@@ -66,20 +70,11 @@ class OpenAIImageGenerator:
         if self.disable_safe_prompt_adjust:
             prompt = "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: " + prompt
 
-        #returnTestData = True
-        if returnTestData:
-            # simulated response from SD
-            response = {
-                "created": 1681791159,
-                "data": [
-                    {
-                        "url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-xl9LUlwDaE7xHfomiY1yp9sG/user-qUElxkpAQyQkRERvyK5hqv4q/img-CpTOH90fLToA9M2E8HZoIh3a.png?st=2023-04-18T03%3A12%3A39Z&se=2023-04-18T05%3A12%3A39Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-18T00%3A27%3A24Z&ske=2023-04-19T00%3A27%3A24Z&sks=b&skv=2021-08-06&sig=k5%2B5n1gXzrkjC1TEy%2BSs8WAWSbbiAdoFTwjK/%2BW7jGI%3D"
-                    }, {
-                        "url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-xl9LUlwDaE7xHfomiY1yp9sG/user-qUElxkpAQyQkRERvyK5hqv4q/img-2luwqtiKMGKfBR6rLL1Cx1vq.png?st=2023-04-17T16%3A20%3A31Z&se=2023-04-17T18%3A20%3A31Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-17T17%3A06%3A07Z&ske=2023-04-18T17%3A06%3A07Z&sks=b&skv=2021-08-06&sig=77b/MpFrhtrZlV6kC1UVyWlkgwBsTudPQPVZMiWyYAM%3D"
-                    }
-                ]
-            }
+        if self.use_test_data:
+            finalUrl = 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-xl9LUlwDaE7xHfomiY1yp9sG/user-qUElxkpAQyQkRERvyK5hqv4q/img-801AWeKt65VhkYZiG4UIujhd.png?st=2024-06-05T04%3A31%3A11Z&se=2024-06-05T06%3A31%3A11Z&sp=r&sv=2023-11-03&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-06-04T20%3A06%3A06Z&ske=2024-06-05T20%3A06%3A06Z&sks=b&skv=2023-11-03&sig=BsTz8Wfb1euVvI32hbOBdH6TVIbun0M1nZQojKZC9Cw%3D'
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
         else:
+            logger.info("Image gen start!")
             response = self.client.images.generate(
                 prompt=prompt,
                 n=self.number_of_images,
