@@ -35,7 +35,7 @@ class OpenAIImageGenerator:
                 self.size_of_image = 1024
 
         if "quality_hd" in user_settings:
-            if user_settings["quality"]:
+            if user_settings["quality_hd"]:
                 self.quality = "hd"
             else:
                 self.quality = "standard"
@@ -58,8 +58,11 @@ class OpenAIImageGenerator:
 
   async def generate(self, userInput: dict, assetInput: dict, customerId: int = None, requestId: int = None, userSettings: dict = {}, returnTestData: bool = False):
     try:
-        #prompt = userInput.get('prompt') if userInput.get('prompt') else ""
-        prompt = "beautiful album cover"
+        if userInput.get('text') is None:
+            raise HTTPException(status_code=400, detail="Prompt is required")
+
+        prompt = userInput.get('text')
+        #prompt = "beautiful album cover"
         if self.disable_safe_prompt_adjust:
             prompt = "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: " + prompt
 
