@@ -100,7 +100,6 @@ class OpenAITTSGenerator:
     def stream_tts(self, userInput: dict, customerId: int = 1):
 
         text = userInput["text"]
-        #text = "Here we go!!!"
         self.format = "opus"
 
         try:

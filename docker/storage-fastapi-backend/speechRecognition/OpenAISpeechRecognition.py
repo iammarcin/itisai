@@ -60,7 +60,7 @@ class OpenAISpeechRecognitionGenerator:
     logger.debug("OpenAISpeechGenerator whisper - start")
 
     if self.use_test_data:
-        return {'code': 200, 'success': True, 'message': {"status": "completed", "result": "Hello! (transcribed)"}}
+        return {'code': 200, 'success': True, 'message': {"status": "completed", "result": "Hello! (TEST transcribed)"}}
 
     try:
       # only for chat - we have to save blob to file (as its coming from recorder from Chat in react)
