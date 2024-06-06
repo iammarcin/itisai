@@ -1,12 +1,7 @@
-docker/storage-mysql
-docker/storage-mysql/**
-docker/storage-mysql/*
-docker/storage-mysql/
-docker/storage-nodejs/node_modules
-docker/storage-nodejs/node_modules/*
-docker/storage-nodejs/node_modules/
-docker/storage-nodejs/uploads
 docker/storage-common
+docker/storage-react/node_modules
+docker/storage-react/node_modules/
+docker/storage-react/node_modules/*
 docker/storage-fastapi-backend/itisai_brain
 docker/storage-fastapi-backend/itisai_brain/
 docker/storage-fastapi-backend/itisai_brain/*
