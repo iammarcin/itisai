@@ -9,16 +9,15 @@ const Login = ({ onLoginSuccess }) => {
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
-    console.log("Login.js: handleLogin")
     e.preventDefault();
     try {
       const response = await apiService.authUser(user, password);
-      console.log("Login.js: handleLogin: response", response)
-      if (response && response.result && response.status !== 'fail') {
+
+      if (response.message && response.message.result && response.code === '200') {
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 15);
         localStorage.setItem('authToken', JSON.stringify({
-          token: response.result.token,
+          token: response.message.result.token, // TODO - one day real token here
           expiration: expirationDate.toISOString(),
         }));
         onLoginSuccess();

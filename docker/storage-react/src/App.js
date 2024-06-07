@@ -4,8 +4,15 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './components/Login';
 
+/*
+expirationDate.setDate(expirationDate.getDate() + 15);
+localStorage.setItem('authToken', JSON.stringify({
+  token: response.message.result.token,
+  expiration: expirationDate.toISOString(),
+}));*/
+
 const isTokenValid = (tokenData) => {
-  if (!tokenData || !tokenData.token || !tokenData.expiration) {
+  if (!tokenData || !tokenData.expiration) {
     return false;
   }
   const now = new Date();

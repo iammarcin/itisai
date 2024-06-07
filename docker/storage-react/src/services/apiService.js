@@ -71,9 +71,7 @@ const authUser = async (user, password) => {
     });
 
     console.log('API response:', response);
-    console.log('API response:', response.message);
-    console.log('API response:', response.message.result);
-    return response.message;
+    return response;
 
   } catch (error) {
     console.error('Error fetching chat content:', error);
@@ -81,40 +79,6 @@ const authUser = async (user, password) => {
   }
 };
 
-/*
-const fetchChatSessionsOLD = async () => {
-  try {
-    const response = await axios.post(API_BASE_URL, {
-      category: 'provider.db',
-      action: 'db_all_sessions_for_user',
-      userInput: { limit: 10, offset: 0 },
-      userSettings: {},
-      customerId: 1,
-    });
-    console.log('API response:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching chat sessions:', error);
-    throw error;
-  }
-};
-
-const fetchChatContent = async (sessionId) => {
-  try {
-    const response = await axios.post(API_BASE_URL, {
-      category: 'provider.db',
-      action: 'db_get_session_content',
-      userInput: { sessionId },
-      userSettings: {},
-      customerId: 1,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching chat content:', error);
-    throw error;
-  }
-};
-*/
 export default {
   fetchChatSessions,
   fetchChatContent,
