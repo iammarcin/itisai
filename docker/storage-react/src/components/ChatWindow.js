@@ -35,6 +35,8 @@ const ChatWindow = ({ selectedSession }) => {
     <div className="chat-window">
       <div className="messages">
         {chatContent && chatContent.map((message, index) => (
+          console.log("ChatWindow.js: message", message),
+          console.log("ChatWindow.js: chatContent", chatContent),
           <ChatMessage key={index} message={message} />
         ))}
       </div>

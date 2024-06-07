@@ -5,9 +5,14 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 const ChatMessage = ({ message }) => {
-  const avatarSrc = message.isUserMessage 
-    ? '/imgs/UserAvatar.png' 
-    : `/imgs/${message.aiCharacterName}.png`;
+    const avatarSrc = message.isUserMessage 
+      ? '/imgs/UserAvatar.png' 
+      : `/imgs/${message.aiCharacterName}.png`;
+
+    // filter out placeholders
+    const validImageLocations = message.imageLocations 
+      ? message.imageLocations.filter(src => src !== "image_placeholder_url") 
+      : [];
 
     return (
       <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}>
@@ -28,8 +33,8 @@ const ChatMessage = ({ message }) => {
               code: ({ node, ...props }) => <code {...props} />
             }}
           />
-          {message.imageLocations && message.imageLocations.map((src, index) => (
-            <img key={index} src={src} alt="Chat resource" />
+          {validImageLocations.map((src, index) => (
+          <img key={index} src={src} alt="Chat image" />
           ))}
           {message.fileNames && message.fileNames.map((src, index) => (
             <audio key={index} controls>
