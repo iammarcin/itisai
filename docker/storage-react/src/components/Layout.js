@@ -47,6 +47,16 @@ const Layout = () => {
     }
   }, [isFetching, offset]);
 
+  const updateSessionName = (sessionId, newName) => {
+    setChatSessions(prevSessions => prevSessions.map(session =>
+      session.session_id === sessionId ? { ...session, session_name: newName } : session
+    ));
+  };
+
+  const removeSession = (sessionId) => {
+    setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
+  };
+
   useEffect(() => {
     fetchChatSessions(offset);
   }, [offset]);
@@ -57,6 +67,8 @@ const Layout = () => {
         chatSessions={chatSessions} 
         onSelectSession={setSelectedSession} 
         loadMoreSessions={loadMoreSessions}
+        updateSessionName={updateSessionName}
+        removeSession={removeSession}
       />
       <ChatWindow selectedSession={selectedSession} />
     </div>

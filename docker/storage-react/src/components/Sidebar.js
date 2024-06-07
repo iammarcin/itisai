@@ -1,9 +1,11 @@
 // Sidebar.js
 import React, { useState, useEffect, useRef } from 'react';
+import apiService from '../services/apiService';
 import './Sidebar.css';
 
-const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions }) => {
+const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession }) => {
   const [contextMenu, setContextMenu] = useState(null);
+  const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
 
   useEffect(() => {
@@ -45,13 +47,50 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions }) => {
   };
 
   const handleRename = () => {
-    console.log('Rename', contextMenu.session);
+    setRenamePopup({
+      session: contextMenu.session,
+      name: contextMenu.session.session_name
+    });
     setContextMenu(null);
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     console.log('Remove', contextMenu.session);
+    try {
+      const userInput = { "session_id": contextMenu.session.session_id };
+      const response = await apiService.triggerDBRequest("db_remove_session", userInput);
+      // Update the chatSessions state
+      removeSession(contextMenu.session.session_id);
+    } catch (error) {
+      console.error('Failed to remove session', error);
+    }
     setContextMenu(null);
+  };
+
+  const handleRenameChange = (event) => {
+    setRenamePopup({
+      ...renamePopup,
+      name: event.target.value
+    });
+  };
+
+  const handleRenameSubmit = () => {
+    const triggerDBRename = async () => {
+      try {
+        const userInput = { "session_id": renamePopup.session.session_id, "new_session_name": renamePopup.name };
+        const response = await apiService.triggerDBRequest("db_update_session", userInput);
+        // update also name in UI
+        updateSessionName(renamePopup.session.session_id, renamePopup.name);
+      } catch (error) {
+        console.error('Failed to rename session', error);
+      }
+    }
+    triggerDBRename()
+    setRenamePopup(null);
+  };
+
+  const handleRenameCancel = () => {
+    setRenamePopup(null);
   };
 
   return (
@@ -86,6 +125,22 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions }) => {
         >
           <div className="context-menu-item" onClick={handleRename}>Rename</div>
           <div className="context-menu-item" onClick={handleRemove}>Remove</div>
+        </div>
+      )}
+      {renamePopup && (
+        <div className="rename-popup">
+          <div className="rename-popup-content">
+            <h3>Rename Session</h3>
+            <input 
+              type="text" 
+              value={renamePopup.name} 
+              onChange={handleRenameChange} 
+            />
+            <div className="button-group">
+              <button onClick={handleRenameSubmit}>Submit</button>
+              <button onClick={handleRenameCancel}>Cancel</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

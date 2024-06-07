@@ -361,17 +361,26 @@ class dbProvider:
   async def remove_chat_session(self, userInput: dict, customerId: int):
     session_id = userInput.get('session_id')
     if not session_id:
-        raise HTTPException(status_code=400, detail="session_id is required")
+      raise HTTPException(status_code=400, detail="session_id is required")
 
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
+          # Delete all messages associated with the session
+          await session.execute(
+              select(ChatMessage).where(ChatMessage.session_id == session_id)
+          )
+          await session.execute(
+              ChatMessage.__table__.delete().where(ChatMessage.session_id == session_id)
+          )
+
+          # Delete the session
           result = await session.execute(
-            select(ChatSession).where(ChatSession.session_id == session_id, ChatSession.customer_id == customerId)
+              select(ChatSession).where(ChatSession.session_id == session_id, ChatSession.customer_id == customerId)
           )
           chat_session = result.scalars().first()
           if chat_session is None:
-            raise HTTPException(status_code=404, detail="Chat session not found")
+              raise HTTPException(status_code=404, detail="Chat session not found")
 
           await session.delete(chat_session)
           await session.commit()
