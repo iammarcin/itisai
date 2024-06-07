@@ -55,6 +55,9 @@ const Layout = () => {
 
   const removeSession = (sessionId) => {
     setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
+    if (selectedSession && selectedSession.session_id === sessionId) {
+      setSelectedSession(null); // Clear the current session if it is removed
+    }
   };
 
   useEffect(() => {
