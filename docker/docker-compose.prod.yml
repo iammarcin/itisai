@@ -1,0 +1,34 @@
+services:
+  frontend:
+    build:
+      dockerfile: storage-react/Dockerfile.prod
+    container_name: frontend_c
+    mem_limit: ${MEMORY_LIMIT_REACT}
+    ports:
+      - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+      - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+    volumes:
+      - ./storage-react:/app
+      - /app/node_modules
+    environment:
+      MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
+      NODE_ENV: ${NODE_ENV}
+    depends_on:
+      - fastapibackend
+  fastapibackend:
+    build: fastapi
+    mem_limit: ${MEMORY_LIMIT_FASTAPI}
+    ports:
+      - "${PORT_PYTHON_BACKEND}:8000"
+    restart: on-failure
+    volumes:
+      - ./storage-fastapi-backend:/app
+      - ./storage-common:/storage
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DB_PASS: ${AWS_DB_PASS}
+      MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
+      NODE_ENV: ${NODE_ENV}
