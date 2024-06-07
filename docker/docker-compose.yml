@@ -1,7 +1,20 @@
 services:
+  frontend:
+    build: storage-react
+    container_name: frontend_c
+    mem_limit: ${MEMORY_LIMIT_REACT}
+    ports:
+      - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+      - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+    volumes:
+      - ./storage-react:/app
+      - /app/node_modules
+    environment:
+      MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
+      NODE_ENV: ${NODE_ENV}
   fastapibackend:
     build: fastapi
-    mem_limit: 1024m
+    mem_limit: ${MEMORY_LIMIT_FASTAPI}
     ports:
       - "${PORT_PYTHON_BACKEND}:8000"
     restart: on-failure
@@ -15,16 +28,4 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_DB_PASS: ${AWS_DB_PASS}
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
-      NODE_ENV: "prod"
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    ports:
-      - 8080:80
-    volumes:
-      - ./phpmyadmin.config.php:/etc/phpmyadmin/config.inc.php
-      - ./phpmyadmin.php.ini:/usr/local/etc/php/php.ini-production
-      - ./phpmyadmin.php.ini:/usr/local/etc/php/php.ini
-    environment:
-      - PMA_HOST=db.kamba.me
-      - PMA_ARBITRARY=1
+      NODE_ENV: ${NODE_ENV}

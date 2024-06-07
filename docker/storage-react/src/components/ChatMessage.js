@@ -1,11 +1,18 @@
 // ChatMessage.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import './ChatMessage.css'; // Assuming you have CSS for chat messages
+import Markdown from 'react-markdown'
 
 const ChatMessage = ({ message }) => {
+
+  useEffect(() => {
+    console.log("Chat message:", message);
+  }, [message]);
+
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}>
-      <p>{message.message}</p>
+      <p><Markdown>{message.message}</Markdown></p>
+
       {message.imageLocations && message.imageLocations.map((src, index) => (
         <img key={index} src={src} alt="Chat resource" />
       ))}

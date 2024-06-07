@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $HOSTNAME == 'sherlock' ]; then
-  . /home/ubuntu/.profile
+  . /home/nichu/.profile
   echo sherlock
   export NODE_ENV=sherlock
   docker-compose -f docker-compose.yml --env-file .env.sherlock down

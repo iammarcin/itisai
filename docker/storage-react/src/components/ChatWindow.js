@@ -12,8 +12,13 @@ const ChatWindow = ({ selectedSession }) => {
       const fetchChatContent = async () => {
         try {
           const content = await apiService.fetchChatContent(selectedSession.session_id);
-          console.log("Chat content:", content);
-          setChatContent(content);
+          console.log("Chat content:", content.result);
+          console.log("Chat content:", content.result.chat_history);
+          
+          const chatHistory = JSON.parse(content.result.chat_history);
+
+          setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
+
         } catch (error) {
           console.error('Failed to fetch chat content', error);
         }
@@ -29,7 +34,6 @@ const ChatWindow = ({ selectedSession }) => {
 
   return (
     <div className="chat-window">
-      <h2>{selectedSession.session_name}</h2>
       <div className="messages">
         {chatContent && chatContent.map((message, index) => (
           <ChatMessage key={index} message={message} />
