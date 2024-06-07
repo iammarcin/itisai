@@ -13,8 +13,6 @@ const ChatWindow = ({ selectedSession }) => {
         try {
           const userInput = { "session_id": selectedSession.session_id };
           const response = await apiService.triggerDBRequest("db_get_user_session", userInput);
-
-          console.log("Chat content:", response.message.result);
           
           const chatHistory = JSON.parse(response.message.result.chat_history);
 

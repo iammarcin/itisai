@@ -55,7 +55,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   };
 
   const handleRemove = async () => {
-    console.log('Remove', contextMenu.session);
     try {
       const userInput = { "session_id": contextMenu.session.session_id };
       const response = await apiService.triggerDBRequest("db_remove_session", userInput);

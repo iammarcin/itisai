@@ -15,18 +15,15 @@ const Layout = () => {
 
   const fetchChatSessions = async (newOffset) => {
     setIsFetching(true);
-    console.log(`Fetching chat sessions with offset: ${newOffset}`);
     try {
       const userInput = { "limit": limit, "offset": newOffset };
       const response = await apiService.triggerDBRequest("db_all_sessions_for_user", userInput);
       const sessions = response.message.result;
-      console.log('Fetched sessions:', sessions);
 
       // Filter out duplicate sessions
       const uniqueSessions = sessions.filter(
         session => !fetchedSessionIds.current.has(session.session_id)
       );
-      console.log('Unique sessions to add:', uniqueSessions);
 
       // Add the new session ids to the fetchedSessionIds set
       uniqueSessions.forEach(session => fetchedSessionIds.current.add(session.session_id));
@@ -42,7 +39,6 @@ const Layout = () => {
   const loadMoreSessions = useCallback(() => {
     if (!isFetching) {
       const newOffset = offset + limit;
-      console.log(`Loading more sessions, new offset: ${newOffset}`);
       setOffset(newOffset);
     }
   }, [isFetching, offset]);
