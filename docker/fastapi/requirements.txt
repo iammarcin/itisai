@@ -21,3 +21,5 @@ databases
 mysql-connector-python
 aiomysql
 tenacity # to retry on failed DB operations 
+bcrypt # password from DB
+

@@ -2,6 +2,7 @@
 .layout {
   display: flex;
   height: 100vh;
+  background-color: #1e1e1e; /* Ensure the entire layout has a dark background */
 }
 
 .layout .sidebar {
@@ -12,4 +13,11 @@
 .layout .chat-window {
   width: 75%;
   background-color: #1e1e1e;
+  overflow-y: auto; /* Ensure content is scrollable if it overflows */
+}
+
+body {
+  margin: 0;
+  background-color: #1e1e1e; /* Set the background color of the entire body */
+  color: #ffffff; /* Default text color to white for visibility */
 }

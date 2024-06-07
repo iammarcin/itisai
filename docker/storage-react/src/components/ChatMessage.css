@@ -1,8 +1,11 @@
 /* ChatMessage.css */
 .chat-message {
+  display: flex;
+  align-items: flex-start;
   margin-bottom: 20px;
   padding: 10px;
   border-radius: 5px;
+  word-wrap: break-word; /* Ensures long words break to prevent overflow */
 }
 
 .chat-message.user {
@@ -15,8 +18,24 @@
   text-align: left;
 }
 
+.chat-message .avatar {
+  margin-right: 10px;
+}
+
+.chat-message .avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.chat-message .message-content {
+  max-width: 80%;
+}
+
 .chat-message p {
   margin: 0;
+  line-height: 1.5; /* Adjust line spacing */
+  word-wrap: break-word; /* Ensures long words break to prevent overflow */
 }
 
 .chat-message img {

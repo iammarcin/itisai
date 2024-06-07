@@ -211,7 +211,8 @@ async def db_methods(job_request: MediaModel): # , token = Depends(auth_user_tok
 
         response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
         logger.info("ALL OK")
-        logger.info(response_content)
+        if job_request.action != 'db_get_user_session':
+            logger.info(response_content)
         return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
 
     except HTTPException as e:

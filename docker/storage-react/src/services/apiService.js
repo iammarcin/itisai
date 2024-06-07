@@ -55,6 +55,32 @@ const fetchChatContent = async (sessionId) => {
   }
 };
 
+const authUser = async (user, password) => {
+  try {
+    const apiBody = {
+      category: 'provider.db',
+      action: 'db_auth_user',
+      userInput: { "username": user, "password": password },
+      userSettings: {},
+      customerId: 1,
+    }
+    const response = await makeApiCall({
+        endpoint: API_BASE_URL,
+        method: "POST",
+        body: apiBody
+    });
+
+    console.log('API response:', response);
+    console.log('API response:', response.message);
+    console.log('API response:', response.message.result);
+    return response.message;
+
+  } catch (error) {
+    console.error('Error fetching chat content:', error);
+    throw error;
+  }
+};
+
 /*
 const fetchChatSessionsOLD = async () => {
   try {
@@ -92,4 +118,5 @@ const fetchChatContent = async (sessionId) => {
 export default {
   fetchChatSessions,
   fetchChatContent,
+  authUser
 };

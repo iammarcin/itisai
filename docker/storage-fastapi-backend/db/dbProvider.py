@@ -4,7 +4,7 @@ from pydanticValidation.db_schemas import ChatMessage, ChatSession, User
 import config
 import uuid
 from datetime import datetime, date, time
-import json
+import json, bcrypt
 import traceback
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -82,6 +82,8 @@ class dbProvider:
         return await self.search_chat_messages_for_user(userInput, customerId)
       elif action == "db_update_session":
         return await self.update_chat_session(userInput, customerId)
+      elif action == "db_auth_user":
+        return await self.authenticate_user(userInput, customerId)
       else:
         raise HTTPException(status_code=400, detail="Unknown action")
     except Exception as e:
@@ -274,7 +276,7 @@ class dbProvider:
         sessions = result.scalars().all()
         sessions_list = [self.to_dict(session) for session in sessions]
 
-        logger.info("All sessions for user %s: %s", customerId, sessions_list)
+        logger.debug("All sessions for user %s: %s", customerId, sessions_list)
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
       except Exception as e:
         logger.error("Error in DB! get_all_chat_sessions_for_user: %s", str(e))
@@ -368,3 +370,28 @@ class dbProvider:
     await session.flush()
     logger.info("New session ID: %s", new_session.session_id)
     return new_session.session_id
+  
+  async def authenticate_user(self, userInput: dict, customerId: int):
+    async with AsyncSessionLocal() as session:
+      async with session.begin():
+        try:
+          username = userInput['username']
+          password = userInput['password']
+          
+          result = await session.execute(
+            select(User).where(
+              User.email == username,
+              User.customer_id == customerId
+              )
+          )
+          
+          user = result.scalars().first()
+          
+          if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "User authenticated"}}, status_code=200)
+          else:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        except Exception as e:
+          logger.error("Error in authenticate_user: %s", str(e))
+          traceback.print_exc()
+          raise HTTPException(status_code=500, detail="Error in DB! authenticate_user")

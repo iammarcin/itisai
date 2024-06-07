@@ -22,3 +22,29 @@
 .sidebar li:hover {
   background-color: #3a3a3a;
 }
+
+.session-item {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.session-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-name {
+  font-size: 1.2em;
+}
+
+.session-date {
+  font-size: 0.9em;
+  color: #bbb;
+}
