@@ -7,6 +7,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
 
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
@@ -84,12 +85,17 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
         console.error('Failed to rename session', error);
       }
     }
-    triggerDBRename()
+    triggerDBRename();
     setRenamePopup(null);
   };
 
   const handleRenameCancel = () => {
     setRenamePopup(null);
+  };
+
+  const handleSelectSession = (session) => {
+    setSelectedSessionId(session.session_id);
+    onSelectSession(session);
   };
 
   return (
@@ -99,8 +105,9 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
         {chatSessions.map((session) => (
           <li
             key={session.session_id}
-            onClick={() => onSelectSession(session)}
+            onClick={() => handleSelectSession(session)}
             onContextMenu={(e) => handleRightClick(e, session)}
+            className={selectedSessionId === session.session_id ? 'selected' : ''}
           >
             <div className="session-item">
               <img 
