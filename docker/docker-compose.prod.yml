@@ -1,6 +1,7 @@
 services:
   frontend:
     build:
+      context: .
       dockerfile: storage-react/Dockerfile.prod
     container_name: frontend_c
     mem_limit: ${MEMORY_LIMIT_REACT}
