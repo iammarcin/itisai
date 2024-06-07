@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import ChatMessage from './ChatMessage';
 import apiService from '../services/apiService';
-import './ChatWindow.css'; // Assuming you have CSS for chat window
+import './ChatWindow.css';
 
 const ChatWindow = ({ selectedSession }) => {
   const [chatContent, setChatContent] = useState(null);
@@ -11,11 +11,12 @@ const ChatWindow = ({ selectedSession }) => {
     if (selectedSession) {
       const fetchChatContent = async () => {
         try {
-          const content = await apiService.fetchChatContent(selectedSession.session_id);
-          console.log("Chat content:", content.result);
-          console.log("Chat content:", content.result.chat_history);
+          const userInput = { "session_id": selectedSession.session_id };
+          const response = await apiService.triggerDBRequest("db_get_user_session", userInput);
+
+          console.log("Chat content:", response.message.result);
           
-          const chatHistory = JSON.parse(content.result.chat_history);
+          const chatHistory = JSON.parse(response.message.result.chat_history);
 
           setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
 

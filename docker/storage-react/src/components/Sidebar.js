@@ -1,6 +1,6 @@
 // Sidebar.js
 import React, { useState, useEffect, useRef } from 'react';
-import './Sidebar.css'; // Assuming you have CSS for sidebar
+import './Sidebar.css';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions }) => {
   const [contextMenu, setContextMenu] = useState(null);
@@ -23,7 +23,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions }) => {
     }
 
     return () => observer.current && observer.current.disconnect();
-  }, [chatSessions]);
+  }, [chatSessions, loadMoreSessions]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

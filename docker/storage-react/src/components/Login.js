@@ -1,7 +1,7 @@
 // Login.js
 import React, { useState } from 'react';
 import apiService from '../services/apiService';
-import './Login.css'; // Assuming you have CSS for login
+import './Login.css';
 
 const Login = ({ onLoginSuccess }) => {
   const [user, setUser] = useState('');
@@ -11,9 +11,10 @@ const Login = ({ onLoginSuccess }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await apiService.authUser(user, password);
+      const userInput = { "username": user, "password": password };
+      const response = await apiService.triggerDBRequest("db_auth_user", userInput);
 
-      if (response.message && response.message.result && response.code === '200') {
+      if (response.message && response.message.result && response.code === 200) {
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 15);
         localStorage.setItem('authToken', JSON.stringify({

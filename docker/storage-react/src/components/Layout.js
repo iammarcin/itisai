@@ -1,9 +1,9 @@
 // Layout.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import apiService from '../services/apiService';
-import './Layout.css'; // Assuming you have CSS for layout
+import './Layout.css';
 
 const Layout = () => {
   const [chatSessions, setChatSessions] = useState([]);
@@ -17,7 +17,9 @@ const Layout = () => {
     setIsFetching(true);
     console.log(`Fetching chat sessions with offset: ${newOffset}`);
     try {
-      const sessions = await apiService.fetchChatSessions(newOffset, limit);
+      const userInput = { "limit": limit, "offset": newOffset };
+      const response = await apiService.triggerDBRequest("db_all_sessions_for_user", userInput);
+      const sessions = response.message.result;
       console.log('Fetched sessions:', sessions);
 
       // Filter out duplicate sessions
@@ -37,13 +39,13 @@ const Layout = () => {
     setIsFetching(false);
   };
 
-  const loadMoreSessions = () => {
+  const loadMoreSessions = useCallback(() => {
     if (!isFetching) {
       const newOffset = offset + limit;
       console.log(`Loading more sessions, new offset: ${newOffset}`);
       setOffset(newOffset);
     }
-  };
+  }, [isFetching, offset]);
 
   useEffect(() => {
     fetchChatSessions(offset);

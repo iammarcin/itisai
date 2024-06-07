@@ -82,6 +82,8 @@ class dbProvider:
         return await self.search_chat_messages_for_user(userInput, customerId)
       elif action == "db_update_session":
         return await self.update_chat_session(userInput, customerId)
+      elif action == "db_remove_session":
+        return await self.remove_chat_session(userInput, customerId)
       elif action == "db_auth_user":
         return await self.authenticate_user(userInput, customerId)
       else:
@@ -356,6 +358,29 @@ class dbProvider:
           traceback.print_exc()
           raise HTTPException(status_code=500, detail="Error in DB! update_chat_session")
 
+  async def remove_chat_session(self, userInput: dict, customerId: int):
+    session_id = userInput.get('session_id')
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    async with AsyncSessionLocal() as session:
+      async with session.begin():
+        try:
+          result = await session.execute(
+            select(ChatSession).where(ChatSession.session_id == session_id, ChatSession.customer_id == customerId)
+          )
+          chat_session = result.scalars().first()
+          if chat_session is None:
+            raise HTTPException(status_code=404, detail="Chat session not found")
+
+          await session.delete(chat_session)
+          await session.commit()
+
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session removed"}}, status_code=200)
+        except Exception as e:
+          logger.error("Error in DB! remove_chat_session: %s", str(e))
+          traceback.print_exc()
+          raise HTTPException(status_code=500, detail="Error in DB! remove_chat_session")
 
   # Helper function to create a new chat session (it's used in two diff functions)
   async def _create_new_chat_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
