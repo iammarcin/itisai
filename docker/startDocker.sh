@@ -16,6 +16,6 @@ else
   source ~/.bash_profile
   echo local
   export NODE_ENV=local
-  docker-compose -f docker-compose.react.yml --env-file .env.local down
-  docker-compose -f docker-compose.react.yml --env-file .env.local up
+  docker-compose -f docker-compose.local.yml --env-file .env.local down
+  docker-compose -f docker-compose.local.yml --env-file .env.local up
 fi

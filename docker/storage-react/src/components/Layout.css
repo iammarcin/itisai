@@ -1,0 +1,15 @@
+/* Layout.css */
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.layout .sidebar {
+  width: 25%;
+  background-color: #2c2c2c;
+}
+
+.layout .chat-window {
+  width: 75%;
+  background-color: #1e1e1e;
+}

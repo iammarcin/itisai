@@ -1,38 +1,16 @@
 // App.js
-import React, { useState, useEffect } from 'react';
-import ChatList from './ChatList';
-import ChatDisplay from './ChatDisplay';
-import fetchChatData from './fetchChatData';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
 
-const App = () => {
-  const [chatSessions, setChatSessions] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
-
-  useEffect(() => {
-    // Fetch the list of chat sessions from the server
-    fetch('/api/chats') // Adjust the API endpoint as necessary
-      .then(response => response.json())
-      .then(data => setChatSessions(data))
-      .catch(error => console.error('Error fetching chat sessions:', error));
-  }, []);
-
-  const handleChatSelect = (chatId) => {
-    fetchChatData(chatId)
-      .then(data => setSelectedChat(data))
-      .catch(error => console.error('Error fetching chat data:', error));
-  };
-
+function App() {
   return (
-    <div className="App">
-      <ChatList
-        chatSessions={chatSessions}
-        onChatSelect={handleChatSelect}
-      />
-      {selectedChat && <ChatDisplay chatData={selectedChat} />}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
-

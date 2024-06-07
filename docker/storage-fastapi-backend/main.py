@@ -31,6 +31,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, debug=True)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this as needed (e.g., ["http://localhost:3000"])
+    allow_credentials=True,
+    allow_methods=["*"],  # Adjust this as needed
+    allow_headers=["*"],  # Adjust this as needed
+)
+
 # middleware for catching problems with pydantic data validation
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -190,7 +198,7 @@ async def aws_methods(
 
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
 @app.post("/api/db")
-async def db_methods(job_request: MediaModel, token = Depends(auth_user_token)):
+async def db_methods(job_request: MediaModel): # , token = Depends(auth_user_token)):
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
 

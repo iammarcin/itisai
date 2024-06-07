@@ -1,8 +1,14 @@
 FROM node:18-alpine
 ENV PORT_REACT_FRONTEND_INSIDE_CONTAINER=$PORT_REACT_FRONTEND_INSIDE_CONTAINER
-#RUN npm install -g nodemon
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY . .
 
 EXPOSE $PORT_REACT_FRONTEND_INSIDE_CONTAINER
 
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npm start"]

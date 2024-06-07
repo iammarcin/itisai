@@ -1,0 +1,30 @@
+/* ChatMessage.css */
+.chat-message {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.chat-message.user {
+  background-color: #3a3a3a;
+  text-align: right;
+}
+
+.chat-message.ai {
+  background-color: #2c2c2c;
+  text-align: left;
+}
+
+.chat-message p {
+  margin: 0;
+}
+
+.chat-message img {
+  max-width: 100%;
+  margin-top: 10px;
+}
+
+.chat-message audio {
+  display: block;
+  margin-top: 10px;
+}
