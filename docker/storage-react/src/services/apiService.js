@@ -3,12 +3,12 @@ import makeApiCall from './api.service';
 
 const API_BASE_URL = 'http://192.168.1.101:8000/api/db';
 
-const fetchChatSessions = async () => {
+const fetchChatSessions = async (offset, limit) => {
     try {
         const apiBody = {
             category: 'provider.db',
             action: 'db_all_sessions_for_user',
-            userInput: { limit: 10, offset: 0 },
+            userInput: { limit: limit, offset: offset },
             userSettings: {},
             customerId: 1,
         }

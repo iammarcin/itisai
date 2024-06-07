@@ -2,6 +2,8 @@
 .sidebar {
   padding: 20px;
   color: #fff;
+  overflow-y: auto; /* Make the sidebar scrollable */
+  height: 100vh; /* Full height */
 }
 
 .sidebar h2 {
@@ -47,4 +49,25 @@
 .session-date {
   font-size: 0.9em;
   color: #bbb;
+}
+
+.load-more {
+  height: 1px;
+}
+
+.context-menu {
+  position: absolute;
+  background-color: #2c2c2c;
+  border: 1px solid #444;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.context-menu-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background-color: #3a3a3a;
 }

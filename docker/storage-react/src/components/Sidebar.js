@@ -1,13 +1,29 @@
 // Sidebar.js
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Sidebar.css'; // Assuming you have CSS for sidebar
 
-const Sidebar = ({ chatSessions, onSelectSession }) => {
-  console.log("Sidebar chatSessions:", chatSessions);
+const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions }) => {
+  const [contextMenu, setContextMenu] = useState(null);
+  const observer = useRef();
 
-  if (!Array.isArray(chatSessions) || chatSessions.length === 0) {
-    return <div className="sidebar">No chat sessions available</div>;
-  }
+  useEffect(() => {
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        loadMoreSessions();
+      }
+    });
+
+    if (observer.current) {
+      const loadMoreElement = document.querySelector('.load-more');
+      if (loadMoreElement) {
+        observer.current.observe(loadMoreElement);
+      }
+    }
+
+    return () => observer.current && observer.current.disconnect();
+  }, [chatSessions]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -19,6 +35,25 @@ const Sidebar = ({ chatSessions, onSelectSession }) => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
+  const handleRightClick = (event, session) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.pageX,
+      y: event.pageY,
+      session
+    });
+  };
+
+  const handleRename = () => {
+    console.log('Rename', contextMenu.session);
+    setContextMenu(null);
+  };
+
+  const handleRemove = () => {
+    console.log('Remove', contextMenu.session);
+    setContextMenu(null);
+  };
+
   return (
     <div className="sidebar">
       <h2>Chat Sessions</h2>
@@ -27,6 +62,7 @@ const Sidebar = ({ chatSessions, onSelectSession }) => {
           <li
             key={session.session_id}
             onClick={() => onSelectSession(session)}
+            onContextMenu={(e) => handleRightClick(e, session)}
           >
             <div className="session-item">
               <img 
@@ -41,7 +77,17 @@ const Sidebar = ({ chatSessions, onSelectSession }) => {
             </div>
           </li>
         ))}
+        <div className="load-more"></div>
       </ul>
+      {contextMenu && (
+        <div 
+          className="context-menu" 
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <div className="context-menu-item" onClick={handleRename}>Rename</div>
+          <div className="context-menu-item" onClick={handleRemove}>Remove</div>
+        </div>
+      )}
     </div>
   );
 };
