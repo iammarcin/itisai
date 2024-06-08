@@ -1,14 +1,14 @@
 services:
-  reactfrontend:
-    build: react
-    volumes:
-      - ./storage-react:/app
-      - ./storage-common:/storage
+  frontend:
+    build: storage-react
+    container_name: frontend_c
     mem_limit: ${MEMORY_LIMIT_REACT}
-    environment:
-      WDS_SOCKET_PORT: ${PORT_REACT_FRONTEND_INSIDE_CONTAINER}
     ports:
       - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
-      - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}" # leave it here! without it hot reload won't work
-    command: sh -c "npm start"
-    restart: on-failure
+      - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+    volumes:
+      - ./storage-react:/app
+      - /app/node_modules
+    environment:
+      MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
+      NODE_ENV: ${NODE_ENV}
