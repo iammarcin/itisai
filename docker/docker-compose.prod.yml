@@ -4,7 +4,6 @@ services:
       context: .
       dockerfile: storage-react/Dockerfile.prod
     container_name: frontend_c
-    mem_limit: ${MEMORY_LIMIT_REACT}
     ports:
       - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
       - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
@@ -33,15 +32,3 @@ services:
       AWS_DB_PASS: ${AWS_DB_PASS}
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       NODE_ENV: ${NODE_ENV}
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    ports:
-      - 8080:80
-    volumes:
-      - ./phpmyadmin.config.php:/etc/phpmyadmin/config.inc.php
-      - ./phpmyadmin.php.ini:/usr/local/etc/php/php.ini-production
-      - ./phpmyadmin.php.ini:/usr/local/etc/php/php.ini
-    environment:
-      - PMA_HOST=db.kamba.me
-      - PMA_ARBITRARY=1
