@@ -6,13 +6,15 @@ FROM node:lts-alpine as build
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the container
-COPY package*.json ./
+COPY storage-react/package*.json ./
+
+RUN ls /app
 
 # Install app dependencies
 RUN npm install
 
 # Copy the rest of the application code to the container
-COPY . .
+COPY storage-react ./
 
 # Build the app for production
 RUN npm run build
