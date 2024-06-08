@@ -1,9 +1,10 @@
 // apiService.js
 import makeApiCall from './api.service';
+import config from "../config";
 
-const API_BASE_URL = 'http://192.168.1.101:8000/api/db';
+const triggerDBRequest = async (endpoint, action, userInput) => {
+  const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
-const triggerDBRequest = async (action, userInput) => {
   try {
       const apiBody = {
           category: 'provider.db',

@@ -17,7 +17,7 @@ const Layout = () => {
     setIsFetching(true);
     try {
       const userInput = { "limit": limit, "offset": newOffset };
-      const response = await apiService.triggerDBRequest("db_all_sessions_for_user", userInput);
+      const response = await apiService.triggerDBRequest("db", "db_all_sessions_for_user", userInput);
       const sessions = response.message.result;
 
       // Filter out duplicate sessions

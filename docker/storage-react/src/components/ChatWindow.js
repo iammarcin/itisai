@@ -12,8 +12,8 @@ const ChatWindow = ({ selectedSession }) => {
       const fetchChatContent = async () => {
         try {
           const userInput = { "session_id": selectedSession.session_id };
-          const response = await apiService.triggerDBRequest("db_get_user_session", userInput);
-          
+          const response = await apiService.triggerDBRequest("db", "db_get_user_session", userInput);
+
           const chatHistory = JSON.parse(response.message.result.chat_history);
 
           setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
