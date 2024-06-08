@@ -58,7 +58,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const handleRemove = async () => {
     try {
       const userInput = { "session_id": contextMenu.session.session_id };
-      const response = await apiService.triggerDBRequest("db", "db_remove_session", userInput);
+      await apiService.triggerDBRequest("db", "db_remove_session", userInput);
       // Update the chatSessions state
       removeSession(contextMenu.session.session_id);
     } catch (error) {
@@ -78,7 +78,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     const triggerDBRename = async () => {
       try {
         const userInput = { "session_id": renamePopup.session.session_id, "new_session_name": renamePopup.name };
-        const response = await apiService.triggerDBRequest("db", "db_update_session", userInput);
+        await apiService.triggerDBRequest("db", "db_update_session", userInput);
         // update also name in UI
         updateSessionName(renamePopup.session.session_id, renamePopup.name);
       } catch (error) {

@@ -42,5 +42,8 @@
     "react-app-rewired": "^2.2.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.23.1"
+  },
+  "resolutions": {
+    "terser-webpack-plugin": "5.1.1"
   }
 }

@@ -11,6 +11,8 @@ const Login = ({ onLoginSuccess }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log("SGT")
+      console.log(process.env.NODE_ENV)
       const userInput = { "username": user, "password": password };
       const response = await apiService.triggerDBRequest("db", "db_auth_user", userInput);
 

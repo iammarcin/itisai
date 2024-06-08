@@ -12,3 +12,4 @@ services:
     environment:
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       NODE_ENV: ${NODE_ENV}
+      REACT_APP_MY_NODE_ENV: "local"

@@ -30,7 +30,7 @@ const ChatMessage = ({ message }) => {
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}>
       <div className="avatar">
-        <img src={avatarSrc} alt={message.isUserMessage ? 'User Avatar' : message.aiCharacterName} />
+        <img src={avatarSrc} alt="avatar"/>
       </div>
       <div className="message-content">
         <Markdown
@@ -47,7 +47,7 @@ const ChatMessage = ({ message }) => {
           }}
         />
         {validImageLocations.map((src, index) => (
-        <img key={index} src={src} alt="Chat image" />
+        <img key={index} src={src} alt="Chat"/>
         ))}
         {message.fileNames && message.fileNames.map((src, index) => (
           <audio key={index} controls>
