@@ -3,6 +3,7 @@ import React from 'react';
 import './ChatMessage.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
@@ -36,6 +37,7 @@ const ChatMessage = ({ message }) => {
         <Markdown
           children={message.message}
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
           components={{
             p: ({ node, ...props }) => {
               const hasImage = node.children.some(child => child.tagName === 'img');
