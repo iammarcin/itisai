@@ -38,7 +38,7 @@ const config = {
 if (process.env.NODE_ENV === 'production') {
     config.AWS_REGION = 'eu-west-1';
     config.S3_BUCKET = "myaiapps3bucket";
-    config.apiEndpoint = "https://ai.atamai.biz/api";
+    config.apiEndpoint = "https://ai.atamai.biz/api/api";
 } else if  (process.env.NODE_ENV === 'development') {
     config.AWS_REGION = 'eu-west-1';
     config.S3_BUCKET = "myaiapps3bucket";
