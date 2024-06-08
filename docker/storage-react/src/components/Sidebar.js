@@ -1,4 +1,3 @@
-// Sidebar.js
 import React, { useState, useEffect, useRef } from 'react';
 import apiService from '../services/apiService';
 import './Sidebar.css';
@@ -8,6 +7,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
   const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const renameInputRef = useRef(null);
 
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
@@ -27,6 +27,12 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
 
     return () => observer.current && observer.current.disconnect();
   }, [chatSessions, loadMoreSessions]);
+
+  useEffect(() => {
+    if (renamePopup) {
+      renameInputRef.current.focus();
+    }
+  }, [renamePopup]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -98,6 +104,14 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     onSelectSession(session);
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleRenameSubmit();
+    } else if (event.key === 'Escape') {
+      handleRenameCancel();
+    }
+  };
+
   return (
     <div className="sidebar">
       <h2>Chat Sessions</h2>
@@ -110,10 +124,10 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
             className={selectedSessionId === session.session_id ? 'selected' : ''}
           >
             <div className="session-item">
-              <img 
-                src={`/imgs/${session.ai_character_name}.png`} 
-                alt={session.ai_character_name} 
-                className="avatar" 
+              <img
+                src={`/imgs/${session.ai_character_name}.png`}
+                alt={session.ai_character_name}
+                className="avatar"
               />
               <div className="session-details">
                 <div className="session-name">{session.session_name}</div>
@@ -125,8 +139,8 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
         <div className="load-more"></div>
       </ul>
       {contextMenu && (
-        <div 
-          className="context-menu" 
+        <div
+          className="context-menu"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
           <div className="context-menu-item" onClick={handleRename}>Rename</div>
@@ -137,10 +151,12 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
         <div className="rename-popup">
           <div className="rename-popup-content">
             <h3>Rename Session</h3>
-            <input 
-              type="text" 
-              value={renamePopup.name} 
-              onChange={handleRenameChange} 
+            <input
+              type="text"
+              value={renamePopup.name}
+              onChange={handleRenameChange}
+              onKeyDown={handleKeyDown}
+              ref={renameInputRef}
             />
             <div className="button-group">
               <button onClick={handleRenameSubmit}>Submit</button>
