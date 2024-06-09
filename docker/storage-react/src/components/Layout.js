@@ -5,7 +5,7 @@ import ChatWindow from './ChatWindow';
 import apiService from '../services/apiService';
 import './Layout.css';
 
-const Layout = () => {
+const Layout = ({isAuthenticated}) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
@@ -14,6 +14,9 @@ const Layout = () => {
   const limit = 5;
 
   const fetchChatSessions = async (newOffset) => {
+    if (!isAuthenticated) {
+      return;
+    }
     setIsFetching(true);
     try {
       const userInput = { "limit": limit, "offset": newOffset };

@@ -422,7 +422,7 @@ class dbProvider:
           user = result.scalars().first()
 
           if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": { "result": "User authenticated", "token": os.environ.get('MY_AUTH_TOKEN', None) }}}, status_code=200)
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": { "result": "User authenticated", "token": os.environ.get('MY_AUTH_BEARER_TOKEN', None) }}}, status_code=200)
           else:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         except Exception as e:

@@ -4,9 +4,10 @@ export default function authHeader() {
     // for Node.js Express back-end
     //return { 'x-access-token': user.value.accessToken };
     // for fastapi
-    console.log("process.env.MY_AUTH_TOKEN")
-    console.log(process.env.MY_AUTH_TOKEN)
-    return { Authorization: 'Bearer ' + process.env.MY_AUTH_TOKEN };
+    // get token
+    const authToken = JSON.parse(localStorage.getItem('authToken'));
+
+    return { Authorization: authToken && authToken.token ? 'Bearer ' + authToken.token : '' };
   } else {
     return {};
   }

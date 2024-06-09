@@ -26,7 +26,7 @@ function App() {
   useEffect(() => {
     // Check if the user is already authenticated
     const tokenData = JSON.parse(localStorage.getItem('authToken'));
-    console.log("tokenData : ", tokenData);
+
     if (isTokenValid(tokenData)) {
       setIsAuthenticated(true);
     }
@@ -40,7 +40,7 @@ function App() {
     <Router>
       <Routes>
         {isAuthenticated ? (
-          <Route path="/" element={<Layout />} />
+          <Route path="/" element={<Layout isAuthenticated={isAuthenticated} />} />
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         )}

@@ -1,5 +1,5 @@
 import authHeader from './auth.header';
-
+import config from '../config';
 
 export default async function makeApiCall({
   endpoint = "",
@@ -48,8 +48,9 @@ export default async function makeApiCall({
       return response;
     }
     const data = await response.json();
-
-    console.log("response: ", data)
+    if (config.DEBUG == 1) {
+      console.log("response: ", data)
+    }
 
     // not sure if its good idea
     //if (response.ok) {

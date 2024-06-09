@@ -51,7 +51,6 @@ if (process.env.NODE_ENV === 'production') {
     }
 }
 
-config.MY_AUTH_TOKEN = process.env.MY_AUTH_TOKEN;
 config.DEBUG = 1;
 config.VERBOSE_SUPERB = 0;
 export default config;
