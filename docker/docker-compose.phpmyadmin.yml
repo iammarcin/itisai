@@ -1,0 +1,14 @@
+services:
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    mem_limit: 128m
+    ports:
+      - 8080:80
+    volumes:
+      - ./phpmyadmin.config.php:/etc/phpmyadmin/config.inc.php
+      - ./phpmyadmin.php.ini:/usr/local/etc/php/php.ini-production
+      - ./phpmyadmin.php.ini:/usr/local/etc/php/php.ini
+    environment:
+      - PMA_HOST=localhost
+      - PMA_ARBITRARY=1
