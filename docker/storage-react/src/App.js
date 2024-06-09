@@ -26,6 +26,7 @@ function App() {
   useEffect(() => {
     // Check if the user is already authenticated
     const tokenData = JSON.parse(localStorage.getItem('authToken'));
+    console.log("tokenData : ", tokenData);
     if (isTokenValid(tokenData)) {
       setIsAuthenticated(true);
     }

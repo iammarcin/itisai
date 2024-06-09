@@ -1,4 +1,4 @@
-//import authHeader from './auth.header';
+import authHeader from './auth.header';
 
 
 export default async function makeApiCall({
@@ -30,10 +30,10 @@ export default async function makeApiCall({
     //}, timeout);
 
     //headers = {"Content-Type": "application/json"}
-    if (!(endpoint.includes("loginUser") || endpoint.includes("registerUser"))) {
+    if (!endpoint.includes("registerUser")) {
       headers = {
         ...headers,
-        //...authHeader()
+        ...authHeader()
       }
     }
 
@@ -49,10 +49,14 @@ export default async function makeApiCall({
     }
     const data = await response.json();
 
+    console.log("response: ", data)
+
     // not sure if its good idea
     //if (response.ok) {
     if (response.ok && data.code === 200) {
       return { code: 200, success: true, message: data.message }
+    } else if (response.status === 401) {
+      return { code: 401, success: false, message: "Unauthorized" };
     } else {
       //throw new Error(data.message || "Something went wrong!");
       return { code: data.code, success: false, message: data.message }

@@ -2,7 +2,7 @@ from fastapi import HTTPException, Depends
 from fastapi.responses import JSONResponse
 from pydanticValidation.db_schemas import ChatMessage, ChatSession, User
 import config
-import uuid
+import uuid, os
 from datetime import datetime, date, time
 import json, bcrypt
 import traceback
@@ -404,25 +404,25 @@ class dbProvider:
     await session.flush()
     logger.info("New session ID: %s", new_session.session_id)
     return new_session.session_id
-  
+
   async def authenticate_user(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
           username = userInput['username']
           password = userInput['password']
-          
+
           result = await session.execute(
             select(User).where(
               User.email == username,
               User.customer_id == customerId
               )
           )
-          
+
           user = result.scalars().first()
-          
+
           if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "User authenticated"}}, status_code=200)
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": { "result": "User authenticated", "token": os.environ.get('MY_AUTH_TOKEN', None) }}}, status_code=200)
           else:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         except Exception as e:

@@ -33,10 +33,10 @@ app = FastAPI(lifespan=lifespan, debug=True)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this as needed (e.g., ["http://localhost:3000"])
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Adjust this as needed
-    allow_headers=["*"],  # Adjust this as needed
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # middleware for catching problems with pydantic data validation
@@ -198,7 +198,10 @@ async def aws_methods(
 
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
 @app.post("/api/db")
-async def db_methods(job_request: MediaModel): # , token = Depends(auth_user_token)):
+async def db_methods(job_request: MediaModel, request: Request):
+    # endpoint without auth - for example user login - because he doesnt have token yet
+    if job_request.action not in ['db_auth_user']:
+        token = await auth_user_token(request)
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
 
@@ -220,7 +223,7 @@ async def db_methods(job_request: MediaModel): # , token = Depends(auth_user_tok
         logger.error(e)
         return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
         #raise HTTPException(status_code=e.status_code, detail=e.detail)
-    
+
     except Exception as e:
         logger.info("ALL NOT 2 OK")
         logger.error("Error while processing request")

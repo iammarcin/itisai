@@ -9,6 +9,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const renameInputRef = useRef(null);
 
+  // Add an observer to the load-more element (when scrolled into bottom, load more sessions)
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 

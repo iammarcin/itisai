@@ -15,10 +15,13 @@ const Login = ({ onLoginSuccess }) => {
       console.log(process.env.NODE_ENV)
       const userInput = { "username": user, "password": password };
       const response = await apiService.triggerDBRequest("db", "db_auth_user", userInput);
-
+      console.log("response : ", response);
+      console.log("response.message.result.token : ", response.message.result.token);
+      console.log("response.message.result : ", response.message.result);
       if (response.message && response.message.result && response.code === 200) {
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 15);
+
         localStorage.setItem('authToken', JSON.stringify({
           token: response.message.result.token, // TODO - one day real token here
           expiration: expirationDate.toISOString(),

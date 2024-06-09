@@ -19,7 +19,6 @@ const triggerDBRequest = async (endpoint, action, userInput) => {
           body: apiBody
       });
 
-      console.log('API response:', response);
       return response;
   } catch (error) {
       console.error('Error triggering DB request:', error);

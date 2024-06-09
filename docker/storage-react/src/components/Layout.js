@@ -27,7 +27,7 @@ const Layout = () => {
 
       // Add the new session ids to the fetchedSessionIds set
       uniqueSessions.forEach(session => fetchedSessionIds.current.add(session.session_id));
-      
+
       // Update the state with the unique sessions
       setChatSessions(prevSessions => [...prevSessions, ...uniqueSessions]);
     } catch (error) {
@@ -62,7 +62,7 @@ const Layout = () => {
 
   return (
     <div className="layout">
-      <Sidebar 
+      <Sidebar
         chatSessions={chatSessions} 
         onSelectSession={setSelectedSession} 
         loadMoreSessions={loadMoreSessions}
