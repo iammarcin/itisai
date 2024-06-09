@@ -18,7 +18,6 @@ async def auth_user_token(request: Request):
     # from android we receive
     # .addHeader("Authorization", "Bearer $authToken")
     auth_header = request.headers.get("Authorization")
-    logger.info(f"auth_header: {auth_header}")
     if not auth_header:
         logger.info("No Authorization header. Probably expired")
         raise HTTPException(status_code=401, detail="You're not authorized to access this resource")

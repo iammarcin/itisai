@@ -226,19 +226,45 @@ class dbProvider:
           db_user_message.image_locations = userMessage['image_locations']
           db_user_message.file_locations = userMessage['file_locations']
 
-          ai_message_id = aiResponse['message_id']
+          # let's check if we have AI response's message_id (there is a case where AI response fails and there is no message_id)
+          ai_message_id = aiResponse.get('message_id', 0)
+          new_ai_message_id = None
 
           # Check if the message exists and belongs to the user
-          db_ai_message = await session.get(ChatMessage, ai_message_id)
-          if not db_ai_message:
-              raise HTTPException(status_code=404, detail="Message not found")
-          if db_ai_message.customer_id != customerId:
-              raise HTTPException(status_code=403, detail="Not authorized to edit this message")
+          if ai_message_id:
+            db_ai_message = await session.get(ChatMessage, ai_message_id)
+          else:
+            db_ai_message = None
 
-          # Update the message text
-          db_ai_message.message = aiResponse['message']
-          db_ai_message.image_locations = aiResponse['image_locations']
-          db_ai_message.file_locations = aiResponse['file_locations']
+          if not db_ai_message:
+            # If AI message does not exist, create a new one - important for history restore and search
+            new_ai_message = ChatMessage(
+              session_id=userInput['session_id'],
+              customer_id=customerId,
+              sender=aiResponse['sender'],
+              message=aiResponse['message'],
+              image_locations=aiResponse.get('image_locations'),
+              file_locations=aiResponse.get('file_locations')
+            )
+            session.add(new_ai_message)
+            await session.flush()  # Generate the new message ID
+            new_ai_message_id = new_ai_message.message_id
+
+            # Update the last AI message in the chat history with the new ID
+            if userInput['chat_history']:
+              for message in reversed(userInput['chat_history']):
+                if not message.get('isUserMessage'):
+                  logger.info("!!!!!!!!!!!!!")
+                  message['messageId'] = new_ai_message_id
+                  logger.info(message)
+                  break
+          else:
+            # if everything as it should be and there is message_id to be edited
+            # Update the existing AI message
+            db_ai_message.message = aiResponse['message']
+            db_ai_message.image_locations = aiResponse['image_locations']
+            db_ai_message.file_locations = aiResponse['file_locations']
+            new_ai_message_id = db_ai_message.message_id
 
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
@@ -250,7 +276,7 @@ class dbProvider:
             raise HTTPException(status_code=404, detail="Chat session not found")
 
           await session.commit()
-          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Edit completed"}}, status_code=200)
+          return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": { "aiMessageId": new_ai_message_id } }}, status_code=200)
         except Exception as e:
           logger.error("Error in DB! edit_chat_message_for_user: %s", str(e))
           traceback.print_exc()
