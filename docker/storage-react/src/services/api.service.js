@@ -48,7 +48,7 @@ export default async function makeApiCall({
       return response;
     }
     const data = await response.json();
-    if (config.DEBUG == 1) {
+    if (config.DEBUG === 1) {
       console.log("response: ", data)
     }
 

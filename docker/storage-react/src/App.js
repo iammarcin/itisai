@@ -40,7 +40,7 @@ function App() {
     <Router>
       <Routes>
         {isAuthenticated ? (
-          <Route path="/" element={<Layout isAuthenticated={isAuthenticated} />} />
+          <Route path="/" element={<Layout />} />
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         )}

@@ -198,7 +198,7 @@ async def aws_methods(
 
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
 @app.post("/api/db")
-async def db_methods(job_request: MediaModel, request: Request):
+async def db_methods(job_request: MediaModel, request: Request): # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
     if job_request.action not in ['db_auth_user']:
         token = await auth_user_token(request)

@@ -5,7 +5,7 @@ import ChatWindow from './ChatWindow';
 import apiService from '../services/apiService';
 import './Layout.css';
 
-const Layout = ({isAuthenticated}) => {
+const Layout = () => {
   const [chatSessions, setChatSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
@@ -13,10 +13,7 @@ const Layout = ({isAuthenticated}) => {
   const fetchedSessionIds = useRef(new Set());
   const limit = 5;
 
-  const fetchChatSessions = async (newOffset) => {
-    if (!isAuthenticated) {
-      return;
-    }
+  const fetchChatSessions = useCallback(async (newOffset) => {
     setIsFetching(true);
     try {
       const userInput = { "limit": limit, "offset": newOffset };
@@ -37,7 +34,7 @@ const Layout = ({isAuthenticated}) => {
       console.error('Failed to fetch chat sessions', error);
     }
     setIsFetching(false);
-  };
+  }, [limit]);
 
   const loadMoreSessions = useCallback(() => {
     if (!isFetching) {
@@ -61,7 +58,7 @@ const Layout = ({isAuthenticated}) => {
 
   useEffect(() => {
     fetchChatSessions(offset);
-  }, [offset]);
+  }, [offset, fetchChatSessions]);
 
   return (
     <div className="layout">
