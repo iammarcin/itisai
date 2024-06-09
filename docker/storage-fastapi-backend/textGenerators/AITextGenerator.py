@@ -134,6 +134,7 @@ class AITextGenerator:
     try:
         chat_history = userInput.get('chat_history') if userInput.get('chat_history') is not None else []
         latest_user_message = userInput.get('prompt')
+        # fail on purpose
         #test = userInput['test']
         # Trim messages to fit within the memory token limit
         chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input)
