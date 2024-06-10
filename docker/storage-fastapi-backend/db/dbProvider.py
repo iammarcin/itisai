@@ -9,7 +9,7 @@ import traceback
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 
-from sqlalchemy import create_engine, MetaData, func, select, and_
+from sqlalchemy import create_engine, MetaData, func, select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 import logconfig
@@ -336,7 +336,10 @@ class dbProvider:
         try:
           stmt = select(ChatSession).join(ChatMessage).where(
             ChatMessage.customer_id == customerId,
-            ChatMessage.message.ilike(f"%{search_text}%")
+            or_(
+              ChatMessage.message.ilike(f"%{search_text}%"),
+              ChatSession.session_name.ilike(f"%{search_text}%")
+            )
           ).order_by(ChatSession.last_update.desc())
           result = await session.execute(stmt)
           messages = result.scalars().all()
