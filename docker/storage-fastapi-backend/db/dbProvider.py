@@ -344,7 +344,7 @@ class dbProvider:
           messages = result.scalars().all()
           sessions_list = [self.to_dict(message) for message in messages] 
 
-          logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
+          #logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
           
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
         except Exception as e:

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import ChatMessage from './ChatMessage';
 import apiService from '../services/apiService';
-import './ChatWindow.css';
+import './css/ChatWindow.css';
 
 const ChatWindow = ({ selectedSession }) => {
   const [chatContent, setChatContent] = useState(null);

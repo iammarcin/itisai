@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import apiService from '../services/apiService';
-import './Layout.css';
+import './css/Layout.css';
 import useDebounce from '../hooks/useDebounce';
 
 const Layout = () => {

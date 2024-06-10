@@ -1,6 +1,6 @@
 // ChatMessage.js
 import React from 'react';
-import './ChatMessage.css';
+import './css/ChatMessage.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './Sidebar.css';
+import './css/Sidebar.css';
 import apiService from '../services/apiService';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode }) => {
