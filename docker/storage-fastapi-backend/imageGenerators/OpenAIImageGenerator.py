@@ -86,13 +86,7 @@ class OpenAIImageGenerator:
                 return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
             else:
                 logger.info("Image gen start!")
-                response = {'error': {'code': 'content_policy_violation', 'message': 'Your request was rejected as a result of our safety system. Your prompt may contain text that is not allowed by our safety system.', 'param': None, 'type': 'invalid_request_error'}}
-                raise BadRequestError(
-                    message="Your request was rejected as a result of our safety system. Your prompt may contain text that is not allowed by our safety system.",
-                    type="invalid_request_error",
-                    code="content_policy_violation"
-                )
-                response2 = self.client.images.generate(
+                response = self.client.images.generate(
                     prompt=prompt,
                     n=self.number_of_images,
                     size=str(self.size_of_image)+"x"+str(self.size_of_image),
