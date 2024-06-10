@@ -3,12 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import apiService from '../services/apiService';
 import './Sidebar.css';
 
-const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession }) => {
+const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const renameInputRef = useRef(null);
+
+  const handleSearchInputChange = (event) => {
+    onSearch(event.target.value);
+  };
 
   // Add an observer to the load-more element (when scrolled into bottom, load more sessions)
   useEffect(() => {
@@ -117,6 +121,12 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   return (
     <div className="sidebar">
       <h2>Chat Sessions</h2>
+      <input
+        type="text"
+        className="search-bar"
+        placeholder="Search sessions..."
+        onChange={handleSearchInputChange}
+      />
       <ul>
         {chatSessions.map((session) => (
           <li
