@@ -9,6 +9,7 @@ const Layout = () => {
   const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
   const [searchText, setSearchText] = useState('');
+  const [isSearchMode, setIsSearchMode] = useState(false); // New state
   const isFetchingRef = useRef(false);
   const fetchedSessionIds = useRef(new Set());
   const limit = 20;
@@ -28,10 +29,8 @@ const Layout = () => {
         session => !fetchedSessionIds.current.has(session.session_id)
       );
 
-      // Add the new session ids to the fetchedSessionIds set
       uniqueSessions.forEach(session => fetchedSessionIds.current.add(session.session_id));
 
-      // Update the state with the unique sessions
       setChatSessions(prevSessions => (newOffset === 0 ? uniqueSessions : [...prevSessions, ...uniqueSessions]));
     } catch (error) {
       console.error('Failed to fetch chat sessions', error);
@@ -40,13 +39,11 @@ const Layout = () => {
   }, [limit]);
 
   const loadMoreSessions = useCallback(() => {
-    if (!isFetchingRef.current) {
+    if (!isFetchingRef.current && !isSearchMode) { // Conditional fetch
       const newOffset = offset + limit;
       setOffset(newOffset);
-      //fetchChatSessions(newOffset);
     }
-  }, [offset, limit]);
-  //}, [offset, fetchChatSessions, limit]);
+  }, [offset, limit, isSearchMode]);
 
   const updateSessionName = (sessionId, newName) => {
     setChatSessions(prevSessions => prevSessions.map(session =>
@@ -57,7 +54,7 @@ const Layout = () => {
   const removeSession = (sessionId) => {
     setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
     if (selectedSession && selectedSession.session_id === sessionId) {
-      setSelectedSession(null); // Clear the current session if it is removed
+      setSelectedSession(null);
     }
   };
 
@@ -71,6 +68,7 @@ const Layout = () => {
     setOffset(0);
     fetchedSessionIds.current.clear();
     setChatSessions([]);
+    setIsSearchMode(term !== ''); // Update search mode state
   };
 
   return (
@@ -82,6 +80,7 @@ const Layout = () => {
         updateSessionName={updateSessionName}
         removeSession={removeSession}
         onSearch={handleSearch}
+        isSearchMode={isSearchMode} // Pass down the new state
       />
       <ChatWindow selectedSession={selectedSession} />
     </div>

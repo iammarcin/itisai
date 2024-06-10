@@ -1,9 +1,9 @@
-// Sidebar.js
 import React, { useState, useEffect, useRef } from 'react';
-import apiService from '../services/apiService';
 import './Sidebar.css';
 
-const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch }) => {
+import apiService from '../services/apiService';
+
+const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
@@ -14,17 +14,16 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     onSearch(event.target.value);
   };
 
-  // Add an observer to the load-more element (when scrolled into bottom, load more sessions)
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
-        loadMoreSessions();
-      }
-    });
+    if (!isSearchMode) { // Only set up the observer if not in search mode
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          loadMoreSessions();
+        }
+      });
 
-    if (observer.current) {
       const loadMoreElement = document.querySelector('.load-more');
       if (loadMoreElement) {
         observer.current.observe(loadMoreElement);
@@ -32,7 +31,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     }
 
     return () => observer.current && observer.current.disconnect();
-  }, [chatSessions, loadMoreSessions]);
+  }, [chatSessions, loadMoreSessions, isSearchMode]);
 
   useEffect(() => {
     if (renamePopup) {
@@ -61,7 +60,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     try {
       const userInput = { "session_id": contextMenu.session.session_id };
       await apiService.triggerDBRequest("db", "db_remove_session", userInput);
-      // Update the chatSessions state
       removeSession(contextMenu.session.session_id);
     } catch (error) {
       console.error('Failed to remove session', error);
@@ -81,7 +79,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
       try {
         const userInput = { "session_id": renamePopup.session.session_id, "new_session_name": renamePopup.name };
         await apiService.triggerDBRequest("db", "db_update_session", userInput);
-        // update also name in UI
         updateSessionName(renamePopup.session.session_id, renamePopup.name);
       } catch (error) {
         console.error('Failed to rename session', error);
