@@ -202,8 +202,8 @@ async def db_methods(job_request: MediaModel, request: Request): # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
     if job_request.action not in ['db_auth_user']:
         token = await auth_user_token(request)
-    logger.info("!"*100)
-    logger.info("Job request: " + str(job_request))
+    logger.debug("!"*100)
+    logger.debug("Job request: " + str(job_request))
 
     try:
         my_generator = get_generator(job_request.category, "doesntmatter")
@@ -213,7 +213,6 @@ async def db_methods(job_request: MediaModel, request: Request): # token below
         response = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
 
         response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
-        logger.info("ALL OK")
         if job_request.action != 'db_get_user_session':
             logger.info(response_content)
         return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")

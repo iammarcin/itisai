@@ -27,7 +27,6 @@ engine = create_async_engine(
     pool_pre_ping=True  # Enable pre-ping to check connections before using them
 )
 
-
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     expire_on_commit=False,
@@ -69,23 +68,23 @@ class dbProvider:
 
     try:
       if action == "db_new_session":
-        return await self.create_new_chat_session(userInput, customerId)
+        return await self.db_new_session(userInput, customerId)
       elif action == "db_new_message":
-        return await self.create_chat_message(userInput, customerId)
+        return await self.db_new_message(userInput, customerId)
       elif action == "db_edit_message":
-        return await self.edit_chat_message_for_user(userInput, customerId)
+        return await self.db_edit_message(userInput, customerId)
       elif action == "db_all_sessions_for_user":
-        return await self.get_all_chat_sessions_for_user(userInput, customerId)
+        return await self.db_all_sessions_for_user(userInput, customerId)
       elif action == "db_get_user_session":
-        return await self.get_chat_session(userInput, customerId)
+        return await self.db_get_user_session(userInput, customerId)
       elif action == "db_search_messages":
-        return await self.search_chat_messages_for_user(userInput, customerId)
+        return await self.db_search_messages(userInput, customerId)
       elif action == "db_update_session":
-        return await self.update_chat_session(userInput, customerId)
+        return await self.db_update_session(userInput, customerId)
       elif action == "db_remove_session":
-        return await self.remove_chat_session(userInput, customerId)
+        return await self.db_remove_session(userInput, customerId)
       elif action == "db_auth_user":
-        return await self.authenticate_user(userInput, customerId)
+        return await self.db_auth_user(userInput, customerId)
       else:
         raise HTTPException(status_code=400, detail="Unknown action")
     except Exception as e:
@@ -94,7 +93,7 @@ class dbProvider:
 
   # TEST as sometimes db_new_session fails
   #@retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-  async def create_new_chat_session(self, userInput: dict, customerId: int):
+  async def db_new_session(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
@@ -102,23 +101,23 @@ class dbProvider:
           ai_character_name = userInput.get('ai_character_name', "Assistant")
           chat_history = userInput.get('chat_history', [])
 
-          new_session_id = await self._create_new_chat_session_internal(session, customerId, session_name, ai_character_name, chat_history)
+          new_session_id = await self._db_new_session_internal(session, customerId, session_name, ai_character_name, chat_history)
 
           await session.commit()
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": new_session_id}}, status_code=200)
         except Exception as e:
-          logger.error("Error in create_new_chat_session: %s", str(e))
+          logger.error("Error in db_new_session: %s", str(e))
           traceback.print_exc()
           #return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
-          raise HTTPException(status_code=500, detail="Error in DB! create_new_chat_session")
+          raise HTTPException(status_code=500, detail="Error in DB! db_new_session")
 
-  async def create_chat_message(self, userInput: dict, customerId: int):
+  async def db_new_message(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
           # Check if session_id is set, if not create a new session
           if not userInput.get('session_id'):
-            userInput['session_id'] = await self._create_new_chat_session_internal(session, customerId)
+            userInput['session_id'] = await self._db_new_session_internal(session, customerId)
 
           userMessage = userInput['userMessage']
           aiResponse = userInput['aiResponse']
@@ -158,8 +157,6 @@ class dbProvider:
 
             new_ai_response_id = new_ai_response.message_id
 
-          logger.info("New messages IDs. User: %s, AI: %s", new_user_message_id, new_ai_response_id)
-
           # Update chat session's chat_history and last_update
           chat_session = await session.get(ChatSession, userInput['session_id'])
           if chat_session:
@@ -191,21 +188,21 @@ class dbProvider:
             raise HTTPException(status_code=404, detail="Chat session not found")
 
           result = await session.commit()
-          logger.info("Result of commit: %s", result)
+          logger.debug("Result of commit: %s", result)
 
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": { "userMessageId": new_user_message_id, "aiMessageId": new_ai_response_id}, "sessionId": userInput['session_id'] }}, status_code=200)
         except HTTPException as e:
-          logger.error("HTTP error in create_chat_message: %s", str(e))
+          logger.error("HTTP error in db_new_message: %s", str(e))
           traceback.print_exc()
           #return JSONResponse(status_code=e.status_code, content={"success": False, "code": e.status_code, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! create_chat_message"}})
-          raise HTTPException(status_code=500, detail="Error in DB! create_chat_message")
+          raise HTTPException(status_code=500, detail="Error in DB! db_new_message")
         except Exception as e:
-          logger.error("Error in DB! create_chat_message: %s", str(e))
+          logger.error("Error in DB! db_new_message: %s", str(e))
           traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! create_chat_message"}}, status_code=500)
-          raise HTTPException(status_code=500, detail="Error in DB! create_chat_message")
+          raise HTTPException(status_code=500, detail="Error in DB! db_new_message")
 
-  async def edit_chat_message_for_user(self, userInput: dict, customerId: int):
+  async def db_edit_message(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
@@ -254,9 +251,7 @@ class dbProvider:
             if userInput['chat_history']:
               for message in reversed(userInput['chat_history']):
                 if not message.get('isUserMessage'):
-                  logger.info("!!!!!!!!!!!!!")
                   message['messageId'] = new_ai_message_id
-                  logger.info(message)
                   break
           else:
             # if everything as it should be and there is message_id to be edited
@@ -281,9 +276,9 @@ class dbProvider:
           logger.error("Error in DB! edit_chat_message_for_user: %s", str(e))
           traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! edit_chat_message_for_user"}}, status_code=500)
-          raise HTTPException(status_code=500, detail="Error in DB! edit_chat_message_for_user")
+          raise HTTPException(status_code=500, detail="Error in DB! db_edit_message")
 
-  async def get_all_chat_sessions_for_user(self, userInput: dict, customerId: int):
+  async def db_all_sessions_for_user(self, userInput: dict, customerId: int):
     offset = userInput.get('offset', 0)
     limit = userInput.get('limit', 30)
     async with AsyncSessionLocal() as session:
@@ -307,13 +302,13 @@ class dbProvider:
         logger.debug("All sessions for user %s: %s", customerId, sessions_list)
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
       except Exception as e:
-        logger.error("Error in DB! get_all_chat_sessions_for_user: %s", str(e))
+        logger.error("Error in DB! db_all_sessions_for_user: %s", str(e))
         traceback.print_exc()
         #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! get_all_chat_sessions_for_user"}}, status_code=500)
-        raise HTTPException(status_code=500, detail="Error in DB! get_all_chat_sessions_for_user")
+        raise HTTPException(status_code=500, detail="Error in DB! db_all_sessions_for_user")
 
 
-  async def get_chat_session(self, userInput: dict, customerId: int):
+  async def db_get_user_session(self, userInput: dict, customerId: int):
     session_id = userInput['session_id']
     async with AsyncSessionLocal() as session:
       async with session.begin():
@@ -323,18 +318,18 @@ class dbProvider:
           )
           chat_session = result.scalars().first()
           chat_session_content = self.to_dict(chat_session)
-          logger.info("Chat session %s: %s", session_id, chat_session_content)
+          logger.debug("Chat session %s: %s", session_id, chat_session_content)
           if chat_session is None:
             raise HTTPException(status_code=404, detail="Chat session not found")
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": chat_session_content}}, status_code=200)
         except Exception as e:
-          logger.error("Error in DB! get_chat_session: %s", str(e))
+          logger.error("Error in DB! db_get_user_session: %s", str(e))
           traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! get_chat_session"}}, status_code=500)
-          raise HTTPException(status_code=500, detail="Error in DB! get_chat_session")
+          raise HTTPException(status_code=500, detail="Error in DB! db_get_user_session")
 
 
-  async def search_chat_messages_for_user(self, userInput: dict, customerId: int):
+  async def db_search_messages(self, userInput: dict, customerId: int):
     search_text = userInput['search_text']
     async with AsyncSessionLocal() as session:
       async with session.begin():
@@ -347,16 +342,16 @@ class dbProvider:
           messages = result.scalars().all()
           sessions_list = [self.to_dict(message) for message in messages] 
 
-          logger.info("All sessions with search message for user %s: %s", customerId, sessions_list)
-          #logger.info("All session ids for user %s: %s", customer_id, session_ids)
+          logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
+          #logger.debug("All session ids for user %s: %s", customer_id, session_ids)
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
         except Exception as e:
-          logger.error("Error in DB! search_chat_messages_for_user: %s", str(e))
+          logger.error("Error in DB! db_search_messages: %s", str(e))
           traceback.print_exc()
           #return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! search_chat_messages_for_user"}}, status_code=500)
-          raise HTTPException(status_code=500, detail="Error in DB! search_chat_messages_for_user")
+          raise HTTPException(status_code=500, detail="Error in DB! db_search_messages")
 
-  async def update_chat_session(self, userInput: dict, customerId: int):
+  async def db_update_session(self, userInput: dict, customerId: int):
     session_id = userInput['session_id']
     new_session_name = userInput.get('new_session_name')
     new_ai_character_name = userInput.get('new_ai_character_name')
@@ -380,11 +375,11 @@ class dbProvider:
           await session.commit()
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session updated"}}, status_code=200)
         except Exception as e:
-          logger.error("Error in DB! update_chat_session: %s", str(e))
+          logger.error("Error in DB! db_update_session: %s", str(e))
           traceback.print_exc()
-          raise HTTPException(status_code=500, detail="Error in DB! update_chat_session")
+          raise HTTPException(status_code=500, detail="Error in DB! db_update_session")
 
-  async def remove_chat_session(self, userInput: dict, customerId: int):
+  async def db_remove_session(self, userInput: dict, customerId: int):
     session_id = userInput.get('session_id')
     if not session_id:
       raise HTTPException(status_code=400, detail="session_id is required")
@@ -413,12 +408,12 @@ class dbProvider:
 
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session removed"}}, status_code=200)
         except Exception as e:
-          logger.error("Error in DB! remove_chat_session: %s", str(e))
+          logger.error("Error in DB! db_remove_session: %s", str(e))
           traceback.print_exc()
-          raise HTTPException(status_code=500, detail="Error in DB! remove_chat_session")
+          raise HTTPException(status_code=500, detail="Error in DB! db_remove_session")
 
   # Helper function to create a new chat session (it's used in two diff functions)
-  async def _create_new_chat_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
+  async def _db_new_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
     new_session = ChatSession(
       session_id=str(uuid.uuid4()),
       customer_id=customerId,
@@ -428,10 +423,10 @@ class dbProvider:
     )
     session.add(new_session)
     await session.flush()
-    logger.info("New session ID: %s", new_session.session_id)
+    logger.debug("New session ID: %s", new_session.session_id)
     return new_session.session_id
 
-  async def authenticate_user(self, userInput: dict, customerId: int):
+  async def db_auth_user(self, userInput: dict, customerId: int):
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
@@ -452,6 +447,6 @@ class dbProvider:
           else:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         except Exception as e:
-          logger.error("Error in authenticate_user: %s", str(e))
+          logger.error("Error in db_auth_user: %s", str(e))
           traceback.print_exc()
-          raise HTTPException(status_code=500, detail="Error in DB! authenticate_user")
+          raise HTTPException(status_code=500, detail="Error in DB! db_auth_user")
