@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $HOSTNAME == 'sherlock' ]; then
+if [ $HOSTNAME == 'sherlock' ] || [ $HOSTNAME == 'watson' ]; then
   . /home/nichu/.profile
-  echo sherlock
+  echo sherlock watson
   export NODE_ENV=sherlock
   docker-compose -f docker-compose.yml --env-file .env.sherlock down
   docker-compose -f docker-compose.yml --env-file .env.sherlock up
