@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './css/Sidebar.css';
-import apiService from '../services/apiService';
+import apiMethods from '../services/api.methods';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode }) => {
   const [contextMenu, setContextMenu] = useState(null);
@@ -58,7 +58,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const handleRemove = async () => {
     try {
       const userInput = { "session_id": contextMenu.session.session_id };
-      await apiService.triggerDBRequest("db", "db_remove_session", userInput);
+      await apiMethods.triggerDBRequest("db", "db_remove_session", userInput);
       removeSession(contextMenu.session.session_id);
     } catch (error) {
       console.error('Failed to remove session', error);
@@ -77,7 +77,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     const triggerDBRename = async () => {
       try {
         const userInput = { "session_id": renamePopup.session.session_id, "new_session_name": renamePopup.name };
-        await apiService.triggerDBRequest("db", "db_update_session", userInput);
+        await apiMethods.triggerDBRequest("db", "db_update_session", userInput);
         updateSessionName(renamePopup.session.session_id, renamePopup.name);
       } catch (error) {
         console.error('Failed to rename session', error);

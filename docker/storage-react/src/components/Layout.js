@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
-import apiService from '../services/apiService';
+import apiMethods from '../services/api.methods';
 import './css/Layout.css';
 import useDebounce from '../hooks/useDebounce';
 
@@ -21,7 +21,7 @@ const Layout = () => {
     isFetchingRef.current = true;
     try {
       const userInput = { limit, offset: newOffset, search_text: searchText };
-      const response = await apiService.triggerDBRequest(
+      const response = await apiMethods.triggerDBRequest(
         "db",
         searchText ? "db_search_messages" : "db_all_sessions_for_user",
         userInput

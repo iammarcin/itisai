@@ -1,4 +1,4 @@
-// apiService.js
+// api.methods.js
 import makeApiCall from './api.service';
 import config from "../config";
 
@@ -26,9 +26,9 @@ const triggerDBRequest = async (endpoint, action, userInput) => {
   }
 }
 
-const apiService = {
+const apiMethods = {
   triggerDBRequest,
 };
 
-export default apiService;
+export default apiMethods;
 

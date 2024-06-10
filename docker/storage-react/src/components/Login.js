@@ -1,6 +1,6 @@
 // Login.js
 import React, { useState } from 'react';
-import apiService from '../services/apiService';
+import apiMethods from '../services/api.methods';
 import './css/Login.css';
 
 const Login = ({ onLoginSuccess }) => {
@@ -12,7 +12,7 @@ const Login = ({ onLoginSuccess }) => {
     e.preventDefault();
     try {
       const userInput = { "username": user, "password": password };
-      const response = await apiService.triggerDBRequest("db", "db_auth_user", userInput);
+      const response = await apiMethods.triggerDBRequest("db", "db_auth_user", userInput);
 
       if (response.message && response.message.result && response.code === 200) {
         const expirationDate = new Date();
