@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from aws.awsProvider import awsProvider
 import traceback, json
 import logconfig
-from openai import OpenAI
+from openai import OpenAI, BadRequestError
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 
@@ -86,7 +86,13 @@ class OpenAIImageGenerator:
                 return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
             else:
                 logger.info("Image gen start!")
-                response = self.client.images.generate(
+                response = {'error': {'code': 'content_policy_violation', 'message': 'Your request was rejected as a result of our safety system. Your prompt may contain text that is not allowed by our safety system.', 'param': None, 'type': 'invalid_request_error'}}
+                raise BadRequestError(
+                    message="Your request was rejected as a result of our safety system. Your prompt may contain text that is not allowed by our safety system.",
+                    type="invalid_request_error",
+                    code="content_policy_violation"
+                )
+                response2 = self.client.images.generate(
                     prompt=prompt,
                     n=self.number_of_images,
                     size=str(self.size_of_image)+"x"+str(self.size_of_image),
@@ -110,6 +116,12 @@ class OpenAIImageGenerator:
 
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
 
+        except BadRequestError as e:
+            error_message = e.json_body.get('error', {}).get('message', 'Unknown error')
+            error_code = e.json_body.get('error', {}).get('code', 'unknown_error')
+            if error_code == 'content_policy_violation':
+                return JSONResponse(content={"success": False, "code": 400, "message": {"status": "rejected", "result": error_message}}, status_code=400)
+            raise HTTPException(status_code=500, detail=str(e)) from e
         except Exception as e:
             logger.error("Error in generate_image (class)")
             logger.error(e)

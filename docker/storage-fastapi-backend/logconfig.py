@@ -37,3 +37,23 @@ elif DEBUG:
     logger.setLevel(logging.INFO)
 else:
     logger.setLevel(logging.WARNING)
+
+
+# Adjust the logging level for SQLAlchemy loggers
+'''
+if not VERBOSE_SUPERB:
+    sqlalchemy_logger_names = [
+        'sqlalchemy.engine', 
+        'sqlalchemy.pool', 
+        'sqlalchemy.dialects', 
+        'sqlalchemy.orm'
+    ]
+
+    for name in sqlalchemy_logger_names:
+        sqlalchemy_logger = logging.getLogger(name)
+        sqlalchemy_logger.setLevel(logging.WARNING)
+        for handler in logger.handlers:
+            sqlalchemy_logger.addHandler(handler)
+        sqlalchemy_logger.propagate = False
+
+'''

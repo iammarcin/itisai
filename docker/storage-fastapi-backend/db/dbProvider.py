@@ -22,7 +22,7 @@ DATABASE_URL = f"mysql+aiomysql://{config.defaults['MYSQL_USER']}:{config.defaul
 # Create async engine and session
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=False,
     pool_recycle=1800,  # Recycle connections after 1800 seconds (30 minutes)
     pool_pre_ping=True  # Enable pre-ping to check connections before using them
 )
