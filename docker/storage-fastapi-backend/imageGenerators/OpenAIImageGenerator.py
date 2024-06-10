@@ -94,7 +94,7 @@ class OpenAIImageGenerator:
                     model=self.model,
                     )
 
-            logger.info("OAI generate_image response: " + str(response))
+            logger.debug("OAI generate_image response: " + str(response))
             # transform to json
             #image_url = response.data[0].url
             logger.info("REVISED PROMPT:")

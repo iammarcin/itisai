@@ -39,8 +39,10 @@ else:
     logger.setLevel(logging.WARNING)
 
 
+
+''' # FINALLY NOT NEEDED?! (echo false was enough)
 # Adjust the logging level for SQLAlchemy loggers
-'''
+
 if not VERBOSE_SUPERB:
     sqlalchemy_logger_names = [
         'sqlalchemy.engine', 
