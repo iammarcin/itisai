@@ -299,7 +299,6 @@ class dbProvider:
         sessions = result.scalars().all()
         sessions_list = [self.to_dict(session) for session in sessions]
 
-        logger.debug("All sessions for user %s: %s", customerId, sessions_list)
         return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
       except Exception as e:
         logger.error("Error in DB! db_all_sessions_for_user: %s", str(e))
@@ -345,8 +344,8 @@ class dbProvider:
           messages = result.scalars().all()
           sessions_list = [self.to_dict(message) for message in messages] 
 
-          logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
-          #logger.debug("All session ids for user %s: %s", customer_id, session_ids)
+          #logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
+          
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
         except Exception as e:
           logger.error("Error in DB! db_search_messages: %s", str(e))

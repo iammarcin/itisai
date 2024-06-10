@@ -213,7 +213,8 @@ async def db_methods(job_request: MediaModel, request: Request): # token below
         response = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
 
         response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
-        if job_request.action != 'db_get_user_session':
+        # there is so much data in those methods - that it just doesnt make sense to log it all
+        if job_request.action != 'db_get_user_session' and job_request.action != 'db_search_messages' and job_request.action != 'db_all_sessions_for_user':
             logger.debug(response_content)
         return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
 
