@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === 'production') {
 } else if  (process.env.NODE_ENV === 'development') {
     config.AWS_REGION = 'eu-west-1';
     config.S3_BUCKET = "myaiapps3bucket";
-    config.apiEndpoint = "http://localhost:8000/api"
+    config.apiEndpoint = "http://192.168.1.123:8000/api"
 
     if (process.env.REACT_APP_MY_NODE_ENV === 'local') {
       config.AWS_REGION = 'eu-west-1';

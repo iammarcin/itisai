@@ -25,9 +25,9 @@ export default async function makeApiCall({
 
   try {
     const controller = new AbortController();
-    //const callTimeout = setTimeout(() => {
-    //  controller.abort();
-    //}, timeout);
+    const callTimeout = setTimeout(() => {
+      controller.abort();
+    }, timeout);
 
     //headers = {"Content-Type": "application/json"}
     if (!endpoint.includes("registerUser")) {
