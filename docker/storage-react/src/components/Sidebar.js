@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Sidebar.css';
-
 import apiService from '../services/apiService';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode }) => {
@@ -17,7 +16,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
-    if (!isSearchMode) { // Only set up the observer if not in search mode
+    if (!isSearchMode) {
       observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
           loadMoreSessions();

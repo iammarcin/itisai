@@ -1,4 +1,4 @@
-// SearchDebounce.js
+// useDebounce.js
 
 //custom hook for debouncing the search input (to prevent too many API calls)
 import { useState, useEffect } from 'react';

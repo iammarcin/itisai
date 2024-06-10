@@ -3,16 +3,19 @@ import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import apiService from '../services/apiService';
 import './Layout.css';
+import useDebounce from '../hooks/useDebounce';
 
 const Layout = () => {
   const [chatSessions, setChatSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
   const [searchText, setSearchText] = useState('');
-  const [isSearchMode, setIsSearchMode] = useState(false); // New state
+  const [isSearchMode, setIsSearchMode] = useState(false);
   const isFetchingRef = useRef(false);
   const fetchedSessionIds = useRef(new Set());
   const limit = 20;
+
+  const debouncedSearchText = useDebounce(searchText, 500); // Use debounce hook
 
   const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {
     isFetchingRef.current = true;
@@ -39,7 +42,7 @@ const Layout = () => {
   }, [limit]);
 
   const loadMoreSessions = useCallback(() => {
-    if (!isFetchingRef.current && !isSearchMode) { // Conditional fetch
+    if (!isFetchingRef.current && !isSearchMode) {
       const newOffset = offset + limit;
       setOffset(newOffset);
     }
@@ -60,15 +63,15 @@ const Layout = () => {
 
   useEffect(() => {
     if (isFetchingRef.current) return;
-    fetchChatSessions(offset, searchText);
-  }, [offset, fetchChatSessions, searchText]);
+    fetchChatSessions(offset, debouncedSearchText); // Use debounced search text
+  }, [offset, fetchChatSessions, debouncedSearchText]);
 
   const handleSearch = (term) => {
     setSearchText(term);
     setOffset(0);
     fetchedSessionIds.current.clear();
     setChatSessions([]);
-    setIsSearchMode(term !== ''); // Update search mode state
+    setIsSearchMode(term !== '');
   };
 
   return (
@@ -80,7 +83,7 @@ const Layout = () => {
         updateSessionName={updateSessionName}
         removeSession={removeSession}
         onSearch={handleSearch}
-        isSearchMode={isSearchMode} // Pass down the new state
+        isSearchMode={isSearchMode}
       />
       <ChatWindow selectedSession={selectedSession} />
     </div>

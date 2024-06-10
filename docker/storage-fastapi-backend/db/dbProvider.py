@@ -9,7 +9,7 @@ import traceback
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 
-from sqlalchemy import create_engine, MetaData, func, select, and_, or_
+from sqlalchemy import create_engine, MetaData, func, select, and_, or_, distinct
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 import logconfig
@@ -333,7 +333,7 @@ class dbProvider:
     async with AsyncSessionLocal() as session:
       async with session.begin():
         try:
-          stmt = select(ChatSession).join(ChatMessage).where(
+          stmt = select(ChatSession).distinct(ChatSession.session_id).join(ChatMessage).where(
             ChatMessage.customer_id == customerId,
             or_(
               ChatMessage.message.ilike(f"%{search_text}%"),
@@ -344,7 +344,7 @@ class dbProvider:
           messages = result.scalars().all()
           sessions_list = [self.to_dict(message) for message in messages] 
 
-          #logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
+          logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
           
           return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
         except Exception as e:
