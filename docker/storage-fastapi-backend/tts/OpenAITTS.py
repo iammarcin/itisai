@@ -3,7 +3,9 @@ from fastapi import HTTPException
 from pathlib import Path
 from openai import OpenAI
 from aws.awsProvider import awsProvider
-import logconfig, os, json
+import logconfig
+import os
+import json
 import config as config
 from tempfile import NamedTemporaryFile
 
@@ -12,10 +14,13 @@ logger = logconfig.logger
 
 # little helper class - s3 upload in aws provider was already set and used by other functions
 # and it needs file and filename to process the file
+
+
 class FileWithFilename:
     def __init__(self, file, filename):
         self.file = file
         self.filename = filename
+
 
 class OpenAITTSGenerator:
     def __init__(self):
@@ -58,7 +63,8 @@ class OpenAITTSGenerator:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
             logger.error("Error processing TTS request: %s", str(e))
-            raise HTTPException(status_code=500, detail="Error processing TTS request")
+            raise HTTPException(
+                status_code=500, detail="Error processing TTS request")
 
     async def generate_tts(self, userInput: dict, customerId: int = 1):
         try:
@@ -77,7 +83,8 @@ class OpenAITTSGenerator:
                 response.stream_to_file(tmp_file_path)
 
             with open(tmp_file_path, "rb") as tmp_file:
-                file_with_filename = FileWithFilename(tmp_file, Path(tmp_file_path).name)
+                file_with_filename = FileWithFilename(
+                    tmp_file, Path(tmp_file_path).name)
                 logger.info("Uploading TTS to S3")
                 logger.info(file_with_filename)
                 s3_response = await awsProvider.s3_upload(
@@ -115,7 +122,7 @@ class OpenAITTSGenerator:
                     logger.debug(chunk)
                     yield chunk
 
-            #return StreamingResponse(iter_audio_stream(), media_type="audio/mpeg", headers={"Transfer-Encoding": "chunked"})
+            # return StreamingResponse(iter_audio_stream(), media_type="audio/mpeg", headers={"Transfer-Encoding": "chunked"})
         except Exception as e:
             logger.error("Error streaming TTS: %s", str(e))
             raise HTTPException(status_code=500, detail="Error streaming TTS")

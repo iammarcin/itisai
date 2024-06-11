@@ -22,6 +22,8 @@ logger = logconfig.logger
 version = f"{sys.version_info.major}.{sys.version_info.minor}"
 
 # to set up generators on startup_event
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup event
@@ -40,6 +42,8 @@ app.add_middleware(
 )
 
 # middleware for catching problems with pydantic data validation
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.info("Error validating request data")
@@ -51,6 +55,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
                  'message': "Error validating data %s " % exc.errors()},
     )
 
+
 @app.get("/monitorback")
 async def read_root():
     message = f"Hello world! I work fine!"
@@ -59,13 +64,16 @@ async def read_root():
 
 ##############################
 # GENERAL generate functions (that do not need file upload or streaming)
+
+
 @app.post("/generate")
-async def generate_asset(job_request: MediaModel, token = Depends(auth_user_token)):
+async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)):
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
     try:
         if job_request.category == "tts" or job_request.category == "image":
-            my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+            my_generator = get_generator(
+                job_request.category, job_request.userSettings[job_request.category])
             if my_generator is None:
                 return JSONResponse(content={'status_code': 400, 'success': False, "message": "Problem with your getting proper generator. Verify your settings"}, media_type="application/json")
 
@@ -75,7 +83,8 @@ async def generate_asset(job_request: MediaModel, token = Depends(auth_user_toke
             if job_request.category == "tts" and job_request.action == "tts_stream":
                 return StreamingResponse(response, media_type="audio/opus")
 
-            response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+            response_content = response.body.decode(
+                "utf-8") if isinstance(response, JSONResponse) else response
             logger.info("ALL OK")
             logger.info(response_content)
             return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
@@ -95,11 +104,12 @@ async def generate_asset(job_request: MediaModel, token = Depends(auth_user_toke
 ##############################
 # CHAT STREAMING (although used also for non streaming because it is possible)
 @app.post("/chat")
-async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
+async def chat(job_request: MediaModel, token=Depends(auth_user_token)):
     logger.info("*" * 100)
     logger.info(job_request)
 
-    my_generator = get_generator(job_request.category, job_request.userSettings[job_request.category])
+    my_generator = get_generator(
+        job_request.category, job_request.userSettings[job_request.category])
     if my_generator is None:
         return JSONResponse(content={'code': 400, 'success': False, "message": {"status": "fail", "result": 'Problem with getting proper generator. Verify your settings'}}, status_code=400)
 
@@ -113,19 +123,21 @@ async def chat(job_request: MediaModel, token = Depends(auth_user_token)):
 ##############################
 # this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
 # we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unfortunately different code is needed
+
+
 @app.post("/chat_audio2text")
 async def chat_audio2text(
-        action: str = Form(...),
-        category: str = Form(...),
-        userInput: str = Form(...),
-        userSettings: str = Form(...),
-        customerId: int = Form(...),
-        file: UploadFile = File(...),
-        token = Depends(auth_user_token)
-    ):
+    action: str = Form(...),
+    category: str = Form(...),
+    userInput: str = Form(...),
+    userSettings: str = Form(...),
+    customerId: int = Form(...),
+    file: UploadFile = File(...),
+    token=Depends(auth_user_token)
+):
     try:
         logger.info("Processing recording!")
-        logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, audio: %s" % 
+        logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, audio: %s" %
                     (action, category, userInput, userSettings, customerId, file.filename))
 
         userInput = json.loads(userInput)
@@ -134,10 +146,12 @@ async def chat_audio2text(
         generator = get_generator(category, userSettings[category])
 
         if generator is None:
-            raise HTTPException(status_code=400, detail="No speech generator found")
+            raise HTTPException(
+                status_code=400, detail="No speech generator found")
 
         response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
-        response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+        response_content = response.body.decode(
+            "utf-8") if isinstance(response, JSONResponse) else response
 
         logger.info(response_content)
         return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
@@ -158,17 +172,17 @@ async def chat_audio2text(
 # Endpoint to handle AWS stuff (as of now only file upload and send to S3)
 @app.post("/api/aws")
 async def aws_methods(
-        action: str = Form(...),
-        category: str = Form(...),
-        userInput: str = Form(...),
-        userSettings: str = Form(...),
-        customerId: int = Form(...),
-        file: UploadFile = File(...),
-        token = Depends(auth_user_token)
-    ):
+    action: str = Form(...),
+    category: str = Form(...),
+    userInput: str = Form(...),
+    userSettings: str = Form(...),
+    customerId: int = Form(...),
+    file: UploadFile = File(...),
+    token=Depends(auth_user_token)
+):
     try:
         logger.info("Processing file upload!")
-        logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, file: %s" % 
+        logger.info("action: %s , category: %s, userInput: %s, userSettings: %s, customerId: %s, file: %s" %
                     (action, category, userInput, userSettings, customerId, file.filename))
 
         userInput = json.loads(userInput)
@@ -177,11 +191,13 @@ async def aws_methods(
         generator = get_generator(category, "doesntmatter")
 
         if generator is None:
-            raise HTTPException(status_code=400, detail="No aws generator found")
+            raise HTTPException(
+                status_code=400, detail="No aws generator found")
 
         response = await generator.process_job_request(action, userInput, [], customerId, userSettings)
 
-        response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+        response_content = response.body.decode(
+            "utf-8") if isinstance(response, JSONResponse) else response
 
         logger.info(response_content)
         return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
@@ -198,7 +214,7 @@ async def aws_methods(
 
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
 @app.post("/api/db")
-async def db_methods(job_request: MediaModel, request: Request): # token below
+async def db_methods(job_request: MediaModel, request: Request):  # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
     if job_request.action not in ['db_auth_user']:
         token = await auth_user_token(request)
@@ -212,7 +228,8 @@ async def db_methods(job_request: MediaModel, request: Request): # token below
 
         response = await my_generator.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
 
-        response_content = response.body.decode("utf-8") if isinstance(response, JSONResponse) else response
+        response_content = response.body.decode(
+            "utf-8") if isinstance(response, JSONResponse) else response
         # there is so much data in those methods - that it just doesnt make sense to log it all
         if job_request.action != 'db_get_user_session' and job_request.action != 'db_search_messages' and job_request.action != 'db_all_sessions_for_user':
             logger.debug(response_content)
@@ -222,7 +239,7 @@ async def db_methods(job_request: MediaModel, request: Request): # token below
         logger.error("ALL NOT 1 OK")
         logger.error(e)
         return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
-        #raise HTTPException(status_code=e.status_code, detail=e.detail)
+        # raise HTTPException(status_code=e.status_code, detail=e.detail)
 
     except Exception as e:
         logger.info("ALL NOT 2 OK")

@@ -6,6 +6,8 @@ from pydantic import BaseModel, validator
 
 # pydantic data validation for Image Audio Text Model
 # returnTestData - if True - return fake data (this is to test process without calling external APIs)
+
+
 class MediaModel(BaseModel):
     category: str = ""
     action: str = ""
@@ -14,5 +16,3 @@ class MediaModel(BaseModel):
     userSettings: Dict = {}
     customerId: int = 1
     sessionId: Optional[str] = ""
-
-
