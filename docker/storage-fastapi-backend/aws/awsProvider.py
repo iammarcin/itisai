@@ -4,14 +4,18 @@ import config
 from tempfile import NamedTemporaryFile
 
 import logconfig
-import re, os, shutil, datetime, traceback
+import re
+import os
+import shutil
+import datetime
+import traceback
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
 logger = logconfig.logger
 
-#### AWS S3
+# AWS S3
 s3_client = boto3.client(
     "s3",
     region_name=config.defaults["AWS_REGION"],
@@ -54,7 +58,8 @@ class awsProvider:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
             logger.error("Error processing AWS request: %s", str(e))
-            raise HTTPException(status_code=500, detail="Error processing AWS request")
+            raise HTTPException(
+                status_code=500, detail="Error processing AWS request")
 
     async def s3_upload(
         self, action: str, userInput: dict, assetInput: dict, customerId: int = None
@@ -67,7 +72,8 @@ class awsProvider:
             # Validate file type
             filename = file.filename
             allowed_file_types_regex = re.compile(
-                r"\.({})$".format("|".join(config.defaults["ALLOWED_FILE_TYPES"])),
+                r"\.({})$".format(
+                    "|".join(config.defaults["ALLOWED_FILE_TYPES"])),
                 re.IGNORECASE,
             )
             if not allowed_file_types_regex.search(filename):
