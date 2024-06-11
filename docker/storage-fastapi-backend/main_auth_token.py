@@ -1,5 +1,4 @@
 from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
 import logconfig
 import config as config
 # AUTH

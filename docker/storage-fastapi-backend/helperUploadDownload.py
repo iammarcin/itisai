@@ -1,7 +1,6 @@
 import traceback
 from datetime import datetime
 import config
-import requests
 import random
 import string
 # from urllib.parse import urlparse
