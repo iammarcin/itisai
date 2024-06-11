@@ -2,7 +2,8 @@ from fastapi import HTTPException
 import requests
 from fastapi.responses import JSONResponse
 from aws.awsProvider import awsProvider
-import traceback, json
+import traceback
+import json
 import logconfig
 from openai import OpenAI, BadRequestError
 from tempfile import NamedTemporaryFile
@@ -12,17 +13,21 @@ logger = logconfig.logger
 
 # little helper class - s3 upload in aws provider was already set and used by other functions
 # and it needs file and filename to process the file
+
+
 class FileWithFilename:
     def __init__(self, file, filename):
         self.file = file
         self.filename = filename
+
+
 class OpenAIImageGenerator:
     def __init__(self):
         self.number_of_images = 1
         self.model = "dall-e-3"
         self.size_of_image = 1024
-        self.quality = "standard" # hd
-        #https://platform.openai.com/docs/guides/images/usage
+        self.quality = "standard"  # hd
+        # https://platform.openai.com/docs/guides/images/usage
         # adding: I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:
         # result: revised_prompt
         self.disable_safe_prompt_adjust = False
@@ -65,18 +70,20 @@ class OpenAIImageGenerator:
             if action == "generate":
                 return await self.generate(userInput, assetInput, customerId, userSettings)
             else:
-                return { "success": False, "message": "Unknown action", "code": 400 }
+                return {"success": False, "message": "Unknown action", "code": 400}
         except Exception as e:
             logger.error("Error processing image request: %s", str(e))
-            raise HTTPException(status_code=500, detail="Error processing image request")
+            raise HTTPException(
+                status_code=500, detail="Error processing image request")
 
     async def generate(self, userInput: dict, assetInput: dict, customerId: int = None, requestId: int = None, userSettings: dict = {}):
         try:
             if userInput.get('text') is None:
-                raise HTTPException(status_code=400, detail="Prompt is required")
+                raise HTTPException(
+                    status_code=400, detail="Prompt is required")
 
             prompt = userInput.get('text')
-            #prompt = "beautiful album cover"
+            # prompt = "beautiful album cover"
             if self.disable_safe_prompt_adjust:
                 prompt = "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: " + prompt
 
@@ -92,11 +99,11 @@ class OpenAIImageGenerator:
                     size=str(self.size_of_image)+"x"+str(self.size_of_image),
                     quality=self.quality,
                     model=self.model,
-                    )
+                )
 
             logger.debug("OAI generate_image response: " + str(response))
             # transform to json
-            #image_url = response.data[0].url
+            # image_url = response.data[0].url
             logger.info("REVISED PROMPT:")
             logger.info(response.data[0].revised_prompt)
             logger.info(response.data[0].url)
@@ -105,14 +112,15 @@ class OpenAIImageGenerator:
             # Save the image from the finalUrl to a temporary file
             finalUrl = await self.saveFileAndSendToS3(openaiUrl, customerId)
 
-
             logger.debug("OAI generate_image response: " + str(response))
 
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
 
         except BadRequestError as e:
-            error_message = e.json_body.get('error', {}).get('message', 'Unknown error')
-            error_code = e.json_body.get('error', {}).get('code', 'unknown_error')
+            error_message = e.json_body.get(
+                'error', {}).get('message', 'Unknown error')
+            error_code = e.json_body.get(
+                'error', {}).get('code', 'unknown_error')
             if error_code == 'content_policy_violation':
                 return JSONResponse(content={"success": False, "code": 400, "message": {"status": "rejected", "result": error_message}}, status_code=400)
             raise HTTPException(status_code=500, detail=str(e)) from e
@@ -130,10 +138,12 @@ class OpenAIImageGenerator:
                     tmp_file.write(image_response.content)
                     tmp_file_path = tmp_file.name
                 else:
-                    raise HTTPException(status_code=500, detail="Failed to download image")
+                    raise HTTPException(
+                        status_code=500, detail="Failed to download image")
 
             with open(tmp_file_path, "rb") as tmp_file:
-                file_with_filename = FileWithFilename(tmp_file, Path(tmp_file_path).name)
+                file_with_filename = FileWithFilename(
+                    tmp_file, Path(tmp_file_path).name)
                 s3_response = await awsProvider.s3_upload(
                     awsProvider,
                     action="s3_upload",
@@ -142,7 +152,8 @@ class OpenAIImageGenerator:
                     customerId=customerId
                 )
 
-                s3_response_content = json.loads(s3_response.body.decode("utf-8"))
+                s3_response_content = json.loads(
+                    s3_response.body.decode("utf-8"))
                 logger.info("s3_response_content %s", s3_response_content)
                 s3_url = s3_response_content["message"]["result"]
                 return s3_url
