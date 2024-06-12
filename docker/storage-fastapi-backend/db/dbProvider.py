@@ -126,7 +126,11 @@ class dbProvider:
                         userInput['session_id'] = await self._db_new_session_internal(session, customerId)
 
                     userMessage = userInput['userMessage']
-                    aiResponse = userInput['aiResponse']
+                    # might be null (for example for chats without AI response)
+                    aiResponse = userInput.get('aiResponse')
+
+                    logger.info("!*"*30)
+                    logger.info("aiResponse: %s", aiResponse)
 
                     # first create new item for user message in chat message
                     new_user_message = ChatMessage(
@@ -146,7 +150,7 @@ class dbProvider:
 
                     new_ai_response_id = 0
                     # if its not error message (because it means we dont have AI response)
-                    if aiResponse['message'] != config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
+                    if aiResponse and aiResponse['message'] != config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
                         # first create new item in chat message
                         new_ai_response = ChatMessage(
                             session_id=userInput['session_id'],
@@ -172,7 +176,7 @@ class dbProvider:
                         # Update the last 2 messages in chat history with the new user and AI message_id (very important because later we save chat history in chat sessions for future restore)
                         if chat_history and isinstance(chat_history[-2], dict):
                             chat_history[-2]['messageId'] = new_user_message_id
-                        # > 0 - to check if there was no error message (because then we dont need to do anything)
+                        # > 0 - to check if ai response exists or there was no error message (because then we dont need to do anything)
                         if chat_history and isinstance(chat_history[-1], dict) and new_ai_response_id > 0:
                             chat_history[-1]['messageId'] = new_ai_response_id
 
@@ -217,7 +221,8 @@ class dbProvider:
             async with session.begin():
                 try:
                     userMessage = userInput['userMessage']
-                    aiResponse = userInput['aiResponse']
+                    # might be null (for example for chats without AI response)
+                    aiResponse = userInput.get('aiResponse')
 
                     user_message_id = userMessage['message_id']
 
@@ -235,8 +240,11 @@ class dbProvider:
                     db_user_message.image_locations = userMessage['image_locations']
                     db_user_message.file_locations = userMessage['file_locations']
 
-                    # let's check if we have AI response's message_id (there is a case where AI response fails and there is no message_id)
-                    ai_message_id = aiResponse.get('message_id', 0)
+                    # let's check if we have AI response's message_id
+                    # (there is a case where AI response fails and there is no message_id
+                    # or aiResponse might be null - as mentioned above)
+                    ai_message_id = aiResponse.get(
+                        'message_id', 0) if aiResponse else 0
                     new_ai_message_id = None
 
                     # Check if the message exists and belongs to the user
@@ -245,33 +253,35 @@ class dbProvider:
                     else:
                         db_ai_message = None
 
-                    if not db_ai_message:
-                        # If AI message does not exist, create a new one - important for history restore and search
-                        new_ai_message = ChatMessage(
-                            session_id=userInput['session_id'],
-                            customer_id=customerId,
-                            sender=aiResponse['sender'],
-                            message=aiResponse['message'],
-                            image_locations=aiResponse.get('image_locations'),
-                            file_locations=aiResponse.get('file_locations')
-                        )
-                        session.add(new_ai_message)
-                        await session.flush()  # Generate the new message ID
-                        new_ai_message_id = new_ai_message.message_id
+                    if aiResponse:
+                        if not db_ai_message:
+                            # If AI message does not exist, create a new one - important for history restore and search
+                            new_ai_message = ChatMessage(
+                                session_id=userInput['session_id'],
+                                customer_id=customerId,
+                                sender=aiResponse['sender'],
+                                message=aiResponse['message'],
+                                image_locations=aiResponse.get(
+                                    'image_locations'),
+                                file_locations=aiResponse.get('file_locations')
+                            )
+                            session.add(new_ai_message)
+                            await session.flush()  # Generate the new message ID
+                            new_ai_message_id = new_ai_message.message_id
 
-                        # Update the last AI message in the chat history with the new ID
-                        if userInput['chat_history']:
-                            for message in reversed(userInput['chat_history']):
-                                if not message.get('isUserMessage'):
-                                    message['messageId'] = new_ai_message_id
-                                    break
-                    else:
-                        # if everything as it should be and there is message_id to be edited
-                        # Update the existing AI message
-                        db_ai_message.message = aiResponse['message']
-                        db_ai_message.image_locations = aiResponse['image_locations']
-                        db_ai_message.file_locations = aiResponse['file_locations']
-                        new_ai_message_id = db_ai_message.message_id
+                            # Update the last AI message in the chat history with the new ID
+                            if userInput['chat_history']:
+                                for message in reversed(userInput['chat_history']):
+                                    if not message.get('isUserMessage'):
+                                        message['messageId'] = new_ai_message_id
+                                        break
+                        else:
+                            # if everything as it should be and there is message_id to be edited
+                            # Update the existing AI message
+                            db_ai_message.message = aiResponse['message']
+                            db_ai_message.image_locations = aiResponse['image_locations']
+                            db_ai_message.file_locations = aiResponse['file_locations']
+                            new_ai_message_id = db_ai_message.message_id
 
                     # Update chat session's chat_history and last_update
                     chat_session = await session.get(ChatSession, userInput['session_id'])

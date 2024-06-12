@@ -170,7 +170,7 @@ class AITextGenerator:
                 for chunk in response:
                     current_content = chunk.choices[0].delta.content
                     if current_content is not None:
-                        logger.debug(str(current_content))
+                        # logger.debug(str(current_content))
 
                         # Format the output as a proper SSE message
                         yield f"{current_content}"
