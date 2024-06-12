@@ -152,7 +152,6 @@ class AITextGenerator:
             chat_history.append(
                 {"role": "user", "content": latest_user_message})
 
-            logger.debug("."*20)
             logger.debug("Chat history: %s", chat_history)
 
             if self.use_test_data:
