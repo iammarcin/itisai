@@ -215,7 +215,7 @@ class dbProvider:
                     result = await session.commit()
                     logger.debug("Result of commit: %s", result)
 
-                    return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": {"userMessageId": new_user_message_id, "aiMessageId": new_ai_response_id}, "sessionId": userInput['session_id']}}, status_code=200)
+                    return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": {"userMessageId": new_user_message_id, "aiMessageId": new_ai_response_id, "sessionId": userInput['session_id']}}}, status_code=200)
                 except HTTPException as e:
                     logger.error("HTTP error in db_new_message: %s", str(e))
                     traceback.print_exc()

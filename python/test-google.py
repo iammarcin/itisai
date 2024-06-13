@@ -7,7 +7,7 @@ api_key = os.environ.get('GOOGLE_MAPS_API_KEY', None)
 api_service_name = "pollen"
 api_version = "v1"
 endpoint = build(api_service_name, api_version, developerKey=api_key)
-
+print(endpoint)
 lat = {
     "latitude": 41.7898095,
     "longitude": 3.0238652,
