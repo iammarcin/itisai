@@ -2,15 +2,18 @@
 
 """Thanks to author of https://github.com/cyberjunky/python-garminconnect"""
 
-import logging
 import garth
+import logconfig
 
-logger = logging.getLogger(__name__)
+logger = logconfig.logger
 
 class Garmin:
   def __init__(self):
     self.garmin_home = "~/.garmin_session"
     self.garth = garth.Client()
+    self.display_name = None
+    self.full_name = None
+    self.unit_system = None
 
     # URLs
     self.user_profile = "/userprofile-service/userprofile/user-settings"
@@ -22,15 +25,16 @@ class Garmin:
     try:
       self.garth.load(self.garmin_home)
     except Exception as e:
-      print(f"Garmin Connect auth failed. {e}")
+      logger.info(f"Garmin Connect auth failed. {e}")
       return False
 
     self.display_name = self.garth.profile["displayName"]
     self.full_name = self.garth.profile["fullName"]
 
     settings = self.connectapi(self.user_profile)
+    
     self.unit_system = settings["userData"]["measurementSystem"]
-    print(f"Logged in as {self.display_name} ({self.full_name})")
-    print(f"Unit system: {self.unit_system}")
+    logger.debug(f"Logged in as {self.display_name} ({self.full_name})")
+    logger.debug(f"Unit system: {self.unit_system}")
 
     return True
