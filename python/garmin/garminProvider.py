@@ -36,6 +36,7 @@ class Garmin:
 
         return True
 
+    # VERY MUCH NEEDED
     def get_user_summary(self, date: str):
         """Return user activity summary for date format 'YYYY-MM-DD'."""
 
@@ -49,21 +50,7 @@ class Garmin:
 
         return response
 
-    def get_daily_steps(self, start, end):
-        """Fetch available steps data 'start' and 'end' format 'YYYY-MM-DD'."""
-
-        url = f"/usersummary-service/stats/steps/daily/{start}/{end}"
-
-        return self.call_api(url)
-
-    def get_heart_rates(self, date):
-        """Fetch available heart rates data 'date' format 'YYYY-MM-DD'."""
-
-        url = f"/wellness-service/wellness/dailyHeartRate/{self.display_name}"
-        params = {"date": str(date)}
-
-        return self.call_api(url, params=params)
-
+    # VERY MUCH NEEDED
     def get_body_composition(self, start: str, end=None):
         """
         Return available body composition data for 'startdate' format
@@ -74,31 +61,15 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
-    def get_body_battery(self, start: str, end=None):
-        """
-        Return body battery values by day for 'startdate' format
-        'YYYY-MM-DD' through enddate 'YYYY-MM-DD'
-        """
-
-        url = f"/wellness-service/wellness/bodyBattery/reports/daily"
-        params = {"startDate": str(start), "endDate": str(end)}
-
-        return self.call_api(url, params=params)
-
+    # VERY IMPORTANT - but maybe not - because it could be from garmin.get_training_status
     def get_max_metrics(self, date: str):
         """Return available max metric data for 'date' format 'YYYY-MM-DD'."""
 
         url = f"/metrics-service/metrics/maxmet/daily/{date}/{date}"
         
         return self.call_api(url)
-      
-    def get_stress_data(self, date: str):
-        """Return stress data for current user."""
 
-        url = f"/wellness-service/wellness/dailyStress/{date}"
-
-        return self.call_api(url)
-
+    # VERY IMPORTANT - but very long
     def get_sleep_data(self, date: str):
         """Return sleep data for current user."""
 
@@ -107,6 +78,7 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
+    # VERY IMPORTANT 
     def get_rhr_day(self, date: str):
         """Return resting heartrate data for current user."""
 
@@ -119,13 +91,8 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
-    def get_hrv_data(self, date: str):
-        """Return Heart Rate Variability (hrv) data for current user."""
 
-        url = f"/hrv-service/hrv/{date}"
-
-        return self.call_api(url)
-
+    # important!
     def get_training_readiness(self, date: str):
         """Return training readiness data for current user."""
 
@@ -133,6 +100,8 @@ class Garmin:
 
         return self.call_api(url)
 
+
+    # should be useful - endurance
     def get_endurance_score(self, startdate: str, enddate=None):
         """
         Return endurance score by day for 'startdate' format 'YYYY-MM-DD'
@@ -156,6 +125,7 @@ class Garmin:
 
             return self.call_api(url, params=params)
 
+    # important!
     def get_training_status(self, date: str):
         """Return training status data for current user."""
 
@@ -163,59 +133,7 @@ class Garmin:
 
         return self.call_api(url)
 
-    def get_hill_score(self, startdate: str, enddate=None):
-        """
-        Return hill score by day from 'startdate' format 'YYYY-MM-DD'
-        to enddate 'YYYY-MM-DD'
-        """
-
-        if enddate is None:
-            url = "/metrics-service/metrics/hillscore"
-            params = {"calendarDate": str(startdate)}
-
-            return self.call_api(url, params=params)
-
-        else:
-            url = "/metrics-service/metrics/hillscore/stats"
-            params = {
-                "startDate": str(startdate),
-                "endDate": str(enddate),
-                "aggregation": "daily",
-            }
-
-            return self.call_api(url, params=params)
-
-    def get_activities(self, start, limit):
-        """Return available activities."""
-
-        url = "/activitylist-service/activities/search/activities"
-        params = {"start": str(start), "limit": str(limit)}
-
-        return self.call_api(url, params=params)
-
-    def get_activity_hr_in_timezones(self, activity_id):
-        """Return activity heartrate in timezones."""
-
-        activity_id = str(activity_id)
-        url = f"/activity-service/activity/{activity_id}/hrTimeInZones"
-
-        return self.call_api(url)
-
-    def get_activity(self, activity_id):
-        """Return activity summary, including basic splits."""
-
-        activity_id = str(activity_id)
-        url = f"/activity-service/activity/{activity_id}"
-
-        return self.call_api(url)
-
-    def get_activities_fordate(self, fordate: str):
-        """Return available activities for date."""
-
-        url = f"/mobile-gateway/heartRate/forDate/{fordate}"
-
-        return self.call_api(url)
-
+    # probably for weekly report
     def get_activities_by_date(self, startdate, enddate, activitytype=None):
         """
         Fetch available activities between specific dates
@@ -254,6 +172,24 @@ class Garmin:
 
         return activities
 
+    # maybe useful - as HR data is not anywhere else 
+    def get_activity_hr_in_timezones(self, activity_id):
+        """Return activity heartrate in timezones."""
+
+        activity_id = str(activity_id)
+        url = f"/activity-service/activity/{activity_id}/hrTimeInZones"
+
+        return self.call_api(url)
+
+
+
+
+
+
+
+    ########################## OTHER METHODS ##########################
+    # MAYBE IN NEAR FUTURE
+    # this is useful if we want gps data (lat/lon to visualize on map)
     def get_activity_details(self, activity_id, maxchart=2000, maxpoly=4000):
         """Return activity details."""
 
@@ -265,29 +201,19 @@ class Garmin:
         url = f"/activity-service/activity/{activity_id}/details"
 
         return self.call_api(url, params=params)
-
-    # for weights?
-    def get_activity_exercise_sets(self, activity_id):
-        """Return activity exercise sets."""
+      
+    # MAYBE LATER
+    # maybe useful - if we want more data about trainings
+    def get_activity(self, activity_id):
+        """Return activity summary, including basic splits."""
 
         activity_id = str(activity_id)
-        url = f"/activity-service/activity/{activity_id}/exerciseSets"
+        url = f"/activity-service/activity/{activity_id}"
 
         return self.call_api(url)
 
-    def get_workouts(self, start=0, end=10):
-        """Return workouts from start till end."""
-
-        url = "/workout-service/workouts"
-        params = {"start": start, "limit": end}
-        return self.call_api(url, params=params)
-
-    def get_workout_by_id(self, workout_id):
-        """Return workout by id."""
-
-        url = f"/workout-service/workout/{workout_id}"
-        return self.call_api(url)
-
+    # MIGHT BE USEFUL - as a simple summary -number of activities between dates 
+    # but i think I'll use get_activities_by_date
     def get_progress_summary_between_dates(
         self, startdate, enddate, metric="distance"
     ):
@@ -311,24 +237,128 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
+    # probably not useful
+    def get_activities_fordate(self, fordate: str):
+        """Return available activities for date."""
 
+        url = f"/mobile-gateway/heartRate/forDate/{fordate}"
 
+        return self.call_api(url)    
 
-
-    # maybe download_activity - for map or whatever - not sure how its possible (for blog mode)
-
-    # UNCLEAR
+    # RATHER NOT USEFUL ( avgSleepRespirationValue, which is not in daily summary - but is in sleep)
     def get_respiration_data(self, date: str):
         """Return available respiration data 'date' format 'YYYY-MM-DD'."""
 
         url = f"/wellness-service/wellness/daily/respiration/{date}"
 
         return self.call_api(url)
+      
+    # NOT NEEDED 
+    def get_body_battery(self, start: str, end=None):
+        """
+        Return body battery values by day for 'startdate' format
+        'YYYY-MM-DD' through enddate 'YYYY-MM-DD'
+        """
+
+        url = f"/wellness-service/wellness/bodyBattery/reports/daily"
+        params = {"startDate": str(start), "endDate": str(end)}
+
+        return self.call_api(url, params=params)
+
+    # NOT USEFUL
+    def get_activities(self, start, limit):
+        """Return available activities."""
+
+        url = "/activitylist-service/activities/search/activities"
+        params = {"start": str(start), "limit": str(limit)}
+
+        return self.call_api(url, params=params)
+
+    # no data (i think special training needed)
+    def get_hill_score(self, startdate: str, enddate=None):
+        """
+        Return hill score by day from 'startdate' format 'YYYY-MM-DD'
+        to enddate 'YYYY-MM-DD'
+        """
+
+        if enddate is None:
+            url = "/metrics-service/metrics/hillscore"
+            params = {"calendarDate": str(startdate)}
+
+            return self.call_api(url, params=params)
+
+        else:
+            url = "/metrics-service/metrics/hillscore/stats"
+            params = {
+                "startDate": str(startdate),
+                "endDate": str(enddate),
+                "aggregation": "daily",
+            }
+
+            return self.call_api(url, params=params)
+
+    # NOT USEFUL
+    # for weights?
+    def get_activity_exercise_sets(self, activity_id):
+        """Return activity exercise sets."""
+
+        activity_id = str(activity_id)
+        url = f"/activity-service/activity/{activity_id}/exerciseSets"
+
+        return self.call_api(url)
+
+    # NOT USEFUL
+    def get_workouts(self, start=0, end=10):
+        """Return workouts from start till end."""
+
+        url = "/workout-service/workouts"
+        params = {"start": start, "limit": end}
+        return self.call_api(url, params=params)
+
+    # NOT USEFUL
+    def get_workout_by_id(self, workout_id):
+        """Return workout by id."""
+
+        url = f"/workout-service/workout/{workout_id}"
+        return self.call_api(url)
 
     # RATHER USELESS
+    # NOT NEEDED, we have steps in get_user_summary
+    def get_daily_steps(self, start, end):
+        """Fetch available steps data 'start' and 'end' format 'YYYY-MM-DD'."""
+
+        url = f"/usersummary-service/stats/steps/daily/{start}/{end}"
+
+        return self.call_api(url)
+
+    # NOT NEEDED
+    def get_stress_data(self, date: str):
+        """Return stress data for current user."""
+
+        url = f"/wellness-service/wellness/dailyStress/{date}"
+
+        return self.call_api(url)
+
+    # NOT NEEDED 
+    def get_heart_rates(self, date):
+        """Fetch available heart rates data 'date' format 'YYYY-MM-DD'."""
+
+        url = f"/wellness-service/wellness/dailyHeartRate/{self.display_name}"
+        params = {"date": str(date)}
+
+        return self.call_api(url, params=params)
+
+
+    # looks like duplicated with get_rhr_day
+    def get_hrv_data(self, date: str):
+        """Return Heart Rate Variability (hrv) data for current user."""
+
+        url = f"/hrv-service/hrv/{date}"
+
+        return self.call_api(url)
 
     # USELESS
-    # we have get_daily_steps
+    # we have get_user_summary
     def get_steps_data(self, date):
         """Fetch available steps data for date format 'YYYY-MM-DD'."""
 
