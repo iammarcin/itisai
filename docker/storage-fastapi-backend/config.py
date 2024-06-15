@@ -8,10 +8,6 @@ defaults = dict(
     groq_api_key=os.environ.get('GROQ_API_KEY', None),
     DEBUG=True,
     VERBOSE_SUPERB=True,
-    AWS_REGION="eu-south-2",
-    AWS_S3_BUCKET="myaiappess3bucket",
-    MYSQL_HOST="db.atamai.biz",
-    MYSQL_DB="aiapp",
     MYSQL_USER="aitools",
     MYSQL_PASSWORD=os.environ.get('AWS_DB_PASS', None),
     ALLOWED_FILE_TYPES=['jpg', 'jpeg', 'png', 'gif', 'mp3',
@@ -24,9 +20,21 @@ defaults = dict(
 
 if defaults['environment'] == 'production':
     defaults['LOCAL_MAIN_STORAGE'] = "/storage/testApi/"
+    defaults['AWS_REGION']="eu-south-2"
+    defaults['AWS_S3_BUCKET']="myaiappess3bucket"
+    defaults['MYSQL_HOST']="db.atamai.biz"
+    defaults['MYSQL_DB']="aiapp"
 elif defaults['environment'] == 'sherlock':
     defaults['LOCAL_MAIN_STORAGE'] = "/storage/testApi/"
+    defaults['AWS_REGION']="eu-south-2"
+    defaults['AWS_S3_BUCKET']="myaiappess3bucketnonprod"
+    defaults['MYSQL_HOST']="db.atamai.biz"
+    defaults['MYSQL_DB']="aiapp_nonprod"
 else:  # local non docker
     home_dir = os.path.expanduser("~")
     # defaults['LOCAL_MAIN_STORAGE']          = f"{home_dir}/storage/testApi/"
     defaults['LOCAL_MAIN_STORAGE'] = "/storage/testApi/"
+    defaults['AWS_REGION']="eu-south-2"
+    defaults['AWS_S3_BUCKET']="myaiappess3bucketnonprod"
+    defaults['MYSQL_HOST']="db.atamai.biz"
+    defaults['MYSQL_DB']="aiapp_nonprod"
