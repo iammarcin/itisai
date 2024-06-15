@@ -117,6 +117,9 @@ class OpenAIImageGenerator:
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
 
         except BadRequestError as e:
+            logger.error("Error in generate_image (class)")
+            logger.error(e)
+            traceback.print_exc()
             error_message = e.json_body.get(
                 'error', {}).get('message', 'Unknown error')
             error_code = e.json_body.get(

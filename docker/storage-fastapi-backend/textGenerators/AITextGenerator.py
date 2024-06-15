@@ -92,8 +92,7 @@ class AITextGenerator:
 
     def set_system_prompt(self, ai_character: str):
 
-        template = getTextPromptTemplate(
-            "brainstorm%s" % ai_character)['template']
+        template = getTextPromptTemplate(ai_character)['template']
         self.system_prompt = template
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
