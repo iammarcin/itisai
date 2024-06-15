@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
 
-const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode }) => {
+const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode, hasMoreSessions }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
@@ -16,7 +16,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
-    if (!isSearchMode) {
+    if (!isSearchMode && hasMoreSessions) { // Check hasMoreSessions
       observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
           loadMoreSessions();
@@ -30,7 +30,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     }
 
     return () => observer.current && observer.current.disconnect();
-  }, [chatSessions, loadMoreSessions, isSearchMode]);
+  }, [chatSessions, loadMoreSessions, isSearchMode, hasMoreSessions]); // Add hasMoreSessions
 
   useEffect(() => {
     if (renamePopup) {

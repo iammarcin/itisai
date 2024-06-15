@@ -11,6 +11,7 @@ const Layout = () => {
   const [offset, setOffset] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [hasMoreSessions, setHasMoreSessions] = useState(true); // New state
   const isFetchingRef = useRef(false);
   const fetchedSessionIds = useRef(new Set());
   const limit = 20;
@@ -36,6 +37,13 @@ const Layout = () => {
       uniqueSessions.forEach(session => fetchedSessionIds.current.add(session.session_id));
 
       setChatSessions(prevSessions => (newOffset === 0 ? uniqueSessions : [...prevSessions, ...uniqueSessions]));
+
+      // Check if we received fewer sessions than the limit, indicating no more sessions are available
+      if (sessions.length < limit) {
+        setHasMoreSessions(false);
+      } else {
+        setHasMoreSessions(true);
+      }
     } catch (error) {
       console.error('Failed to fetch chat sessions', error);
     }
@@ -43,11 +51,11 @@ const Layout = () => {
   }, [limit]);
 
   const loadMoreSessions = useCallback(() => {
-    if (!isFetchingRef.current && !isSearchMode) {
+    if (!isFetchingRef.current && !isSearchMode && hasMoreSessions) { // Check hasMoreSessions
       const newOffset = offset + limit;
       setOffset(newOffset);
     }
-  }, [offset, limit, isSearchMode]);
+  }, [offset, limit, isSearchMode, hasMoreSessions]); // Add hasMoreSessions
 
   const updateSessionName = (sessionId, newName) => {
     setChatSessions(prevSessions => prevSessions.map(session =>
@@ -73,6 +81,7 @@ const Layout = () => {
     fetchedSessionIds.current.clear();
     setChatSessions([]);
     setIsSearchMode(term !== '');
+    setHasMoreSessions(true); // Reset hasMoreSessions on new search
   };
 
   return (
@@ -85,6 +94,7 @@ const Layout = () => {
         removeSession={removeSession}
         onSearch={handleSearch}
         isSearchMode={isSearchMode}
+        hasMoreSessions={hasMoreSessions} // Pass hasMoreSessions
       />
       <ChatWindow selectedSession={selectedSession} />
     </div>
