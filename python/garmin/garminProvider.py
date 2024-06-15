@@ -184,6 +184,7 @@ class Garmin:
     ########################## OTHER METHODS ##########################
     # my tests via watching Network in browser Inspect
     #GET https://connect.garmin.com/fitnessage-service/stats/daily/2024-05-17/2024-06-13?_=1718293562451
+    #def get_fitness_age(self, activity_id):
     '''
     [
     {
