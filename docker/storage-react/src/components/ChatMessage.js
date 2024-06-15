@@ -10,13 +10,13 @@ const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
 
 const ChatMessage = ({ message }) => {
-  const avatarSrc = message.isUserMessage 
-    ? '/imgs/UserAvatar.png' 
+  const avatarSrc = message.isUserMessage
+    ? '/imgs/UserAvatar.jpg'
     : `/imgs/${message.aiCharacterName}.png`;
 
   // filter out placeholders
-  const validImageLocations = message.imageLocations 
-    ? message.imageLocations.filter(src => src !== "image_placeholder_url") 
+  const validImageLocations = message.imageLocations
+    ? message.imageLocations.filter(src => src !== "image_placeholder_url")
     : [];
 
   // Check if message is empty and imageLocations and fileNames are also empty
@@ -31,7 +31,7 @@ const ChatMessage = ({ message }) => {
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}>
       <div className="avatar">
-        <img src={avatarSrc} alt="avatar"/>
+        <img src={avatarSrc} alt="avatar" />
       </div>
       <div className="message-content">
         <Markdown
@@ -49,7 +49,7 @@ const ChatMessage = ({ message }) => {
           }}
         />
         {validImageLocations.map((src, index) => (
-        <img key={index} src={src} alt="Chat"/>
+          <img key={index} src={src} alt="Chat" />
         ))}
         {message.fileNames && message.fileNames.map((src, index) => (
           <audio key={index} controls>
