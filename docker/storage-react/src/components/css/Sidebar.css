@@ -2,7 +2,8 @@
   padding: 20px;
   color: #fff;
   overflow-y: auto;
-  height: 100vh; /* Full height */
+  height: 100vh;
+  /* Full height */
 }
 
 .sidebar h2 {
@@ -35,7 +36,8 @@
 }
 
 .sidebar li.selected {
-  background-color: #555; /* Slightly different color for selected session */
+  background-color: #555;
+  /* Slightly different color for selected session */
 }
 
 .session-item {
@@ -112,10 +114,14 @@
   margin-bottom: 20px;
   padding: 5px;
   width: 100%;
-  background-color: #444; /* Dark gray background */
-  color: #fff; /* White text */
-  border: 1px solid #555; /* Slightly lighter border */
-  border-radius: 5px; /* Rounded corners */
+  background-color: #444;
+  /* Dark gray background */
+  color: #fff;
+  /* White text */
+  border: 1px solid #555;
+  /* Slightly lighter border */
+  border-radius: 5px;
+  /* Rounded corners */
 }
 
 .rename-popup-content .button-group {
@@ -126,15 +132,52 @@
 
 .rename-popup-content button {
   padding: 5px 10px;
-  background-color: #3a3a3a; /* Dark background */
-  color: #fff; /* White text */
+  background-color: #3a3a3a;
+  /* Dark background */
+  color: #fff;
+  /* White text */
   border: none;
-  border-radius: 5px; /* Rounded corners */
+  border-radius: 5px;
+  /* Rounded corners */
   cursor: pointer;
-  font-size: 0.9em; /* Smaller font size */
+  font-size: 0.9em;
+  /* Smaller font size */
   margin: 0 5px;
 }
 
 .rename-popup-content button:hover {
-  background-color: #555; /* Slightly lighter background on hover */
+  background-color: #555;
+  /* Slightly lighter background on hover */
+}
+
+.environment-selector {
+  display: flex;
+  justify-content: flex-end;
+  /* Align to the right */
+  margin-bottom: 20px;
+  /* Add some space below */
+}
+
+.environment-selector label {
+  margin-right: 10px;
+  font-size: 1em;
+  color: #fff;
+  align-self: center;
+  /* Align label vertically with the select box */
+}
+
+.environment-selector select {
+  padding: 10px;
+  background-color: #2c2c2c;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 5px;
+  outline: none;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.environment-selector select:hover {
+  background-color: #3a3a3a;
+  /* Slightly lighter background on hover */
 }

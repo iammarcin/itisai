@@ -1,12 +1,17 @@
+// Sidebar.js
+
 import React, { useState, useEffect, useRef } from 'react';
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
+import { getEnvironment, setEnvironment } from '../utils/local.storage';
+import config from '../config';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode, hasMoreSessions }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
   const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const [environment, setLocalEnvironment] = useState(getEnvironment());
   const renameInputRef = useRef(null);
 
   const handleSearchInputChange = (event) => {
@@ -16,7 +21,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
-    if (!isSearchMode && hasMoreSessions) { // Check hasMoreSessions
+    if (!isSearchMode && hasMoreSessions) {
       observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
           loadMoreSessions();
@@ -30,7 +35,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     }
 
     return () => observer.current && observer.current.disconnect();
-  }, [chatSessions, loadMoreSessions, isSearchMode, hasMoreSessions]); // Add hasMoreSessions
+  }, [chatSessions, loadMoreSessions, isSearchMode, hasMoreSessions]);
 
   useEffect(() => {
     if (renamePopup) {
@@ -114,8 +119,21 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
+  const handleEnvironmentChange = (event) => {
+    const selectedEnv = event.target.value;
+    setLocalEnvironment(selectedEnv);
+    setEnvironment(selectedEnv);
+    window.location.reload(); // Reload to apply the new environment
+  };
+
   return (
     <div className="sidebar">
+      <div className="environment-selector">
+        <select id="environment" value={environment} onChange={handleEnvironmentChange}>
+          <option value="prod">Prod</option>
+          <option value="nonprod">Nonprod</option>
+        </select>
+      </div>
       <h2>Chat Sessions</h2>
       <input
         type="text"
