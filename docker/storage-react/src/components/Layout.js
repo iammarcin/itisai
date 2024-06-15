@@ -15,7 +15,8 @@ const Layout = () => {
   const fetchedSessionIds = useRef(new Set());
   const limit = 20;
 
-  const debouncedSearchText = useDebounce(searchText, 500); // Use debounce hook
+  // debounce hook (to prevent too many API calls)
+  const debouncedSearchText = useDebounce(searchText, 500);
 
   const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {
     isFetchingRef.current = true;

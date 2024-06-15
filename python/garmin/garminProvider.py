@@ -181,6 +181,22 @@ class Garmin:
 
         return self.call_api(url)
 
+    ########################## OTHER METHODS ##########################
+    # my tests via watching Network in browser Inspect
+    #GET https://connect.garmin.com/fitnessage-service/stats/daily/2024-05-17/2024-06-13?_=1718293562451
+    '''
+    [
+    {
+        "calendarDate": "2024-05-23",
+        "values": {
+            "bodyFat": 19.299999237060547,
+            "achievableFitnessAge": 37.148128020273916,
+            "vigorousDaysAvg": 3.0,
+            "fitnessAge": 35.37157997937587,
+            "rhr": 47
+        }
+    },
+    '''
 
 
 
