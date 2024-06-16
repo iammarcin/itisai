@@ -1,6 +1,7 @@
 // Layout.js
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useNavigate, Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import apiMethods from '../services/api.methods';
@@ -8,6 +9,8 @@ import './css/Layout.css';
 import useDebounce from '../hooks/useDebounce';
 
 const Layout = () => {
+  const { sessionId } = useParams();
+  const navigate = useNavigate();
   const [chatSessions, setChatSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
@@ -77,6 +80,18 @@ const Layout = () => {
     fetchChatSessions(offset, debouncedSearchText); // Use debounced search text
   }, [offset, fetchChatSessions, debouncedSearchText]);
 
+  const handleSelectSession = (session) => {
+    navigate(`/session/${session.session_id}`);
+    setSelectedSession(session);
+  };
+
+  useEffect(() => {
+    if (sessionId) {
+      const selected = chatSessions.find(session => session.session_id === sessionId);
+      setSelectedSession(selected);
+    }
+  }, [sessionId, chatSessions]);
+
   const handleSearch = (term) => {
     setSearchText(term);
     setOffset(0);
@@ -90,7 +105,7 @@ const Layout = () => {
     <div className="layout">
       <Sidebar
         chatSessions={chatSessions}
-        onSelectSession={setSelectedSession}
+        onSelectSession={handleSelectSession}
         loadMoreSessions={loadMoreSessions}
         updateSessionName={updateSessionName}
         removeSession={removeSession}

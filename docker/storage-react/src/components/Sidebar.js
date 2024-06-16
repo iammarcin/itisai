@@ -5,6 +5,7 @@ import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
 import { getEnvironment, setEnvironment } from '../utils/local.storage';
 import config from '../config';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode, hasMoreSessions }) => {
   const [contextMenu, setContextMenu] = useState(null);
@@ -13,11 +14,14 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [environment, setLocalEnvironment] = useState(getEnvironment());
   const renameInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleSearchInputChange = (event) => {
     onSearch(event.target.value);
   };
 
+  // observer watching if user scrolls down till end of the sidebar with list of chats
+  // if it goes down - new sessions are loaded
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
@@ -99,6 +103,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const handleSelectSession = (session) => {
     setSelectedSessionId(session.session_id);
     onSelectSession(session);
+    navigate(`/session/${session.session_id}`);
   };
 
   const handleKeyDown = (event) => {
