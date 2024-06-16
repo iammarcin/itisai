@@ -2,6 +2,7 @@
 
 import { getEnvironment } from './utils/local.storage';
 
+// from utils -> local.storage
 const environment = getEnvironment();
 
 const config = {

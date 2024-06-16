@@ -91,7 +91,6 @@ class AITextGenerator:
                 self.streaming = user_settings["streaming"]
 
     def set_system_prompt(self, ai_character: str):
-
         template = getTextPromptTemplate(ai_character)['template']
         self.system_prompt = template
 

@@ -128,12 +128,14 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
 
   return (
     <div className="sidebar">
-      <div className="environment-selector">
-        <select id="environment" value={environment} onChange={handleEnvironmentChange}>
-          <option value="prod">Prod</option>
-          <option value="nonprod">Nonprod</option>
-        </select>
-      </div>
+      {config.getEnvironment !== 'prod' ?
+        <div className="environment-selector">
+          <select id="environment" value={environment} onChange={handleEnvironmentChange}>
+            <option value="prod">Prod</option>
+            <option value="nonprod">Nonprod</option>
+          </select>
+        </div>
+        : null}
       <h2>Chat Sessions</h2>
       <input
         type="text"
