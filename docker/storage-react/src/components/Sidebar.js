@@ -15,6 +15,9 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const [environment, setLocalEnvironment] = useState(getEnvironment());
   const renameInputRef = useRef(null);
   const navigate = useNavigate();
+  // to display dropdown menu with environments only in non-production mode
+  const isProduction = process.env.REACT_APP_NODE_ENV === 'production';
+
 
   const handleSearchInputChange = (event) => {
     onSearch(event.target.value);
@@ -133,7 +136,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
 
   return (
     <div className="sidebar">
-      {config.getEnvironment !== 'prod' ?
+      {!isProduction ?
         <div className="environment-selector">
           <select id="environment" value={environment} onChange={handleEnvironmentChange}>
             <option value="prod">Prod</option>
