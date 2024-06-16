@@ -1,6 +1,7 @@
 /* BottomToolsMenu.css */
+
 .bottom-tools-menu {
- display: flex;
+
  align-items: center;
  padding: 10px 20px;
  background-color: #2c2c2c;
@@ -8,28 +9,65 @@
  position: absolute;
  bottom: 0;
  width: 100%;
+ flex-direction: column;
 }
 
-.bottom-tools-menu .message-input {
- flex-grow: 1;
- padding: 10px;
+.image-preview-container {
+ display: flex;
+ overflow-x: auto;
+ width: 100%;
+ margin-bottom: 10px;
+}
+
+.image-preview {
+ position: relative;
  margin-right: 10px;
+}
+
+.image-preview img {
+ max-width: 100px;
+ max-height: 100px;
+ border-radius: 5px;
+}
+
+.remove-button {
+ position: absolute;
+ top: 0;
+ right: 0;
+ background: white;
+ border: none;
+ color: black;
+ font-size: 16px;
+ cursor: pointer;
+ border-radius: 50%;
+}
+
+.message-input {
+ flex-grow: 1;
+ padding: 5px;
+ margin-right: 10px;
+ font-size: 18px;
  background-color: #1e1e1e;
  border: 1px solid #444;
  color: #fff;
  border-radius: 5px;
+ width: 85%;
+ max-height: 200px;
+ overflow: auto;
+ resize: none;
 }
 
-.bottom-tools-menu .record-button,
-.bottom-tools-menu .attach-button {
+.send-button,
+.attach-button {
  background: none;
  border: none;
  color: white;
- font-size: 24px;
+ font-size: 28px;
  cursor: pointer;
  margin-right: 10px;
+
 }
 
-.bottom-tools-menu .attach-button {
- margin-right: 25px;
+.attach-button {
+ margin-right: 15px;
 }
