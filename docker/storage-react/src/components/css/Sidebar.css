@@ -1,9 +1,10 @@
+/* Sidebar.css */
 .sidebar {
-  padding: 20px;
+  padding: 10px;
   color: #fff;
   overflow-y: auto;
-  height: 100vh;
-  /* Full height */
+  height: calc(100vh - 60px);
+  /* Adjust height considering the top menu */
 }
 
 .sidebar h2 {
@@ -37,7 +38,6 @@
 
 .sidebar li.selected {
   background-color: #555;
-  /* Slightly different color for selected session */
 }
 
 .session-item {
@@ -115,13 +115,9 @@
   padding: 5px;
   width: 100%;
   background-color: #444;
-  /* Dark gray background */
   color: #fff;
-  /* White text */
   border: 1px solid #555;
-  /* Slightly lighter border */
   border-radius: 5px;
-  /* Rounded corners */
 }
 
 .rename-popup-content .button-group {
@@ -133,29 +129,22 @@
 .rename-popup-content button {
   padding: 5px 10px;
   background-color: #3a3a3a;
-  /* Dark background */
   color: #fff;
-  /* White text */
   border: none;
   border-radius: 5px;
-  /* Rounded corners */
   cursor: pointer;
   font-size: 0.9em;
-  /* Smaller font size */
   margin: 0 5px;
 }
 
 .rename-popup-content button:hover {
   background-color: #555;
-  /* Slightly lighter background on hover */
 }
 
 .environment-selector {
   display: flex;
   justify-content: flex-end;
-  /* Align to the right */
-  margin-bottom: 20px;
-  /* Add some space below */
+  margin-bottom: 0px;
 }
 
 .environment-selector label {
@@ -163,7 +152,6 @@
   font-size: 1em;
   color: #fff;
   align-self: center;
-  /* Align label vertically with the select box */
 }
 
 .environment-selector select {
@@ -179,5 +167,4 @@
 
 .environment-selector select:hover {
   background-color: #3a3a3a;
-  /* Slightly lighter background on hover */
 }

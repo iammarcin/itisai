@@ -1,7 +1,9 @@
 // Layout.js
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, Outlet } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import TopMenu from './TopMenu';
+import BottomToolsMenu from './BottomToolsMenu';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import apiMethods from '../services/api.methods';
@@ -103,17 +105,23 @@ const Layout = () => {
 
   return (
     <div className="layout">
-      <Sidebar
-        chatSessions={chatSessions}
-        onSelectSession={handleSelectSession}
-        loadMoreSessions={loadMoreSessions}
-        updateSessionName={updateSessionName}
-        removeSession={removeSession}
-        onSearch={handleSearch}
-        isSearchMode={isSearchMode}
-        hasMoreSessions={hasMoreSessions} // Pass hasMoreSessions
-      />
-      <ChatWindow selectedSession={selectedSession} />
+      <TopMenu />
+      <div className="main-content">
+        <Sidebar
+          chatSessions={chatSessions}
+          onSelectSession={handleSelectSession}
+          loadMoreSessions={loadMoreSessions}
+          updateSessionName={updateSessionName}
+          removeSession={removeSession}
+          onSearch={handleSearch}
+          isSearchMode={isSearchMode}
+          hasMoreSessions={hasMoreSessions}
+        />
+        <div className="chat-area">
+          <ChatWindow selectedSession={selectedSession} />
+          <BottomToolsMenu />
+        </div>
+      </div>
     </div>
   );
 };
