@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
-import { getEnvironment, setEnvironment } from '../utils/local.storage';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode, hasMoreSessions }) => {
@@ -11,11 +10,8 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const [renamePopup, setRenamePopup] = useState(null);
   const observer = useRef();
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const [environment, setLocalEnvironment] = useState(getEnvironment());
   const renameInputRef = useRef(null);
   const navigate = useNavigate();
-  // to display dropdown menu with environments only in non-production mode
-  const isProduction = process.env.NODE_ENV === 'production';
 
   const handleSearchInputChange = (event) => {
     onSearch(event.target.value);
@@ -125,23 +121,8 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-  const handleEnvironmentChange = (event) => {
-    const selectedEnv = event.target.value;
-    setLocalEnvironment(selectedEnv);
-    setEnvironment(selectedEnv);
-    window.location.reload(); // Reload to apply the new environment
-  };
-
   return (
     <div className="sidebar">
-      {!isProduction ?
-        <div className="environment-selector">
-          <select id="environment" value={environment} onChange={handleEnvironmentChange}>
-            <option value="prod">Prod</option>
-            <option value="nonprod">Nonprod</option>
-          </select>
-        </div>
-        : null}
       <input
         type="text"
         className="search-bar"
