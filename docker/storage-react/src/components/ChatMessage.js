@@ -78,26 +78,6 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     setContextMenu(null);
   };
 
-  /*
-  // copied from old solution
-  const handleCopyClick = (message) => {
-    if (process.env.NODE_ENV === 'production') {
-      navigator.clipboard.writeText(message)
-        .catch((error) => {
-          console.error('Failed to copy message', error);
-        });
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = message;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
-
-  };*/
-
-
   const handleEdit = () => {
     console.log('Edit message');
     setContextMenu(null);

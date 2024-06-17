@@ -36,6 +36,20 @@ const ChatWindow = ({ selectedSession }) => {
     // Add logic to handle character selection, e.g., start a new session
   };
 
+  // to check if its last message
+  // for AI response is simple - because its just last message in chat content
+  // but for user request - we need to check little bit more
+  const isLastMessage = (index, message) => {
+    if (message.isUserMessage) {
+      // Check if the next message exists and is an AI response
+      return (index === chatContent.length - 1) ||
+        (index === chatContent.length - 2 && !chatContent[index + 1].isUserMessage);
+    } else {
+      // For AI messages, the original logic works
+      return index === chatContent.length - 1;
+    }
+  };
+
   return (
     <div className="chat-window">
       {!selectedSession ? (
@@ -47,7 +61,7 @@ const ChatWindow = ({ selectedSession }) => {
               key={index}
               index={index}
               message={message}
-              isLastMessage={index === chatContent.length - 1}
+              isLastMessage={isLastMessage(index, message)}
               isUserMessage={message.isUserMessage}
               contextMenuIndex={contextMenuIndex}
               setContextMenuIndex={setContextMenuIndex}
