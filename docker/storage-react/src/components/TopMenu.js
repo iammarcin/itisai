@@ -2,19 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 import './css/TopMenu.css';
-import { getEnvironment, setEnvironment } from '../utils/local.storage';
+import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName } from '../utils/local.storage';
 import OptionsWindow from './OptionsWindow';
 
 const TopMenu = () => {
- const [environment, setLocalEnvironment] = useState(getEnvironment());
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
+ // this is to track if we want to use prod or non prod backend (and will be only available in non prod react)
+ const [environment, setEnvironment] = useState(getIsProdMode() ? 'Prod' : 'Nonprod');
+ // this is different then environment
+ // this is to hide the dropdown menu in prod (behind nginx)
  const isProduction = process.env.NODE_ENV === 'production';
 
  const handleEnvironmentChange = (event) => {
   const selectedEnv = event.target.value;
-  setLocalEnvironment(selectedEnv);
+
   setEnvironment(selectedEnv);
+  if (selectedEnv === "prod") {
+   setIsProdMode(true);
+  } else {
+   setIsProdMode(false);
+  }
+  setURLForAPICalls()
   window.location.reload(); // Reload to apply the new environment
  };
 
@@ -70,7 +79,7 @@ const TopMenu = () => {
      </div>
     )}
     <div className="model-selector">
-     <select id="model" value={environment} onChange={handleEnvironmentChange}>
+     <select id="model" value={getTextModelName()} onChange={handleEnvironmentChange}>
       <option value="gpt-4o">GPT-4o</option>
       <option value="gpt-3.5">GPT-3.5</option>
       <option value="llama">LLama 3 70b</option>

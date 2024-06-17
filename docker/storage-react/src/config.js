@@ -1,9 +1,6 @@
 // config.js
 
-import { getEnvironment } from './utils/local.storage';
-
-// from utils -> local.storage
-const environment = getEnvironment();
+import { getAppModeApiUrl, getIsProdMode } from './utils/local.storage';
 
 const config = {
   // userSettings here are temporarily - in auth.service i later manage it 
@@ -43,19 +40,18 @@ const config = {
 };
 
 
-if (environment === 'prod') {
+config.apiEndpoint = getAppModeApiUrl();
+
+if (getIsProdMode()) {
   config.AWS_REGION = 'eu-south-2';
   config.S3_BUCKET = "myaiappess3bucket";
-  config.apiEndpoint = "https://ai.atamai.biz/api/api";
 } else {
   config.AWS_REGION = 'eu-south-2';
   config.S3_BUCKET = "myaiappess3bucketnonprod";
-  config.apiEndpoint = "http://192.168.1.123:8000/api"
 
   if (process.env.REACT_APP_MY_NODE_ENV === 'local') {
     config.AWS_REGION = 'eu-south-2';
     config.S3_BUCKET = "myaiappess3bucketnonprod";
-    config.apiEndpoint = "http://localhost:8000/api";
   }
 }
 

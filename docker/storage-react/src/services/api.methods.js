@@ -5,24 +5,25 @@ import config from "../config";
 const triggerDBRequest = async (endpoint, action, userInput) => {
   const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
+  console.log("API_BASE_URL: ", API_BASE_URL)
   try {
-      const apiBody = {
-          category: 'provider.db',
-          action: action,
-          userInput: userInput,
-          userSettings: {},
-          customerId: 1,
-      }
-      const response = await makeApiCall({
-          endpoint: API_BASE_URL,
-          method: "POST",
-          body: apiBody
-      });
+    const apiBody = {
+      category: 'provider.db',
+      action: action,
+      userInput: userInput,
+      userSettings: {},
+      customerId: 1,
+    }
+    const response = await makeApiCall({
+      endpoint: API_BASE_URL,
+      method: "POST",
+      body: apiBody
+    });
 
-      return response;
+    return response;
   } catch (error) {
-      console.error('Error triggering DB request:', error);
-      throw error;
+    console.error('Error triggering DB request:', error);
+    throw error;
   }
 }
 

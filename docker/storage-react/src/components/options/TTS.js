@@ -1,43 +1,49 @@
 // options/TTS.js
 
 import React, { useState } from 'react';
-import { setTTSModel, getTTSModel, setStreaming, getStreaming, setAutoTriggerTTS, getAutoTriggerTTS, setVoice, getVoice, setSpeed, getSpeed } from '../../utils/local.storage';
+import {
+ getTTSModelName, setTTSModelName,
+ getTTSStreaming, setTTSStreaming,
+ getTTSAutoExecute, setTTSAutoExecute,
+ getTTSVoice, setTTSVoice,
+ getTTSSpeed, setTTSSpeed
+} from '../../utils/local.storage';
 
 const TTS = () => {
- const [ttsModel, setLocalTTSModel] = useState(getTTSModel());
- const [streaming, setLocalStreaming] = useState(getStreaming());
- const [autoTriggerTTS, setLocalAutoTriggerTTS] = useState(getAutoTriggerTTS());
- const [voice, setLocalVoice] = useState(getVoice());
- const [speed, setLocalSpeed] = useState(getSpeed());
+ const [ttsModel, setLocalTTSModel] = useState(getTTSModelName());
+ const [ttsStreaming, setLocalTTSStreaming] = useState(getTTSStreaming());
+ const [ttsAutoExecute, setLocalTTSAutoExecute] = useState(getTTSAutoExecute());
+ const [ttsVoice, setLocalTTSVoice] = useState(getTTSVoice());
+ const [ttsSpeed, setLocalTTSSpeed] = useState(getTTSSpeed());
 
  const handleModelChange = (e) => {
   const value = e.target.value;
   setLocalTTSModel(value);
-  setTTSModel(value);
+  setTTSModelName(value);
  };
 
  const handleStreamingChange = (e) => {
   const checked = e.target.checked;
-  setLocalStreaming(checked);
-  setStreaming(checked);
+  setLocalTTSStreaming(checked);
+  setTTSStreaming(checked);
  };
 
  const handleAutoTriggerTTSChange = (e) => {
   const checked = e.target.checked;
-  setLocalAutoTriggerTTS(checked);
-  setAutoTriggerTTS(checked);
+  setLocalTTSAutoExecute(checked);
+  setTTSAutoExecute(checked);
  };
 
  const handleVoiceChange = (e) => {
   const value = e.target.value;
-  setLocalVoice(value);
-  setVoice(value);
+  setLocalTTSVoice(value);
+  setTTSVoice(value);
  };
 
  const handleSpeedChange = (e) => {
   const value = e.target.value;
-  setLocalSpeed(value);
-  setSpeed(value);
+  setLocalTTSSpeed(value);
+  setTTSSpeed(value);
  };
 
  return (
@@ -49,22 +55,22 @@ const TTS = () => {
    <div className="optionsAdditionalText">Possible values: tts-1, tts-1-hd</div>
    <div className="option-item">
     <label>Streaming</label>
-    <input type="checkbox" checked={streaming} onChange={handleStreamingChange} />
+    <input type="checkbox" checked={ttsStreaming} onChange={handleStreamingChange} />
    </div>
    <div className="option-item">
     <label>Auto trigger TTS upon AI response</label>
-    <input type="checkbox" checked={autoTriggerTTS} onChange={handleAutoTriggerTTSChange} />
+    <input type="checkbox" checked={ttsAutoExecute} onChange={handleAutoTriggerTTSChange} />
    </div>
    <h3>OpenAI</h3>
    <div className="option-item">
     <label>Voice</label>
-    <input type="text" value={voice} onChange={handleVoiceChange} />
+    <input type="text" value={ttsVoice} onChange={handleVoiceChange} />
    </div>
    <div className="optionsAdditionalText">Possible values: alloy, echo, fable, onyx, nova, and shimmer</div>
    <div className="option-item">
     <label>Speed</label>
-    <input type="range" min="0.5" max="4" step="0.05" value={speed} onChange={handleSpeedChange} />
-    <span>{speed}</span>
+    <input type="range" min="0.5" max="4" step="0.05" value={ttsSpeed} onChange={handleSpeedChange} />
+    <span>{ttsSpeed}</span>
    </div>
   </div>
  );
