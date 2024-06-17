@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
 import { getEnvironment, setEnvironment } from '../utils/local.storage';
-import config from '../config';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode, hasMoreSessions }) => {
@@ -16,8 +15,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   const renameInputRef = useRef(null);
   const navigate = useNavigate();
   // to display dropdown menu with environments only in non-production mode
-  const isProduction = process.env.REACT_APP_NODE_ENV === 'production';
-
+  const isProduction = process.env.NODE_ENV === 'production';
 
   const handleSearchInputChange = (event) => {
     onSearch(event.target.value);

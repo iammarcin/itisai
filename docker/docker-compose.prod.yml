@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: storage-react/Dockerfile.prod
-      args:
-        REACT_APP_NODE_ENV: ${NODE_ENV}
     container_name: frontend_c
     ports:
       - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
