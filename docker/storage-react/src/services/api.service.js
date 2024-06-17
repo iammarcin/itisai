@@ -9,11 +9,13 @@ export default async function makeApiCall({
   timeout = 90000,
   binaryResponse = false,
   streamResponse = false,
+  onChunkReceived = () => { },
+  onStreamEnd = () => { }
 } = {}) {
   if (endpoint === "") {
     throw new Error("Endpoint is required");
   }
-  if(method.toUpperCase() === "GET") {
+  if (method.toUpperCase() === "GET") {
     // For GET requests, we don't need to send any data in the request body
     body = undefined;
   } else if (body instanceof FormData) {
@@ -45,8 +47,17 @@ export default async function makeApiCall({
     });
 
     if (streamResponse) {
-      return response;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let result;
+      while (!(result = await reader.read()).done) {
+        const chunk = decoder.decode(result.value, { stream: true });
+        onChunkReceived(chunk);
+      }
+      onStreamEnd();
+      return;
     }
+
     const data = await response.json();
     if (config.DEBUG === 1) {
       console.log("response: ", data)
