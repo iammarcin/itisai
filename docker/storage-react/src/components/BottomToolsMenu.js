@@ -9,6 +9,7 @@ const BottomToolsMenu = () => {
  const messageInputRef = useRef(null);
 
  const handleSendClick = () => {
+  setMessage("")
   console.log("getSettingsDict()", getSettingsDict());
  };
 
@@ -30,6 +31,13 @@ const BottomToolsMenu = () => {
   setMessage(e.target.value);
  };
 
+ const handleKeyPress = (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+   e.preventDefault();
+   handleSendClick();
+  }
+ };
+
  useEffect(() => {
   const input = messageInputRef.current;
   if (input) {
@@ -37,6 +45,7 @@ const BottomToolsMenu = () => {
    input.style.height = `${Math.min(input.scrollHeight, 100)}px`;
   }
  }, [message]);
+
  return (
   <div className="bottom-tools-menu">
    <div className="image-preview-container">
@@ -54,6 +63,7 @@ const BottomToolsMenu = () => {
      placeholder="Message"
      value={message}
      onChange={handleInputChange}
+     onKeyPress={handleKeyPress}
      rows={1}
     />
     <div className="button-container">
