@@ -15,7 +15,8 @@
 .search-bar {
   padding: 10px;
   width: calc(100% - 20px);
-  margin-bottom: 20px;
+  margin-bottom: 0px;
+  margin-top: 5px;
   background-color: #2c2c2c;
   border: 1px solid #444;
   color: #fff;

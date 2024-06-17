@@ -142,7 +142,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
           </select>
         </div>
         : null}
-      <h2>Chat Sessions</h2>
       <input
         type="text"
         className="search-bar"
