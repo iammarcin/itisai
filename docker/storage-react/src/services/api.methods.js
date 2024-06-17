@@ -5,7 +5,6 @@ import config from "../config";
 const triggerDBRequest = async (endpoint, action, userInput) => {
   const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
-  console.log("API_BASE_URL: ", API_BASE_URL)
   try {
     const apiBody = {
       category: 'provider.db',

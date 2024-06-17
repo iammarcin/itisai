@@ -33,9 +33,10 @@ function App() {
     <Router>
       <Routes>
         {isAuthenticated ? (
-          <Route path="/" element={<Layout />}>
+          <>
+            <Route path="/" element={<Layout />} />
             <Route path="session/:sessionId" element={<Layout />} />
-          </Route>
+          </>
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         )}

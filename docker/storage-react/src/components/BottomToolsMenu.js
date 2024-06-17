@@ -9,7 +9,6 @@ const BottomToolsMenu = () => {
  const messageInputRef = useRef(null);
 
  const handleSendClick = () => {
-  console.log('handleSendClick');
   console.log("getSettingsDict()", getSettingsDict());
  };
 
