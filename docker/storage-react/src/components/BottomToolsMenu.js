@@ -1,6 +1,7 @@
 // BottomToolsMenu.js
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
+import { getSettingsDict } from '../utils/local.storage';
 
 const BottomToolsMenu = () => {
  const [images, setImages] = useState([]);
@@ -9,6 +10,7 @@ const BottomToolsMenu = () => {
 
  const handleSendClick = () => {
   console.log('handleSendClick');
+  console.log("getSettingsDict()", getSettingsDict());
  };
 
  const handleAttachClick = () => {

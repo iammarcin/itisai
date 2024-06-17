@@ -1,6 +1,6 @@
 // options/Speech.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
  getSpeechLanguage, setSpeechLanguage,
  getSpeechTemperature, setSpeechTemperature

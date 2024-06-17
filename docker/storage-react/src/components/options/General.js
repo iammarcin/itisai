@@ -51,7 +51,7 @@ const General = () => {
   if (!isProduction) {
    setIsProdMode(isProdMode);
   }
- }, [isProdMode]);
+ }, [isProdMode, isProduction]);
 
  return (
   <div className="general-options">

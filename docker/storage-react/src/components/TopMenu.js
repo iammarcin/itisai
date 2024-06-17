@@ -2,17 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import './css/TopMenu.css';
-import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName } from '../utils/local.storage';
+import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/local.storage';
 import OptionsWindow from './OptionsWindow';
 
 const TopMenu = () => {
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
+ // this is to show value in dropdown menu
+ const [textModelName, setLocalTextModelName] = useState(getTextModelName());
  // this is to track if we want to use prod or non prod backend (and will be only available in non prod react)
  const [environment, setEnvironment] = useState(getIsProdMode() ? 'prod' : 'nonprod');
  // this is different then environment
  // this is to hide the dropdown menu in prod (behind nginx)
  const isProduction = process.env.NODE_ENV === 'production';
+
+ const handleTextModelChange = (event) => {
+  setTextModelName(event.target.value);
+  setLocalTextModelName(event.target.value);
+ }
 
  const handleEnvironmentChange = (event) => {
   const selectedEnv = event.target.value;
@@ -79,10 +86,10 @@ const TopMenu = () => {
      </div>
     )}
     <div className="model-selector">
-     <select id="model" value={getTextModelName()} onChange={handleEnvironmentChange}>
-      <option value="gpt-4o">GPT-4o</option>
-      <option value="gpt-3.5">GPT-3.5</option>
-      <option value="llama">LLama 3 70b</option>
+     <select id="model" value={textModelName} onChange={handleTextModelChange}>
+      <option value="GPT-4o">GPT-4o</option>
+      <option value="GPT-3.5">GPT-3.5</option>
+      <option value="LLama 3 70b">LLama 3 70b</option>
      </select>
     </div>
     <button className="new-chat-button" onClick={handleNewChatClick}>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import {
- getImageModelName, setImageModelName,
+ getImageModelName,
  getImageQualityHD, setImageQualityHD,
  getImageDisableSafePrompt, setImageDisableSafePrompt,
  getImageArtgenShowPrompt, setImageArtgenShowPrompt,
@@ -15,6 +15,11 @@ const Image = () => {
  const [disableSafePrompt, setDisableSafePrompt] = useState(getImageDisableSafePrompt());
  const [showPrompt, setShowPrompt] = useState(getImageArtgenShowPrompt());
  const [autoGenerateImage, setAutoGenerateImage] = useState(getImageAutoGenerateImage());
+
+ const handleModelChange = (e) => {
+  const value = e.target.value;
+  setModel(value);
+ }
 
  const handleQualityHDChange = (e) => {
   const checked = e.target.checked;
@@ -44,7 +49,7 @@ const Image = () => {
   <div className="image-options">
    <div className="option-item">
     <label>Model</label>
-    <input type="text" value={model} readOnly />
+    <input type="text" value={model} readOnly onChange={handleModelChange} />
    </div>
    <div className="optionsAdditionalText">Possible values: dall-e-3</div>
    <div className="option-item">
