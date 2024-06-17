@@ -1,5 +1,12 @@
+// OptionsWindow.js
+
 import React, { useState } from 'react';
 import './css/OptionsWindow.css';
+import General from './options/General';
+import Text from './options/Text';
+import Image from './options/Image';
+import TTS from './options/TTS';
+import Speech from './options/Speech';
 
 const OptionsWindow = () => {
  const [activeOption, setActiveOption] = useState('GENERAL');
@@ -9,17 +16,17 @@ const OptionsWindow = () => {
  const renderContent = () => {
   switch (activeOption) {
    case 'GENERAL':
-    return <p>GENERAL</p>;
+    return <General />;
    case 'TEXT':
-    return <p>TEXT</p>;
+    return <Text />;
    case 'IMAGE':
-    return <p>IMAGE</p>;
+    return <Image />;
    case 'TTS':
-    return <p>TTS</p>;
+    return <TTS />;
    case 'SPEECH':
-    return <p>SPEECH</p>;
+    return <Speech />;
    default:
-    return <p>GENERAL</p>;
+    return <General />;
   }
  };
 
