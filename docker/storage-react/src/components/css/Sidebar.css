@@ -141,31 +141,3 @@
 .rename-popup-content button:hover {
   background-color: #555;
 }
-
-.environment-selector {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0px;
-}
-
-.environment-selector label {
-  margin-right: 10px;
-  font-size: 1em;
-  color: #fff;
-  align-self: center;
-}
-
-.environment-selector select {
-  padding: 10px;
-  background-color: #2c2c2c;
-  color: #fff;
-  border: 1px solid #444;
-  border-radius: 5px;
-  outline: none;
-  font-size: 1em;
-  cursor: pointer;
-}
-
-.environment-selector select:hover {
-  background-color: #3a3a3a;
-}
