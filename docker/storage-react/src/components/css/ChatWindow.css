@@ -4,8 +4,6 @@
   padding: 20px;
   color: #fff;
   overflow-y: auto;
-  margin-bottom: 60px;
-  /* Ensure space for the fixed bottom menu */
 }
 
 .chat-window h2 {
@@ -19,8 +17,6 @@
   /* Ensure messages section is scrollable */
 }
 
-
-/* ChatMessage.css */
 
 /* General styles for code highlighting */
 .hljs {
