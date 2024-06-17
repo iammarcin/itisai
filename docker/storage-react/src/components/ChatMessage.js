@@ -23,6 +23,7 @@ const ChatMessage = ({ message }) => {
   if ((message.message === "" || message.message === ERROR_MESSAGE_FOR_TEXT_GEN) && validImageLocations.length === 0 && (!message.fileNames || message.fileNames.length === 0)) {
     return null;
   }
+
   // if message is empty, but files are present - it means that it is attached audio file or recording that was transcribed... so we don't need it
   if (message.message === "" && message.fileNames && message.fileNames.length > 0) {
     return null;

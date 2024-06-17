@@ -53,6 +53,29 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     });
   };
 
+  // and listener for above click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenu && !event.target.closest('.context-menu')) {
+        setContextMenu(null);
+      }
+    };
+
+    if (contextMenu) {
+      document.addEventListener('click', handleClickOutside);
+    } else {
+      document.removeEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [contextMenu]);
+
+  const handleClickOutside = (e) => {
+    setContextMenu(null)
+  };
+
   const handleRename = () => {
     setRenamePopup({
       session: contextMenu.session,
