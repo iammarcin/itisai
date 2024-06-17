@@ -1,6 +1,7 @@
 // ChatWindow.js
 import React, { useEffect, useState } from 'react';
 import ChatMessage from './ChatMessage';
+import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
 import './css/ChatWindow.css';
 
@@ -27,17 +28,22 @@ const ChatWindow = ({ selectedSession }) => {
     }
   }, [selectedSession]);
 
-  if (!selectedSession) {
-    return <div className="chat-window">Select a chat session to view messages</div>;
-  }
+  const handleCharacterSelect = (character) => {
+    console.log(`Selected character: ${character.name}`);
+    // Add logic to handle character selection, e.g., start a new session
+  };
 
   return (
     <div className="chat-window">
-      <div className="messages">
-        {chatContent && chatContent.map((message, index) => (
-          <ChatMessage key={index} message={message} />
-        ))}
-      </div>
+      {!selectedSession ? (
+        <ChatCharacters onSelect={handleCharacterSelect} />
+      ) : (
+        <div className="messages">
+          {chatContent && chatContent.map((message, index) => (
+            <ChatMessage key={index} message={message} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

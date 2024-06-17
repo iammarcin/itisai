@@ -1,5 +1,6 @@
 // ChatMessage.js
 import React from 'react';
+import ChatMessageMenu from "./ChatMessageMenu";
 import './css/ChatMessage.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

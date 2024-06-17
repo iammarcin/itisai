@@ -5,7 +5,8 @@
   margin-bottom: 20px;
   padding: 10px;
   border-radius: 5px;
-  word-wrap: break-word; /* Ensures long words break to prevent overflow */
+  word-wrap: break-word;
+  /* Ensures long words break to prevent overflow */
 }
 
 .chat-message.user {
@@ -34,8 +35,10 @@
 
 .chat-message p {
   margin: 0;
-  line-height: 1.5; /* Adjust line spacing */
-  word-wrap: break-word; /* Ensures long words break to prevent overflow */
+  line-height: 1.5;
+  /* Adjust line spacing */
+  word-wrap: break-word;
+  /* Ensures long words break to prevent overflow */
 }
 
 .chat-message img {

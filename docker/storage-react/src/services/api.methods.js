@@ -7,7 +7,7 @@ const triggerAPIRequest = async (endpoint, category, action, userInput) => {
 
   try {
     const apiBody = {
-      category: category, // "provider.db",
+      category: category,
       action: action,
       userInput: userInput,
       userSettings: {},
