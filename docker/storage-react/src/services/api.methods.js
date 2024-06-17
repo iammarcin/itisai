@@ -2,12 +2,12 @@
 import makeApiCall from './api.service';
 import config from "../config";
 
-const triggerDBRequest = async (endpoint, action, userInput) => {
+const triggerAPIRequest = async (endpoint, category, action, userInput) => {
   const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
   try {
     const apiBody = {
-      category: 'provider.db',
+      category: category, // "provider.db",
       action: action,
       userInput: userInput,
       userSettings: {},
@@ -27,7 +27,7 @@ const triggerDBRequest = async (endpoint, action, userInput) => {
 }
 
 const apiMethods = {
-  triggerDBRequest,
+  triggerAPIRequest,
 };
 
 export default apiMethods;

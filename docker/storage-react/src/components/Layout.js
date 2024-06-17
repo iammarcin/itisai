@@ -30,8 +30,9 @@ const Layout = () => {
     isFetchingRef.current = true;
     try {
       const userInput = { limit, offset: newOffset, search_text: searchText };
-      const response = await apiMethods.triggerDBRequest(
+      const response = await apiMethods.triggerAPIRequest(
         "db",
+        "provider.db",
         searchText ? "db_search_messages" : "db_all_sessions_for_user",
         userInput
       );
