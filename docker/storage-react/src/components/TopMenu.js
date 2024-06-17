@@ -9,7 +9,7 @@ const TopMenu = () => {
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
  // this is to track if we want to use prod or non prod backend (and will be only available in non prod react)
- const [environment, setEnvironment] = useState(getIsProdMode() ? 'Prod' : 'Nonprod');
+ const [environment, setEnvironment] = useState(getIsProdMode() ? 'prod' : 'nonprod');
  // this is different then environment
  // this is to hide the dropdown menu in prod (behind nginx)
  const isProduction = process.env.NODE_ENV === 'production';

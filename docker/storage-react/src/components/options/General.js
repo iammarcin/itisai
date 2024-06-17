@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
  getIsProdMode,
  setIsProdMode,
+ setURLForAPICalls,
  getUseTestData,
  setUseTestData,
  getAppModeUseWatson,
@@ -24,6 +25,8 @@ const General = () => {
   const checked = e.target.checked;
   setLocalIsProdMode(checked);
   setIsProdMode(checked);
+  setURLForAPICalls();
+  window.location.reload();
  };
 
  const handleUseTestDataChange = (e) => {
