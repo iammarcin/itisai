@@ -4,6 +4,7 @@ import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
 import './css/ChatWindow.css';
+import { getSettingsDict } from '../services/local.storage';
 
 const ChatWindow = ({ selectedSession }) => {
   const [chatContent, setChatContent] = useState(null);
@@ -11,6 +12,7 @@ const ChatWindow = ({ selectedSession }) => {
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
 
+  // fetch chat content (for specific session)
   useEffect(() => {
     if (selectedSession) {
       const fetchChatContent = async () => {
