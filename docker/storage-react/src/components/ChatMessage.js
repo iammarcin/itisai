@@ -1,5 +1,5 @@
 // ChatMessage.js
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './css/ChatMessage.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -9,7 +9,9 @@ import rehypeHighlight from 'rehype-highlight';
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
 
-const ChatMessage = ({ message }) => {
+const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex }) => {
+  const [contextMenu, setContextMenu] = useState(null);
+  const messageRef = useRef(null);
   const avatarSrc = message.isUserMessage
     ? '/imgs/UserAvatar.jpg'
     : `/imgs/${message.aiCharacterName}.png`;
@@ -18,6 +20,22 @@ const ChatMessage = ({ message }) => {
   const validImageLocations = message.imageLocations
     ? message.imageLocations.filter(src => src !== "image_placeholder_url")
     : [];
+
+  // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenu && !event.target.closest('.context-menu')) {
+        setContextMenu(null);
+        setContextMenuIndex(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [contextMenu]);
 
   // Check if message is empty and imageLocations and fileNames are also empty
   if ((message.message === "" || message.message === ERROR_MESSAGE_FOR_TEXT_GEN) && validImageLocations.length === 0 && (!message.fileNames || message.fileNames.length === 0)) {
@@ -29,8 +47,102 @@ const ChatMessage = ({ message }) => {
     return null;
   }
 
+  const handleRightClick = (event) => {
+    event.preventDefault();
+    setContextMenu(null);
+    const rect = messageRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+    });
+    setContextMenuIndex(index);
+  };
+
+  const handleCopy = () => {
+    if (process.env.NODE_ENV === 'production') {
+      navigator.clipboard.writeText(message.message)
+        .catch((error) => {
+          console.error('Failed to copy message', error);
+        });
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = message.message;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setContextMenu(null);
+  };
+
+  /*
+  // copied from old solution
+  const handleCopyClick = (message) => {
+    if (process.env.NODE_ENV === 'production') {
+      navigator.clipboard.writeText(message)
+        .catch((error) => {
+          console.error('Failed to copy message', error);
+        });
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = message;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+  };*/
+
+
+  const handleEdit = () => {
+    console.log('Edit message');
+    setContextMenu(null);
+  };
+
+  const handleSpeak = () => {
+    console.log('Speak message');
+    setContextMenu(null);
+  };
+
+  const handleRegenerate = () => {
+    console.log('Regenerate message');
+    setContextMenu(null);
+  };
+
+  const renderContextMenu = () => {
+    if (!contextMenu || contextMenuIndex !== index) return null;
+    return (
+      <div
+        className="context-menu"
+        style={{ top: contextMenu.y, left: contextMenu.x, position: 'fixed' }}
+      >
+        <div className="context-menu-item" onClick={handleCopy}>Copy</div>
+        {isUserMessage && isLastMessage && (
+          <div className="context-menu-item" onClick={handleEdit}>Edit</div>
+        )}
+        {!isUserMessage && (
+          <>
+            <div className="context-menu-item" onClick={handleSpeak}>Speak</div>
+            {isLastMessage && (
+              <div className="context-menu-item" onClick={handleRegenerate}>Regenerate</div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
+
   return (
-    <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}>
+    <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}
+      onContextMenu={handleRightClick}
+      ref={messageRef}
+    >
+      {renderContextMenu()}
       <div className="avatar">
         <img src={avatarSrc} alt="avatar" />
       </div>

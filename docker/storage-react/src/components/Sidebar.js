@@ -53,7 +53,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     });
   };
 
-  // and listener for above click outside
+  // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contextMenu && !event.target.closest('.context-menu')) {
@@ -71,10 +71,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
       document.removeEventListener('click', handleClickOutside);
     };
   }, [contextMenu]);
-
-  const handleClickOutside = (e) => {
-    setContextMenu(null)
-  };
 
   const handleRename = () => {
     setRenamePopup({

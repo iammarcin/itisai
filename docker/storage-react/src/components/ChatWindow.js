@@ -7,6 +7,9 @@ import './css/ChatWindow.css';
 
 const ChatWindow = ({ selectedSession }) => {
   const [chatContent, setChatContent] = useState(null);
+  // if i right click on any message (to show context window) - we need to reset previous context window 
+  // if i clicked 2 time on 2 diff messages - two diff context menu were shown
+  const [contextMenuIndex, setContextMenuIndex] = useState(null);
 
   useEffect(() => {
     if (selectedSession) {
@@ -40,7 +43,15 @@ const ChatWindow = ({ selectedSession }) => {
       ) : (
         <div className="messages">
           {chatContent && chatContent.map((message, index) => (
-            <ChatMessage key={index} message={message} />
+            <ChatMessage
+              key={index}
+              index={index}
+              message={message}
+              isLastMessage={index === chatContent.length - 1}
+              isUserMessage={message.isUserMessage}
+              contextMenuIndex={contextMenuIndex}
+              setContextMenuIndex={setContextMenuIndex}
+            />
           ))}
         </div>
       )}
