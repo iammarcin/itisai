@@ -3,7 +3,7 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter } from '../utils/local.storage';
 
 const ChatHandleAPI = async ({
- userInput, chatContent, setChatContent, setIsLoading
+ userInput, attachedImages, chatContent, setChatContent, setIsLoading
 }) => {
  setIsLoading(true);
 
@@ -14,12 +14,19 @@ const ChatHandleAPI = async ({
  ]);
 
  const finalUserInput = {
-  "prompt": [{ "type": "text", "text": userInput }],
+  "prompt": [
+   { "type": "text", "text": userInput },
+   //...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": URL.createObjectURL(image) } }))
+  ],
   "chat_history": (chatContent || []).map((message) => ({
    "role": message.isUserMessage ? "user" : "assistant",
-   "content": [{ "type": "text", "text": message.message }]
+   "content": [
+    { "type": "text", "text": message.message },
+    ...(message.imageLocations || []).map(imageUrl => ({ "type": "image_url", "image_url": { "url": imageUrl } }))
+   ]
   }))
- }
+ };
+
  // Buffer to hold the chunks until the message is complete
  let chunkBuffer = '';
  try {

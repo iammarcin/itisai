@@ -79,3 +79,9 @@
 .attach-button {
  margin-right: 0;
 }
+
+.bottom-tools-menu .image-preview-container .placeholder {
+ width: 100px;
+ height: 100px;
+ background-color: black;
+}

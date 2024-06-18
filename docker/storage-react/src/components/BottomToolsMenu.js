@@ -1,28 +1,59 @@
 // BottomToolsMenu.js
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
+import { getTextModelName } from '../utils/local.storage';
+import apiMethods from '../services/api.methods';
 
-const BottomToolsMenu = ({ userInput, setUserInput, callChatAPI, isLoading }) => {
- const [images, setImages] = useState([]);
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, isLoading }) => {
  const userInputRef = useRef(null);
+ // to control UI while images are being uploaded
+ const [uploading, setUploading] = useState(false);
 
  const handleSendClick = () => {
+  const modelName = getTextModelName();
+  if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
+   alert("Currently chosen model does not support images. Remove image or change the model");
+   return;
+  }
   callChatAPI(userInput);
-  setUserInput("")
+  setUserInput("");
+  setAttachedImages([]);
  };
 
  const handleAttachClick = () => {
   document.getElementById('file-input').click();
  };
 
- const handleFileChange = (e) => {
+ const handleFileChange = async (e) => {
   const files = Array.from(e.target.files);
   const imageFiles = files.filter(file => file.type.startsWith('image/'));
-  setImages(prevImages => [...prevImages, ...imageFiles]);
+
+  // Display placeholders
+  const placeholders = imageFiles.map(file => ({ file, url: '', placeholder: true }));
+  setAttachedImages(prevImages => [...prevImages, ...placeholders]);
+
+  setUploading(true);
+  for (const imageFile of imageFiles) {
+   try {
+    console.log("upload")
+    const response = await apiMethods.uploadFileToS3("api/aws", "provider.s3", "s3_upload", imageFile);
+    console.log("response", response)
+    if (response.success) {
+     const newUrl = response.message.result;
+     setAttachedImages(prevImages => prevImages.map(img => img.file === imageFile ? { ...img, url: newUrl, placeholder: false } : img));
+    } else {
+     throw new Error(response.message);
+    }
+   } catch (error) {
+    console.error('Error uploading file:', error);
+    setAttachedImages(prevImages => prevImages.filter(img => img.file !== imageFile));
+   }
+  }
+  setUploading(false);
  };
 
  const handleRemoveImage = (index) => {
-  setImages(prevImages => prevImages.filter((_, i) => i !== index));
+  setAttachedImages(prevImages => prevImages.filter((_, i) => i !== index));
  };
 
  const handleInputChange = (e) => {
@@ -48,9 +79,13 @@ const BottomToolsMenu = ({ userInput, setUserInput, callChatAPI, isLoading }) =>
  return (
   <div className="bottom-tools-menu">
    <div className="image-preview-container">
-    {images.map((image, index) => (
+    {attachedImages.map((image, index) => (
      <div key={index} className="image-preview">
-      <img src={URL.createObjectURL(image)} alt="preview" />
+      {image.placeholder ? (
+       <div className="placeholder" />
+      ) : (
+       <img src={image.url} alt="preview" />
+      )}
       <button className="remove-button" onClick={() => handleRemoveImage(index)}>X</button>
      </div>
     ))}
@@ -67,10 +102,10 @@ const BottomToolsMenu = ({ userInput, setUserInput, callChatAPI, isLoading }) =>
      disabled={isLoading}
     />
     <div className="button-container">
-     <button className="send-button" onClick={handleSendClick} disabled={isLoading}>
+     <button className="send-button" onClick={handleSendClick} disabled={isLoading || uploading}>
       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" /></svg>
      </button>
-     <button className="attach-button" onClick={handleAttachClick}>
+     <button className="attach-button" onClick={handleAttachClick} disabled={isLoading || uploading}>
       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M720-330q0 104-73 177T470-80q-104 0-177-73t-73-177v-370q0-75 52.5-127.5T400-880q75 0 127.5 52.5T580-700v350q0 46-32 78t-78 32q-46 0-78-32t-32-78v-370h80v370q0 13 8.5 21.5T470-320q13 0 21.5-8.5T500-350v-350q-1-42-29.5-71T400-800q-42 0-71 29t-29 71v370q-1 71 49 120.5T470-160q70 0 119-49.5T640-330v-390h80v390Z" /></svg>
      </button>
     </div>
@@ -80,7 +115,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, callChatAPI, isLoading }) =>
     id="file-input"
     style={{ display: 'none' }}
     onChange={handleFileChange}
-    accept="image/*,audio/*"
+    accept="image/*"
     multiple
    />
   </div>

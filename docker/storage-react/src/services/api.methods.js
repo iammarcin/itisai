@@ -11,7 +11,7 @@ const triggerAPIRequest = async (endpoint, category, action, userInput) => {
       category: category,
       action: action,
       userInput: userInput,
-      userSettings: {},
+      userSettings: getSettingsDict(),
       customerId: 1,
     }
     const response = await makeApiCall({
@@ -52,8 +52,30 @@ const triggerStreamingAPIRequest = async (endpoint, category, action, userInput,
   }
 }
 
+const uploadFileToS3 = async (endpoint, category, action, file) => {
+  const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('category', category);
+  formData.append('action', action);
+  formData.append('userInput', JSON.stringify({}));
+  formData.append('userSettings', JSON.stringify(getSettingsDict()));
+  formData.append('customerId', 1);
+
+  const response = await makeApiCall({
+    endpoint: API_BASE_URL,
+    method: 'POST',
+    body: formData,
+    headers: {}, // Ensure headers are set correctly for FormData
+  });
+
+  return response;
+};
+
+
 const apiMethods = {
-  triggerAPIRequest, triggerStreamingAPIRequest
+  triggerAPIRequest, triggerStreamingAPIRequest, uploadFileToS3
 };
 
 export default apiMethods;

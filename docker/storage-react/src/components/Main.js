@@ -19,8 +19,9 @@ const Main = () => {
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   // chat content from chat window
   const [chatContent, setChatContent] = useState([]);
-  // user input from bottom menu
+  // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
+  const [attachedImages, setAttachedImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectSession = (session) => {
@@ -37,15 +38,17 @@ const Main = () => {
     setShowCharacterSelection(true);
     setSelectedSession(null);
     setUserInput('');
+    setAttachedImages([]);
     setIsLoading(false);
     setTextAICharacter('assistant');
   }
 
   const callChatAPI = async (userInput) => {
     setShowCharacterSelection(false);
+
     try {
       await ChatHandleAPI({
-        userInput, chatContent, setChatContent, setIsLoading
+        userInput, attachedImages, chatContent, setChatContent, setIsLoading
       });
     } catch (e) {
       setIsLoading(false);
@@ -73,6 +76,8 @@ const Main = () => {
           <BottomToolsMenu
             userInput={userInput}
             setUserInput={setUserInput}
+            attachedImages={attachedImages}
+            setAttachedImages={setAttachedImages}
             callChatAPI={callChatAPI}
             isLoading={isLoading}
           />
