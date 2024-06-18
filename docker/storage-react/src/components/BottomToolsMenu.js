@@ -1,15 +1,14 @@
 // BottomToolsMenu.js
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
-import { getSettingsDict } from '../utils/local.storage';
 
-const BottomToolsMenu = ({ userInput, setUserInput, isLoading }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, callChatAPI, isLoading }) => {
  const [images, setImages] = useState([]);
  const userInputRef = useRef(null);
 
  const handleSendClick = () => {
   setUserInput("")
-  console.log("getSettingsDict()", getSettingsDict());
+  callChatAPI(userInput);
  };
 
  const handleAttachClick = () => {

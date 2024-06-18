@@ -6,6 +6,7 @@ import TopMenu from './TopMenu';
 import BottomToolsMenu from './BottomToolsMenu';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
+import ChatHandleAPI from './ChatHandleAPI';
 import './css/Main.css';
 
 import { setTextAICharacter } from '../utils/local.storage';
@@ -16,6 +17,9 @@ const Main = () => {
   const navigate = useNavigate();
   const [selectedSession, setSelectedSession] = useState(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
+  // chat content from chat window
+  const [chatContent, setChatContent] = useState(null);
+  // user input from bottom menu
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,6 +38,17 @@ const Main = () => {
     setTextAICharacter('assistant');
   }
 
+  const callChatAPI = async (userInput) => {
+    setIsLoading(true);
+    try {
+      await ChatHandleAPI({
+        userInput, chatContent, setChatContent
+      });
+    } catch (e) {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="layout">
       <TopMenu
@@ -47,12 +62,15 @@ const Main = () => {
           <ChatWindow
             sessionId={sessionId}
             selectedSession={selectedSession}
+            chatContent={chatContent}
+            setChatContent={setChatContent}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
           />
           <BottomToolsMenu
             userInput={userInput}
             setUserInput={setUserInput}
+            callChatAPI={callChatAPI}
             isLoading={isLoading}
           />
         </div>

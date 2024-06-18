@@ -62,9 +62,38 @@ const defaultSettings = {
   [AUTH_TOKEN_FOR_BACKEND]: "",
 };
 
+// Utility function to convert types
+const convertType = (key, value) => {
+  const typeMap = {
+    [TEXT_TEMPERATURE]: 'float',
+    [TEXT_MEMORY_SIZE]: 'int',
+    [SPEECH_TEMPERATURE]: 'float',
+    [TTS_STABILITY]: 'float',
+    [TTS_SIMILARITY]: 'float',
+    [TTS_SPEED]: 'float',
+    [IMAGE_NUMBER_IMAGES]: 'int',
+    [IMAGE_SIZE]: 'int',
+  };
+
+  const type = typeMap[key];
+  switch (type) {
+    case 'int':
+      return parseInt(value, 10);
+    case 'float':
+      return parseFloat(value);
+    case 'boolean':
+      return value === 'true';
+    default:
+      return value;
+  }
+};
+
 const getItem = (key, defaultValue) => {
   const value = localStorage.getItem(key);
-  return value !== null ? JSON.parse(value) : defaultValue;
+  if (value !== null) {
+    return convertType(key, JSON.parse(value));
+  }
+  return defaultValue;
 };
 
 const setItem = (key, value) => {
@@ -134,10 +163,10 @@ export const setAuthTokenForBackend = (value) => setItem(AUTH_TOKEN_FOR_BACKEND,
 // Depending if it's production mode and also depending on which internal API server is in use
 export const setURLForAPICalls = () => {
   const url = getIsProdMode()
-    ? "https://ai.atamai.biz/api/api"
+    ? "https://ai.atamai.biz/api"
     : getAppModeUseWatson()
-      ? "http://192.168.1.123:8000/api"
-      : "http://192.168.1.150:8000/api";
+      ? "http://192.168.1.123:8000"
+      : "http://192.168.1.150:8000";
   setAppModeApiUrl(url);
 };
 
@@ -173,5 +202,3 @@ export const getSettingsDict = () => ({
     returnTestData: getUseTestData(),
   },
 });
-
-

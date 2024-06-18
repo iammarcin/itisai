@@ -4,10 +4,8 @@ import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
 import './css/ChatWindow.css';
-import { getSettingsDict } from '../utils/local.storage';
 
-const ChatWindow = ({ sessionId, selectedSession, showCharacterSelection, setShowCharacterSelection }) => {
-  const [chatContent, setChatContent] = useState(null);
+const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, showCharacterSelection, setShowCharacterSelection }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -17,7 +15,7 @@ const ChatWindow = ({ sessionId, selectedSession, showCharacterSelection, setSho
     const fetchChatContent = async (sessionIdToGet) => {
       try {
         const userInput = { "session_id": sessionIdToGet };
-        const response = await apiMethods.triggerAPIRequest("db", "provider.db", "db_get_user_session", userInput);
+        const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
 
         const chatHistory = JSON.parse(response.message.result.chat_history);
 
@@ -35,7 +33,7 @@ const ChatWindow = ({ sessionId, selectedSession, showCharacterSelection, setSho
     } else {
       setChatContent(null);
     }
-  }, [sessionId, selectedSession, setShowCharacterSelection]);
+  }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection]);
 
   const handleCharacterSelect = (character) => {
     console.log(`Selected character: ${character.name}`);

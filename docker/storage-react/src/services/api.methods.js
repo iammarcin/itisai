@@ -1,5 +1,6 @@
 // api.methods.js
 import makeApiCall from './api.service';
+import { getSettingsDict } from '../utils/local.storage';
 import config from "../config";
 
 const triggerAPIRequest = async (endpoint, category, action, userInput) => {
@@ -26,8 +27,37 @@ const triggerAPIRequest = async (endpoint, category, action, userInput) => {
   }
 }
 
+const triggerStreamingAPIRequest = async (endpoint, category, action, userInput) => {
+  const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
+
+  const apiBody = {
+    category: category,
+    action: action,
+    userInput: userInput,
+    userSettings: getSettingsDict(),
+    customerId: 1,
+  };
+
+  try {
+    await makeApiCall({
+      endpoint: API_BASE_URL,
+      method: 'POST',
+      body: apiBody,
+      streamResponse: true,
+      onChunkReceived: (chunk) => {
+        console.log("Chunk received:", chunk);
+      },
+      onStreamEnd: () => {
+        console.log("Stream ended");
+      }
+    });
+  } catch (error) {
+    console.error('Error during streaming:', error);
+  }
+}
+
 const apiMethods = {
-  triggerAPIRequest,
+  triggerAPIRequest, triggerStreamingAPIRequest
 };
 
 export default apiMethods;

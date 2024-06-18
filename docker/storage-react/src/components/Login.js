@@ -12,7 +12,7 @@ const Login = ({ onLoginSuccess }) => {
     e.preventDefault();
     try {
       const userInput = { "username": user, "password": password };
-      const response = await apiMethods.triggerAPIRequest("db", "provider.db", "db_auth_user", userInput);
+      const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_auth_user", userInput);
 
       if (response.message && response.message.result && response.code === 200) {
         const expirationDate = new Date();

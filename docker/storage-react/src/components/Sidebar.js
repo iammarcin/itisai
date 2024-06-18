@@ -29,7 +29,7 @@ const Sidebar = ({ onSelectSession }) => {
     try {
       const userInput = { limit, offset: newOffset, search_text: searchText };
       const response = await apiMethods.triggerAPIRequest(
-        "db",
+        "api/db",
         "provider.db",
         searchText ? "db_search_messages" : "db_all_sessions_for_user",
         userInput
@@ -78,7 +78,7 @@ const Sidebar = ({ onSelectSession }) => {
 
   useEffect(() => {
     if (isFetchingRef.current) return;
-    fetchChatSessions(offset, debouncedSearchText); // Use debounced search text
+    fetchChatSessions(offset, debouncedSearchText);
   }, [offset, fetchChatSessions, debouncedSearchText]);
 
   useEffect(() => {
@@ -168,7 +168,7 @@ const Sidebar = ({ onSelectSession }) => {
   const handleRemove = async () => {
     try {
       const userInput = { "session_id": contextMenu.session.session_id };
-      await apiMethods.triggerAPIRequest("db", "provider.db", "db_remove_session", userInput);
+      await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_remove_session", userInput);
       removeSession(contextMenu.session.session_id);
     } catch (error) {
       console.error('Failed to remove session', error);
@@ -187,7 +187,7 @@ const Sidebar = ({ onSelectSession }) => {
     const triggerDBRename = async () => {
       try {
         const userInput = { "session_id": renamePopup.session.session_id, "new_session_name": renamePopup.name };
-        await apiMethods.triggerAPIRequest("db", "provider.db", "db_update_session", userInput);
+        await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_update_session", userInput);
         updateSessionName(renamePopup.session.session_id, renamePopup.name);
       } catch (error) {
         console.error('Failed to rename session', error);
