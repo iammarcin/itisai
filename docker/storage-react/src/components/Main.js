@@ -24,9 +24,11 @@ const Main = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectSession = (session) => {
+    console.log("session: ", session)
     navigate(`/session/${session.session_id}`);
     setSelectedSession(session);
     setShowCharacterSelection(false);
+    setTextAICharacter(session.ai_character_name);
   };
 
   const handleOnNewChatClicked = () => {

@@ -5,9 +5,7 @@ import { getTextAICharacter } from '../utils/local.storage';
 const ChatHandleAPI = async ({
  userInput, chatContent, setChatContent, setIsLoading
 }) => {
- console.log("NNNN")
  setIsLoading(true);
-
 
  // Add the user message to chat content
  setChatContent(prevContent => [
@@ -15,7 +13,6 @@ const ChatHandleAPI = async ({
   { message: userInput, isUserMessage: true }
  ]);
 
- console.log("NNNN12");
  const finalUserInput = {
   "prompt": [{ "type": "text", "text": userInput }],
   "chat_history": (chatContent || []).map((message) => ({
@@ -23,11 +20,11 @@ const ChatHandleAPI = async ({
    "content": [{ "type": "text", "text": message.message }]
   }))
  }
- console.log("NNNN123");
  // Buffer to hold the chunks until the message is complete
  let chunkBuffer = '';
  try {
-  console.log("AAAA")
+  console.log("Api call to be executed!")
+  console.log("Final User Input", finalUserInput);
   await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
    onChunkReceived: (chunk) => {
     chunkBuffer += chunk;
