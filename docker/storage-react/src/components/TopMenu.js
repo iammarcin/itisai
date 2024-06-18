@@ -1,6 +1,6 @@
 // TopMenu.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/local.storage';
 import OptionsWindow from './OptionsWindow';

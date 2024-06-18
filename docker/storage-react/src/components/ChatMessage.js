@@ -35,7 +35,7 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [contextMenu]);
+  }, [contextMenu, setContextMenuIndex]);
 
   // Check if message is empty and imageLocations and fileNames are also empty
   if ((message.message === "" || message.message === ERROR_MESSAGE_FOR_TEXT_GEN) && validImageLocations.length === 0 && (!message.fileNames || message.fileNames.length === 0)) {
@@ -50,9 +50,6 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
   const handleRightClick = (event) => {
     event.preventDefault();
     setContextMenu(null);
-    const rect = messageRef.current.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
 
     setContextMenu({
       x: event.clientX,
@@ -83,11 +80,6 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     setContextMenu(null);
   };
 
-  const handleSpeak = () => {
-    console.log('Speak message');
-    setContextMenu(null);
-  };
-
   const handleRegenerate = () => {
     console.log('Regenerate message');
     setContextMenu(null);
@@ -100,18 +92,17 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
         className="context-menu"
         style={{ top: contextMenu.y, left: contextMenu.x, position: 'fixed' }}
       >
-        <div className="context-menu-item" onClick={handleCopy}>Copy</div>
         {isUserMessage && isLastMessage && (
           <div className="context-menu-item" onClick={handleEdit}>Edit</div>
         )}
         {!isUserMessage && (
           <>
-            <div className="context-menu-item" onClick={handleSpeak}>Speak</div>
             {isLastMessage && (
               <div className="context-menu-item" onClick={handleRegenerate}>Regenerate</div>
             )}
           </>
         )}
+        <div className="context-menu-item" onClick={handleCopy}>Copy</div>
       </div>
     );
   };

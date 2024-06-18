@@ -35,7 +35,7 @@ const ChatWindow = ({ sessionId, selectedSession, showCharacterSelection, setSho
     } else {
       setChatContent(null);
     }
-  }, [sessionId, selectedSession]);
+  }, [sessionId, selectedSession, setShowCharacterSelection]);
 
   const handleCharacterSelect = (character) => {
     console.log(`Selected character: ${character.name}`);
