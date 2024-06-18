@@ -8,6 +8,8 @@ import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import './css/Main.css';
 
+import { setTextAICharacter } from '../utils/local.storage';
+
 const Main = () => {
   // to get sessionId from URL and load the session
   const { sessionId } = useParams();
@@ -23,9 +25,20 @@ const Main = () => {
     setShowCharacterSelection(false);
   };
 
+  const handleOnNewChatClicked = () => {
+    navigate(`/`);
+    setShowCharacterSelection(true);
+    setSelectedSession(null);
+    setUserInput('');
+    setIsLoading(false);
+    setTextAICharacter('assistant');
+  }
+
   return (
     <div className="layout">
-      <TopMenu setShowCharacterSelection={setShowCharacterSelection} />
+      <TopMenu
+        onNewChatClicked={handleOnNewChatClicked}
+      />
       <div className="main-content">
         <Sidebar
           onSelectSession={handleSelectSession}

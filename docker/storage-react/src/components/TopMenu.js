@@ -1,11 +1,11 @@
 // TopMenu.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/local.storage';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ setShowCharacterSelection }) => {
+const TopMenu = ({ onNewChatClicked }) => {
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
  // this is to show value in dropdown menu
@@ -35,8 +35,7 @@ const TopMenu = ({ setShowCharacterSelection }) => {
  };
 
  const handleNewChatClick = () => {
-  console.log('New');
-  setShowCharacterSelection(true);
+  onNewChatClicked()
  };
 
  const handleMenuButtonClick = () => {

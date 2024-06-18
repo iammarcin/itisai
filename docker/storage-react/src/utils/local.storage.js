@@ -32,43 +32,43 @@ const AUTH_TOKEN_FOR_BACKEND = "auth_token_for_backend";
 
 // Default values
 const defaultSettings = {
- [APP_MODE_PRODUCTION]: true,
- [APP_MODE_API_URL]: "https://ai.atamai.biz/api/",
- [APP_MODE_USE_WATSON]: false,
- [TEXT_MODEL_NAME]: "GPT-4o",
- [TEXT_AI_CHARACTER]: "assistant",
- [TEXT_TEMPERATURE]: 0.0,
- [TEXT_MEMORY_SIZE]: 2000,
- [TEXT_STREAMING]: false,
- [GENERAL_USE_BLUETOOTH]: false,
- [GENERAL_TEST_DATA]: false,
- [GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING]: true,
- [SPEECH_LANGUAGE]: "en",
- [SPEECH_TEMPERATURE]: 0.0,
- [TTS_STABILITY]: 0.0,
- [TTS_SIMILARITY]: 0.0,
- [TTS_VOICE]: "alloy",
- [TTS_STREAMING]: false,
- [TTS_SPEED]: 1.0,
- [TTS_MODEL_NAME]: "tts-1",
- [TTS_AUTO_EXECUTE]: false,
- [IMAGE_MODEL_NAME]: "dall-e-3",
- [IMAGE_NUMBER_IMAGES]: 1,
- [IMAGE_SIZE]: 1024,
- [IMAGE_QUALITY_HD]: false,
- [IMAGE_DISABLE_SAFE_PROMPT]: false,
- [IMAGE_AUTO_GENERATE_IMAGE]: false,
- [IMAGE_ARTGEN_SHOW_PROMPT]: false,
- [AUTH_TOKEN_FOR_BACKEND]: "",
+  [APP_MODE_PRODUCTION]: true,
+  [APP_MODE_API_URL]: "https://ai.atamai.biz/api/",
+  [APP_MODE_USE_WATSON]: false,
+  [TEXT_MODEL_NAME]: "GPT-4o",
+  [TEXT_AI_CHARACTER]: "assistant",
+  [TEXT_TEMPERATURE]: 0.0,
+  [TEXT_MEMORY_SIZE]: 2000,
+  [TEXT_STREAMING]: false,
+  [GENERAL_USE_BLUETOOTH]: false,
+  [GENERAL_TEST_DATA]: false,
+  [GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING]: true,
+  [SPEECH_LANGUAGE]: "en",
+  [SPEECH_TEMPERATURE]: 0.0,
+  [TTS_STABILITY]: 0.0,
+  [TTS_SIMILARITY]: 0.0,
+  [TTS_VOICE]: "alloy",
+  [TTS_STREAMING]: false,
+  [TTS_SPEED]: 1.0,
+  [TTS_MODEL_NAME]: "tts-1",
+  [TTS_AUTO_EXECUTE]: false,
+  [IMAGE_MODEL_NAME]: "dall-e-3",
+  [IMAGE_NUMBER_IMAGES]: 1,
+  [IMAGE_SIZE]: 1024,
+  [IMAGE_QUALITY_HD]: false,
+  [IMAGE_DISABLE_SAFE_PROMPT]: false,
+  [IMAGE_AUTO_GENERATE_IMAGE]: false,
+  [IMAGE_ARTGEN_SHOW_PROMPT]: false,
+  [AUTH_TOKEN_FOR_BACKEND]: "",
 };
 
 const getItem = (key, defaultValue) => {
- const value = localStorage.getItem(key);
- return value !== null ? JSON.parse(value) : defaultValue;
+  const value = localStorage.getItem(key);
+  return value !== null ? JSON.parse(value) : defaultValue;
 };
 
 const setItem = (key, value) => {
- localStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(key, JSON.stringify(value));
 };
 
 // Getter methods
@@ -133,43 +133,45 @@ export const setAuthTokenForBackend = (value) => setItem(AUTH_TOKEN_FOR_BACKEND,
 
 // Depending if it's production mode and also depending on which internal API server is in use
 export const setURLForAPICalls = () => {
- const url = getIsProdMode()
-  ? "https://ai.atamai.biz/api/api"
-  : getAppModeUseWatson()
-   ? "http://192.168.1.123:8000/api"
-   : "http://192.168.1.150:8000/api";
- setAppModeApiUrl(url);
+  const url = getIsProdMode()
+    ? "https://ai.atamai.biz/api/api"
+    : getAppModeUseWatson()
+      ? "http://192.168.1.123:8000/api"
+      : "http://192.168.1.150:8000/api";
+  setAppModeApiUrl(url);
 };
 
 // Used for API calls - to prepare dict with all settings
 export const getSettingsDict = () => ({
- text: {
-  temperature: getTextTemperature(),
-  model: getTextModelName(),
-  memory_limit: getTextMemorySize(),
-  ai_character: getTextAICharacter(),
-  streaming: getIsStreamingEnabled(),
- },
- tts: {
-  stability: getTTSStability(),
-  similarity_boost: getTTSSimilarity(),
-  voice: getTTSVoice(),
-  streaming: getTTSStreaming(),
-  speed: getTTSSpeed(),
-  model: getTTSModelName(),
- },
- speech: {
-  language: getSpeechLanguage(),
-  temperature: getSpeechTemperature(),
- },
- image: {
-  model: getImageModelName(),
-  number_of_images: getImageNumberImages(),
-  size_of_image: getImageSize(),
-  quality_hd: getImageQualityHD(),
-  disable_safe_prompt_adjust: getImageDisableSafePrompt(),
- },
- general: {
-  returnTestData: getUseTestData(),
- },
+  text: {
+    temperature: getTextTemperature(),
+    model: getTextModelName(),
+    memory_limit: getTextMemorySize(),
+    ai_character: getTextAICharacter(),
+    streaming: getIsStreamingEnabled(),
+  },
+  tts: {
+    stability: getTTSStability(),
+    similarity_boost: getTTSSimilarity(),
+    voice: getTTSVoice(),
+    streaming: getTTSStreaming(),
+    speed: getTTSSpeed(),
+    model: getTTSModelName(),
+  },
+  speech: {
+    language: getSpeechLanguage(),
+    temperature: getSpeechTemperature(),
+  },
+  image: {
+    model: getImageModelName(),
+    number_of_images: getImageNumberImages(),
+    size_of_image: getImageSize(),
+    quality_hd: getImageQualityHD(),
+    disable_safe_prompt_adjust: getImageDisableSafePrompt(),
+  },
+  general: {
+    returnTestData: getUseTestData(),
+  },
 });
+
+

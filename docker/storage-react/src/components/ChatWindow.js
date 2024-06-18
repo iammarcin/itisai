@@ -22,15 +22,18 @@ const ChatWindow = ({ sessionId, selectedSession, showCharacterSelection, setSho
         const chatHistory = JSON.parse(response.message.result.chat_history);
 
         setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
-
+        setShowCharacterSelection(false);
       } catch (error) {
         console.error('Failed to fetch chat content', error);
       }
     };
+
     if (sessionId) {
       fetchChatContent(sessionId);
     } else if (selectedSession) {
       fetchChatContent(selectedSession.session_id);
+    } else {
+      setChatContent(null);
     }
   }, [sessionId, selectedSession]);
 
