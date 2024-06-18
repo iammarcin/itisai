@@ -24,8 +24,12 @@ const Main = () => {
   const [searchText, setSearchText] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [hasMoreSessions, setHasMoreSessions] = useState(true);
-  // to show or not characters list
+  // to show or not characters list in ChatWindow
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
+  // user input for chat (bottom menu)
+  const [userInput, setUserInput] = useState('');
+  // to track if any process is ongoing (used for sure in bottom menu)
+  const [isLoading, setIsLoading] = useState(false);
   const isFetchingRef = useRef(false);
   const fetchedSessionIds = useRef(new Set());
 
@@ -133,7 +137,11 @@ const Main = () => {
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
           />
-          <BottomToolsMenu />
+          <BottomToolsMenu
+            userInput={userInput}
+            setUserInput={setUserInput}
+            isLoading={isLoading}
+          />
         </div>
       </div>
     </div>

@@ -3,13 +3,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
 import { getSettingsDict } from '../utils/local.storage';
 
-const BottomToolsMenu = () => {
+const BottomToolsMenu = (userInput, setUserInput, isLoading) => {
  const [images, setImages] = useState([]);
- const [message, setMessage] = useState('');
- const messageInputRef = useRef(null);
+ const userInputRef = useRef(null);
 
  const handleSendClick = () => {
-  setMessage("")
+  setUserInput("")
   console.log("getSettingsDict()", getSettingsDict());
  };
 
@@ -28,7 +27,7 @@ const BottomToolsMenu = () => {
  };
 
  const handleInputChange = (e) => {
-  setMessage(e.target.value);
+  setUserInput(e.target.value);
  };
 
  const handleKeyPress = (e) => {
@@ -38,13 +37,14 @@ const BottomToolsMenu = () => {
   }
  };
 
+ // setting height of user input (if more then 1 line)
  useEffect(() => {
-  const input = messageInputRef.current;
+  const input = userInputRef.current;
   if (input) {
    input.style.height = 'auto';
    input.style.height = `${Math.min(input.scrollHeight, 100)}px`;
   }
- }, [message]);
+ }, [userInput]);
 
  return (
   <div className="bottom-tools-menu">
@@ -58,16 +58,17 @@ const BottomToolsMenu = () => {
    </div>
    <div className="input-container">
     <textarea
-     ref={messageInputRef}
+     ref={userInputRef}
      className="message-input"
-     placeholder="Message"
-     value={message}
+     placeholder="Talk to me..."
+     value={userInput}
      onChange={handleInputChange}
      onKeyPress={handleKeyPress}
      rows={1}
+     disabled={isLoading}
     />
     <div className="button-container">
-     <button className="send-button" onClick={handleSendClick}>
+     <button className="send-button" onClick={handleSendClick} disabled={isLoading}>
       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" /></svg>
      </button>
      <button className="attach-button" onClick={handleAttachClick}>
