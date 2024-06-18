@@ -9,6 +9,7 @@ import ChatWindow from './ChatWindow';
 import './css/Main.css';
 
 const Main = () => {
+  // to get sessionId from URL and load the session
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const [selectedSession, setSelectedSession] = useState(null);
@@ -26,9 +27,12 @@ const Main = () => {
     <div className="layout">
       <TopMenu setShowCharacterSelection={setShowCharacterSelection} />
       <div className="main-content">
-        <Sidebar onSelectSession={handleSelectSession} />
+        <Sidebar
+          onSelectSession={handleSelectSession}
+        />
         <div className="chat-area">
           <ChatWindow
+            sessionId={sessionId}
             selectedSession={selectedSession}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}

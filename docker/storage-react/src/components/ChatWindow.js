@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import './css/ChatWindow.css';
 import { getSettingsDict } from '../utils/local.storage';
 
-const ChatWindow = ({ selectedSession, showCharacterSelection, setShowCharacterSelection }) => {
+const ChatWindow = ({ sessionId, selectedSession, showCharacterSelection, setShowCharacterSelection }) => {
   const [chatContent, setChatContent] = useState(null);
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
@@ -14,24 +14,25 @@ const ChatWindow = ({ selectedSession, showCharacterSelection, setShowCharacterS
 
   // fetch chat content (for specific session)
   useEffect(() => {
-    if (selectedSession) {
-      const fetchChatContent = async () => {
-        try {
-          const userInput = { "session_id": selectedSession.session_id };
-          const response = await apiMethods.triggerAPIRequest("db", "provider.db", "db_get_user_session", userInput);
+    const fetchChatContent = async (sessionIdToGet) => {
+      try {
+        const userInput = { "session_id": sessionIdToGet };
+        const response = await apiMethods.triggerAPIRequest("db", "provider.db", "db_get_user_session", userInput);
 
-          const chatHistory = JSON.parse(response.message.result.chat_history);
+        const chatHistory = JSON.parse(response.message.result.chat_history);
 
-          setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
+        setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
 
-        } catch (error) {
-          console.error('Failed to fetch chat content', error);
-        }
-      };
-
-      fetchChatContent();
+      } catch (error) {
+        console.error('Failed to fetch chat content', error);
+      }
+    };
+    if (sessionId) {
+      fetchChatContent(sessionId);
+    } else if (selectedSession) {
+      fetchChatContent(selectedSession.session_id);
     }
-  }, [selectedSession]);
+  }, [sessionId, selectedSession]);
 
   const handleCharacterSelect = (character) => {
     console.log(`Selected character: ${character.name}`);
