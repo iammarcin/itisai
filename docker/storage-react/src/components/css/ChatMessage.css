@@ -2,7 +2,7 @@
 .chat-message {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-top: 12px;
   padding: 10px;
   border-radius: 5px;
   word-wrap: break-word;

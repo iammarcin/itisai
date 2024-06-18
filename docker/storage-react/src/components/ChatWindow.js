@@ -5,6 +5,8 @@ import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
 import './css/ChatWindow.css';
 
+import { setTextAICharacter } from '../utils/local.storage';
+
 const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, showCharacterSelection, setShowCharacterSelection }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
@@ -45,9 +47,8 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
   }, [chatContent]);
 
   const handleCharacterSelect = (character) => {
-    console.log(`Selected character: ${character.name}`);
-    setShowCharacterSelection(false)
-    // Add logic to handle character selection, e.g., start a new session
+    setShowCharacterSelection(false);
+    setTextAICharacter(character.nameForAPI);
   };
 
   // to check if its last message

@@ -18,7 +18,7 @@ const Main = () => {
   const [selectedSession, setSelectedSession] = useState(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   // chat content from chat window
-  const [chatContent, setChatContent] = useState(null);
+  const [chatContent, setChatContent] = useState([]);
   // user input from bottom menu
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,7 @@ const Main = () => {
 
   const handleOnNewChatClicked = () => {
     navigate(`/`);
+    setChatContent([]);
     setShowCharacterSelection(true);
     setSelectedSession(null);
     setUserInput('');
@@ -39,6 +40,7 @@ const Main = () => {
   }
 
   const callChatAPI = async (userInput) => {
+    setShowCharacterSelection(false);
     try {
       await ChatHandleAPI({
         userInput, chatContent, setChatContent, setIsLoading
