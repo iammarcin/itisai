@@ -19,17 +19,22 @@ const ChatHandleAPI = async ({
    "content": [{ "type": "text", "text": message.message }]
   }))
  }
+
+ // Buffer to hold the chunks until the message is complete
+ let chunkBuffer = '';
  try {
   await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
    onChunkReceived: (chunk) => {
     console.log("Chunk received:", chunk)
+    chunkBuffer += chunk;
+
     setChatContent(prevContent => {
      const newContent = [...prevContent];
      const lastMessage = newContent[newContent.length - 1];
      if (lastMessage && !lastMessage.isUserMessage) {
-      lastMessage.message += chunk;
+      lastMessage.message = chunkBuffer;
      } else {
-      newContent.push({ message: chunk, isUserMessage: false });
+      newContent.push({ message: chunkBuffer, isUserMessage: false });
      }
      return newContent;
     });
