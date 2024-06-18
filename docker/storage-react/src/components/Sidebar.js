@@ -101,6 +101,8 @@ const Sidebar = ({ onSelectSession }) => {
     handleSearch(event.target.value);
   };
 
+  // observer watching if user scrolls down till end of the sidebar with list of chats
+  // if it goes down - new sessions are loaded
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
@@ -136,6 +138,7 @@ const Sidebar = ({ onSelectSession }) => {
     });
   };
 
+  // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contextMenu && !event.target.closest('.context-menu')) {
