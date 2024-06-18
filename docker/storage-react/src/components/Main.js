@@ -1,4 +1,4 @@
-// Layout.js
+// Main.js
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -7,10 +7,10 @@ import BottomToolsMenu from './BottomToolsMenu';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import apiMethods from '../services/api.methods';
-import './css/Layout.css';
+import './css/Main.css';
 import useDebounce from '../hooks/useDebounce';
 
-const Layout = () => {
+const Main = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   // list of sessions
@@ -140,4 +140,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default Main;

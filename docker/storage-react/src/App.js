@@ -1,7 +1,7 @@
 // App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout';
+import Main from './components/Main';
 import Login from './components/Login';
 
 const isTokenValid = (tokenData) => {
@@ -34,8 +34,8 @@ function App() {
       <Routes>
         {isAuthenticated ? (
           <>
-            <Route path="/" element={<Layout />} />
-            <Route path="session/:sessionId" element={<Layout />} />
+            <Route path="/" element={<Main />} />
+            <Route path="session/:sessionId" element={<Main />} />
           </>
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
