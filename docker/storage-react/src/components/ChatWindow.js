@@ -1,5 +1,5 @@
 // ChatWindow.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
@@ -9,6 +9,8 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
+  // this is used for scrollToBottom
+  const endOfMessagesRef = useRef(null);
 
   // fetch chat content (for specific session)
   useEffect(() => {
@@ -34,6 +36,13 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
       setChatContent(null);
     }
   }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection]);
+
+  // scroll to bottom
+  useEffect(() => {
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatContent]);
 
   const handleCharacterSelect = (character) => {
     console.log(`Selected character: ${character.name}`);
@@ -72,6 +81,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
             setContextMenuIndex={setContextMenuIndex}
           />
         ))}
+        <div ref={endOfMessagesRef} />
       </div>
     </div>
   );

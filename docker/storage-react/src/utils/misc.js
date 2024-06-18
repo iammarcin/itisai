@@ -10,6 +10,7 @@ const formatDate = (dateString) => {
  return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
+/*
 const scrollToBottom = (option) => {
  const isAtBottom = Math.ceil(window.innerHeight + window.scrollY + 50) >= document.documentElement.scrollHeight;
 
@@ -37,6 +38,6 @@ const scrollToBottom = (option) => {
   }
  }
 
-};
+};*/
 
-export { formatDate, scrollToBottom };
+export { formatDate };
