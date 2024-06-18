@@ -1,24 +1,106 @@
 // Sidebar.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
 import { useNavigate } from 'react-router-dom';
+import useDebounce from '../hooks/useDebounce';
+import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessionName, removeSession, onSearch, isSearchMode, hasMoreSessions }) => {
+const Sidebar = ({ onSelectSession }) => {
+  const [chatSessions, setChatSessions] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
+  const [searchText, setSearchText] = useState('');
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [hasMoreSessions, setHasMoreSessions] = useState(true);
+  const isFetchingRef = useRef(false);
+  const fetchedSessionIds = useRef(new Set());
+  const debouncedSearchText = useDebounce(searchText, 500);
+  const observer = useRef();
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
-  const observer = useRef();
-  const [selectedSessionId, setSelectedSessionId] = useState(null);
   const renameInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSearchInputChange = (event) => {
-    onSearch(event.target.value);
+  const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {
+    isFetchingRef.current = true;
+    try {
+      const userInput = { limit, offset: newOffset, search_text: searchText };
+      const response = await apiMethods.triggerAPIRequest(
+        "db",
+        "provider.db",
+        searchText ? "db_search_messages" : "db_all_sessions_for_user",
+        userInput
+      );
+      const sessions = response.message.result;
+
+      const uniqueSessions = sessions.filter(
+        session => !fetchedSessionIds.current.has(session.session_id)
+      );
+
+      uniqueSessions.forEach(session => fetchedSessionIds.current.add(session.session_id));
+
+      setChatSessions(prevSessions => (newOffset === 0 ? uniqueSessions : [...prevSessions, ...uniqueSessions]));
+
+      // Check if we received fewer sessions than the limit, indicating no more sessions are available
+      if (sessions.length < limit) {
+        setHasMoreSessions(false);
+      } else {
+        setHasMoreSessions(true);
+      }
+    } catch (error) {
+      console.error('Failed to fetch chat sessions', error);
+    }
+    isFetchingRef.current = false;
+  }, [limit]);
+
+  const loadMoreSessions = useCallback(() => {
+    if (!isFetchingRef.current && !isSearchMode && hasMoreSessions) {
+      const newOffset = offset + limit;
+      setOffset(newOffset);
+    }
+  }, [offset, limit, isSearchMode, hasMoreSessions]);
+
+  const updateSessionName = (sessionId, newName) => {
+    setChatSessions(prevSessions => prevSessions.map(session =>
+      session.session_id === sessionId ? { ...session, session_name: newName } : session
+    ));
   };
 
-  // observer watching if user scrolls down till end of the sidebar with list of chats
-  // if it goes down - new sessions are loaded
+  const removeSession = (sessionId) => {
+    setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
+    if (selectedSession && selectedSession.session_id === sessionId) {
+      setSelectedSession(null);
+    }
+  };
+
+  useEffect(() => {
+    if (isFetchingRef.current) return;
+    fetchChatSessions(offset, debouncedSearchText); // Use debounced search text
+  }, [offset, fetchChatSessions, debouncedSearchText]);
+
+  useEffect(() => {
+    if (selectedSession) {
+      const selected = chatSessions.find(session => session.session_id === selectedSession.session_id);
+      setSelectedSession(selected);
+    }
+  }, [selectedSession, chatSessions]);
+
+  const handleSearch = (term) => {
+    setSearchText(term);
+    setOffset(0);
+    fetchedSessionIds.current.clear();
+    setChatSessions([]);
+    setIsSearchMode(term !== '');
+    setHasMoreSessions(true); // Reset hasMoreSessions on new search
+  };
+
+  const handleSearchInputChange = (event) => {
+    handleSearch(event.target.value);
+  };
+
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
 
@@ -38,6 +120,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     return () => observer.current && observer.current.disconnect();
   }, [chatSessions, loadMoreSessions, isSearchMode, hasMoreSessions]);
 
+  // put focus on input so user can start typing
   useEffect(() => {
     if (renamePopup) {
       renameInputRef.current.focus();
@@ -53,7 +136,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     });
   };
 
-  // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contextMenu && !event.target.closest('.context-menu')) {
@@ -117,8 +199,8 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
   };
 
   const handleSelectSession = (session) => {
-    setSelectedSessionId(session.session_id);
     onSelectSession(session);
+    setSelectedSession(session);
     navigate(`/session/${session.session_id}`);
   };
 
@@ -128,16 +210,6 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
     } else if (event.key === 'Escape') {
       handleRenameCancel();
     }
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
   return (
@@ -154,7 +226,7 @@ const Sidebar = ({ chatSessions, onSelectSession, loadMoreSessions, updateSessio
             key={session.session_id}
             onClick={() => handleSelectSession(session)}
             onContextMenu={(e) => handleRightClick(e, session)}
-            className={selectedSessionId === session.session_id ? 'selected' : ''}
+            className={selectedSession && selectedSession.session_id === session.session_id ? 'selected' : ''}
           >
             <div className="session-item">
               <img
