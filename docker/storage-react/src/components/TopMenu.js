@@ -5,7 +5,7 @@ import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/local.storage';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = () => {
+const TopMenu = ({ setShowCharacterSelection }) => {
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
  // this is to show value in dropdown menu
@@ -36,6 +36,7 @@ const TopMenu = () => {
 
  const handleNewChatClick = () => {
   console.log('New');
+  setShowCharacterSelection(true);
  };
 
  const handleMenuButtonClick = () => {

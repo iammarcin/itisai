@@ -4,9 +4,9 @@ import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
 import './css/ChatWindow.css';
-import { getSettingsDict } from '../services/local.storage';
+import { getSettingsDict } from '../utils/local.storage';
 
-const ChatWindow = ({ selectedSession }) => {
+const ChatWindow = ({ selectedSession, showCharacterSelection, setShowCharacterSelection }) => {
   const [chatContent, setChatContent] = useState(null);
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
@@ -35,6 +35,7 @@ const ChatWindow = ({ selectedSession }) => {
 
   const handleCharacterSelect = (character) => {
     console.log(`Selected character: ${character.name}`);
+    setShowCharacterSelection(false)
     // Add logic to handle character selection, e.g., start a new session
   };
 
@@ -54,23 +55,22 @@ const ChatWindow = ({ selectedSession }) => {
 
   return (
     <div className="chat-window">
-      {!selectedSession ? (
+      {showCharacterSelection ? (
         <ChatCharacters onSelect={handleCharacterSelect} />
-      ) : (
-        <div className="messages">
-          {chatContent && chatContent.map((message, index) => (
-            <ChatMessage
-              key={index}
-              index={index}
-              message={message}
-              isLastMessage={isLastMessage(index, message)}
-              isUserMessage={message.isUserMessage}
-              contextMenuIndex={contextMenuIndex}
-              setContextMenuIndex={setContextMenuIndex}
-            />
-          ))}
-        </div>
-      )}
+      ) : null}
+      <div className="messages">
+        {chatContent && chatContent.map((message, index) => (
+          <ChatMessage
+            key={index}
+            index={index}
+            message={message}
+            isLastMessage={isLastMessage(index, message)}
+            isUserMessage={message.isUserMessage}
+            contextMenuIndex={contextMenuIndex}
+            setContextMenuIndex={setContextMenuIndex}
+          />
+        ))}
+      </div>
     </div>
   );
 };

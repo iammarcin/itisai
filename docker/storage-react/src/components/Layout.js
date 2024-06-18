@@ -13,15 +13,22 @@ import useDebounce from '../hooks/useDebounce';
 const Layout = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  // list of sessions
   const [chatSessions, setChatSessions] = useState([]);
+  // selected specific session
   const [selectedSession, setSelectedSession] = useState(null);
+  // to search sessions in DB
   const [offset, setOffset] = useState(0);
+  const limit = 20;
+  // text for session search
   const [searchText, setSearchText] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
-  const [hasMoreSessions, setHasMoreSessions] = useState(true); // New state
+  const [hasMoreSessions, setHasMoreSessions] = useState(true);
+  // to show or not characters list
+  const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   const isFetchingRef = useRef(false);
   const fetchedSessionIds = useRef(new Set());
-  const limit = 20;
+
 
   // debounce hook (to prevent too many API calls)
   const debouncedSearchText = useDebounce(searchText, 500);
@@ -59,11 +66,11 @@ const Layout = () => {
   }, [limit]);
 
   const loadMoreSessions = useCallback(() => {
-    if (!isFetchingRef.current && !isSearchMode && hasMoreSessions) { // Check hasMoreSessions
+    if (!isFetchingRef.current && !isSearchMode && hasMoreSessions) {
       const newOffset = offset + limit;
       setOffset(newOffset);
     }
-  }, [offset, limit, isSearchMode, hasMoreSessions]); // Add hasMoreSessions
+  }, [offset, limit, isSearchMode, hasMoreSessions]);
 
   const updateSessionName = (sessionId, newName) => {
     setChatSessions(prevSessions => prevSessions.map(session =>
@@ -106,7 +113,9 @@ const Layout = () => {
 
   return (
     <div className="layout">
-      <TopMenu />
+      <TopMenu
+        setShowCharacterSelection={setShowCharacterSelection}
+      />
       <div className="main-content">
         <Sidebar
           chatSessions={chatSessions}
@@ -119,7 +128,11 @@ const Layout = () => {
           hasMoreSessions={hasMoreSessions}
         />
         <div className="chat-area">
-          <ChatWindow selectedSession={selectedSession} />
+          <ChatWindow
+            selectedSession={selectedSession}
+            showCharacterSelection={showCharacterSelection}
+            setShowCharacterSelection={setShowCharacterSelection}
+          />
           <BottomToolsMenu />
         </div>
       </div>
