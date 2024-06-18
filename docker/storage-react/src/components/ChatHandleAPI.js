@@ -25,7 +25,6 @@ const ChatHandleAPI = async ({
  try {
   await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
    onChunkReceived: (chunk) => {
-    console.log("Chunk received:", chunk)
     chunkBuffer += chunk;
 
     setChatContent(prevContent => {
@@ -40,7 +39,6 @@ const ChatHandleAPI = async ({
     });
    },
    onStreamEnd: () => {
-    console.log("Stream end")
     setIsLoading(false);
    }
   });

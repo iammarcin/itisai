@@ -40,11 +40,9 @@ const Main = () => {
 
   const callChatAPI = async (userInput) => {
     try {
-      console.log("callChatAPI")
-      const resp = await ChatHandleAPI({
+      await ChatHandleAPI({
         userInput, chatContent, setChatContent, setIsLoading
       });
-      console.log("resp", resp)
     } catch (e) {
       setIsLoading(false);
     }

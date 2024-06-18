@@ -39,15 +39,12 @@ export default async function makeApiCall({
       }
     }
 
-    console.log("Triggering! endpoit: ", endpoint, " method: ", method, " headers: ", headers, " body: ", body)
     const response = await fetch(endpoint, {
       method,
       headers,
       body: body,
       signal: controller.signal
     });
-
-    console.log("response: ", response)
 
     if (streamResponse) {
       const reader = response.body.getReader();
