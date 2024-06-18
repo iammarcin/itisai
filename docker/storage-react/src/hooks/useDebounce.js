@@ -1,8 +1,9 @@
 // hooks/useDebounce.js
-
-//custom hook for debouncing the search input (to prevent too many API calls)
 import { useState, useEffect } from 'react';
 
+//custom hook for debouncing (delaying) some operations 
+// used in search sessions with search input (to prevent too many API calls)
+// and when we collect chunks from streaming response (to avoid out of order / duplicated chunks)
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 

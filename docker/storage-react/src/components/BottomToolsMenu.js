@@ -7,8 +7,8 @@ const BottomToolsMenu = ({ userInput, setUserInput, callChatAPI, isLoading }) =>
  const userInputRef = useRef(null);
 
  const handleSendClick = () => {
-  setUserInput("")
   callChatAPI(userInput);
+  setUserInput("")
  };
 
  const handleAttachClick = () => {

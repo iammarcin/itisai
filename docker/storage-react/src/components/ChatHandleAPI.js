@@ -2,8 +2,15 @@
 import apiMethods from '../services/api.methods';
 
 const ChatHandleAPI = async ({
- userInput, chatContent, setChatContent
+ userInput, chatContent, setChatContent, setIsLoading
 }) => {
+ setIsLoading(true);
+
+ // Add the user message to chat content
+ setChatContent(prevContent => [
+  ...prevContent,
+  { message: userInput, isUserMessage: true }
+ ]);
 
  const finalUserInput = {
   "prompt": [{ "type": "text", "text": userInput }],
@@ -12,8 +19,30 @@ const ChatHandleAPI = async ({
    "content": [{ "type": "text", "text": message.message }]
   }))
  }
- await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput);
-
+ try {
+  await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
+   onChunkReceived: (chunk) => {
+    console.log("Chunk received:", chunk)
+    setChatContent(prevContent => {
+     const newContent = [...prevContent];
+     const lastMessage = newContent[newContent.length - 1];
+     if (lastMessage && !lastMessage.isUserMessage) {
+      lastMessage.message += chunk;
+     } else {
+      newContent.push({ message: chunk, isUserMessage: false });
+     }
+     return newContent;
+    });
+   },
+   onStreamEnd: () => {
+    console.log("Stream end")
+    setIsLoading(false);
+   }
+  });
+ } catch (error) {
+  setIsLoading(false);
+  console.error('Error during streaming:', error);
+ }
 }
 
 export default ChatHandleAPI;

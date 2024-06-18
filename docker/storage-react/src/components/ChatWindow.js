@@ -30,7 +30,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
       fetchChatContent(sessionId);
     } else if (selectedSession) {
       fetchChatContent(selectedSession.session_id);
-    } else {
+    } else { // if its undefined - it's just new session
       setChatContent(null);
     }
   }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection]);
