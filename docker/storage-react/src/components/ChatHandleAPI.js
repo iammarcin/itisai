@@ -6,9 +6,10 @@ const ChatHandleAPI = async ({
 }) => {
  setIsLoading(true);
 
+
  // Add the user message to chat content
  setChatContent(prevContent => [
-  ...prevContent,
+  ...(prevContent || []),
   { message: userInput, isUserMessage: true }
  ]);
 
@@ -28,7 +29,7 @@ const ChatHandleAPI = async ({
     chunkBuffer += chunk;
 
     setChatContent(prevContent => {
-     const newContent = [...prevContent];
+     const newContent = [...(prevContent || [])];
      const lastMessage = newContent[newContent.length - 1];
      if (lastMessage && !lastMessage.isUserMessage) {
       lastMessage.message = chunkBuffer;
