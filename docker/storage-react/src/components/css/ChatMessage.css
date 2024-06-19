@@ -42,7 +42,8 @@
 }
 
 .chat-message img {
-  max-width: 100%;
+  max-width: 512px;
+  max-height: 512px;
   margin-top: 3px;
 }
 

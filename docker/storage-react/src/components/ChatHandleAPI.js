@@ -1,4 +1,5 @@
 // ChatHandleAPI.js
+import config from '../config';
 import apiMethods from '../services/api.methods';
 import { getTextAICharacter } from '../utils/local.storage';
 
@@ -30,8 +31,10 @@ const ChatHandleAPI = async ({
  // Buffer to hold the chunks until the message is complete
  let chunkBuffer = '';
  try {
-  console.log("Api call to be executed!")
-  console.log("Final User Input", finalUserInput);
+  if (config.DEBUG === 1) {
+   console.log("Api call to be executed!")
+   console.log("Final User Input", finalUserInput);
+  }
   await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
    onChunkReceived: (chunk) => {
     chunkBuffer += chunk;

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
+import config from '../config';
 import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/local.storage';
@@ -41,7 +42,9 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
 
   // scroll to bottom
   useEffect(() => {
-    console.log("chatContent: ", chatContent)
+    if (config.DEBUG === 1) {
+      console.log("chatContent: ", chatContent)
+    }
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
     }

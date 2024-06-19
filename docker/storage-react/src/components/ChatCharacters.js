@@ -47,10 +47,7 @@ const characters = [
 const ChatCharacters = ({ onSelect }) => {
 
  const handleClick = (name) => {
-  console.log(name);
-  if (onSelect) {
-   onSelect(name);
-  }
+  onSelect(name);
  };
 
 

@@ -9,6 +9,8 @@ import ChatWindow from './ChatWindow';
 import ChatHandleAPI from './ChatHandleAPI';
 import './css/Main.css';
 
+import config from '../config';
+
 import { setTextAICharacter } from '../utils/local.storage';
 
 const Main = () => {
@@ -25,7 +27,9 @@ const Main = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectSession = (session) => {
-    console.log("session: ", session)
+    if (config.DEBUG === 1) {
+      console.log("session: ", session)
+    }
     navigate(`/session/${session.session_id}`);
     setSelectedSession(session);
     setShowCharacterSelection(false);
