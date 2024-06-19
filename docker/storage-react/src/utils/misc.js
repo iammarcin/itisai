@@ -11,9 +11,11 @@ const formatDate = (dateString) => {
 };
 
 const scrollToBottom = (element) => {
- element.scrollIntoView({
-  behavior: 'smooth',
- });
+ if (element) {
+  element.scrollIntoView({
+   behavior: 'smooth',
+  });
+ }
 };
 
 export { formatDate, scrollToBottom };
