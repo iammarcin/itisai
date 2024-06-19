@@ -45,7 +45,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
   // scroll to bottom
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
-      console.log("chatContent: ", chatContent)
+      console.log("chatContent: ", chatContent);
     }
     if (endOfMessagesRef.current) {
       scrollToBottom(endOfMessagesRef.current);
