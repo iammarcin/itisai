@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession }) => {
+const Sidebar = ({ onSelectSession, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
@@ -51,6 +51,7 @@ const Sidebar = ({ onSelectSession }) => {
         setHasMoreSessions(true);
       }
     } catch (error) {
+      setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat sessions', error);
     }
     isFetchingRef.current = false;

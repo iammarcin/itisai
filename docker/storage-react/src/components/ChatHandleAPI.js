@@ -4,7 +4,7 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter } from '../utils/local.storage';
 
 const ChatHandleAPI = async ({
- userInput, attachedImages, chatContent, setChatContent, setIsLoading
+ userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg
 }) => {
  setIsLoading(true);
 
@@ -63,6 +63,7 @@ const ChatHandleAPI = async ({
   });
  } catch (error) {
   setIsLoading(false);
+  setErrorMsg("Error during streaming. Try again.")
   console.error('Error during streaming:', error);
  }
 }

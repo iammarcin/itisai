@@ -10,4 +10,10 @@ const formatDate = (dateString) => {
  return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
-export { formatDate };
+const scrollToBottom = (element) => {
+ element.scrollIntoView({
+  behavior: 'smooth',
+ });
+};
+
+export { formatDate, scrollToBottom };

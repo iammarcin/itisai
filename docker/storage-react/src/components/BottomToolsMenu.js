@@ -6,15 +6,16 @@ import apiMethods from '../services/api.methods';
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, isLoading }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, isLoading, setErrorMsg }) => {
  const userInputRef = useRef(null);
  // to control UI while images are being uploaded
  const [uploading, setUploading] = useState(false);
 
  const handleSendClick = () => {
+  setErrorMsg('');
   const modelName = getTextModelName();
   if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
-   alert("Currently chosen model does not support images. Remove image or change the model");
+   setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
    return;
   }
   callChatAPI(userInput);
@@ -27,6 +28,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
  };
 
  const handleFileChange = async (e) => {
+  setErrorMsg("");
   const files = Array.from(e.target.files);
   const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
@@ -44,10 +46,12 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
      const newUrl = response.message.result;
      setAttachedImages(prevImages => prevImages.map(img => img.file === imageFile ? { ...img, url: newUrl, placeholder: false } : img));
     } else {
+     setErrorMsg("Problem with file upload. Try again.")
      throw new Error(response.message);
     }
    } catch (error) {
     console.error('Error uploading file:', error);
+    setErrorMsg("Problem with file upload. Try again.")
     setAttachedImages(prevImages => prevImages.filter(img => img.file !== imageFile));
    }
   }

@@ -25,6 +25,7 @@ const Main = () => {
   const [userInput, setUserInput] = useState('');
   const [attachedImages, setAttachedImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
@@ -49,10 +50,11 @@ const Main = () => {
 
   const callChatAPI = async (userInput) => {
     setShowCharacterSelection(false);
+    setErrorMsg('');
 
     try {
       await ChatHandleAPI({
-        userInput, attachedImages, chatContent, setChatContent, setIsLoading
+        userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg
       });
     } catch (e) {
       setIsLoading(false);
@@ -67,6 +69,7 @@ const Main = () => {
       <div className="main-content">
         <Sidebar
           onSelectSession={handleSelectSession}
+          setErrorMsg={setErrorMsg}
         />
         <div className="chat-area">
           <ChatWindow
@@ -76,7 +79,9 @@ const Main = () => {
             setChatContent={setChatContent}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
+            setErrorMsg={setErrorMsg}
           />
+          {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}
           <BottomToolsMenu
             userInput={userInput}
             setUserInput={setUserInput}
@@ -84,6 +89,7 @@ const Main = () => {
             setAttachedImages={setAttachedImages}
             callChatAPI={callChatAPI}
             isLoading={isLoading}
+            setErrorMsg={setErrorMsg}
           />
         </div>
       </div>

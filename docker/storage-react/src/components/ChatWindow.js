@@ -7,8 +7,9 @@ import config from '../config';
 import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/local.storage';
+import { scrollToBottom } from '../utils/misc';
 
-const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, showCharacterSelection, setShowCharacterSelection }) => {
+const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -27,6 +28,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
         setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
         setShowCharacterSelection(false);
       } catch (error) {
+        setErrorMsg("Problem with fetching data. Try again.");
         console.error('Failed to fetch chat content', error);
       }
     };
@@ -46,7 +48,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
       console.log("chatContent: ", chatContent)
     }
     if (endOfMessagesRef.current) {
-      endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
+      scrollToBottom(endOfMessagesRef.current);
     }
   }, [chatContent]);
 

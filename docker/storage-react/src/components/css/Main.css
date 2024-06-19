@@ -30,3 +30,12 @@ body {
   background-color: #1e1e1e;
   color: #ffffff;
 }
+
+.bot-error-msg {
+  color: red;
+  padding: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 10px;
+  font-size: 16px;
+}
