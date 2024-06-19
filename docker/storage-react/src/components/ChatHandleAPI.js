@@ -10,13 +10,13 @@ const ChatHandleAPI = async ({
  // Add the user message to chat content
  setChatContent(prevContent => [
   ...(prevContent || []),
-  { message: userInput, isUserMessage: true }
+  { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) }
  ]);
 
  const finalUserInput = {
   "prompt": [
    { "type": "text", "text": userInput },
-   //...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": URL.createObjectURL(image) } }))
+   ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
   ],
   "chat_history": (chatContent || []).map((message) => ({
    "role": message.isUserMessage ? "user" : "assistant",

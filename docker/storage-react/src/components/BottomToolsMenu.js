@@ -4,6 +4,8 @@ import './css/BottomToolsMenu.css';
 import { getTextModelName } from '../utils/local.storage';
 import apiMethods from '../services/api.methods';
 
+import { resizeImage } from '../utils/image.utils';
+
 const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, isLoading }) => {
  const userInputRef = useRef(null);
  // to control UI while images are being uploaded
@@ -35,9 +37,9 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   setUploading(true);
   for (const imageFile of imageFiles) {
    try {
-    console.log("upload")
-    const response = await apiMethods.uploadFileToS3("api/aws", "provider.s3", "s3_upload", imageFile);
-    console.log("response", response)
+    const resizedFile = await resizeImage(imageFile);
+    const response = await apiMethods.uploadFileToS3("api/aws", "provider.s3", "s3_upload", resizedFile);
+
     if (response.success) {
      const newUrl = response.message.result;
      setAttachedImages(prevImages => prevImages.map(img => img.file === imageFile ? { ...img, url: newUrl, placeholder: false } : img));

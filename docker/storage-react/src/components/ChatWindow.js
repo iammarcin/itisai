@@ -41,6 +41,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
 
   // scroll to bottom
   useEffect(() => {
+    console.log("chatContent: ", chatContent)
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
     }
