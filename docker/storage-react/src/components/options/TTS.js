@@ -7,7 +7,7 @@ import {
  getTTSAutoExecute, setTTSAutoExecute,
  getTTSVoice, setTTSVoice,
  getTTSSpeed, setTTSSpeed
-} from '../../utils/local.storage';
+} from '../../utils/configuration';
 
 const TTS = () => {
  const [ttsModel, setLocalTTSModel] = useState(getTTSModelName());

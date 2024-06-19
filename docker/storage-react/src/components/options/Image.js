@@ -7,7 +7,7 @@ import {
  getImageDisableSafePrompt, setImageDisableSafePrompt,
  getImageArtgenShowPrompt, setImageArtgenShowPrompt,
  getImageAutoGenerateImage, setImageAutoGenerateImage
-} from '../../utils/local.storage';
+} from '../../utils/configuration';
 
 const Image = () => {
  const [model, setModel] = useState(getImageModelName());

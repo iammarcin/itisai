@@ -1,7 +1,7 @@
 // BottomToolsMenu.js
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
-import { getTextModelName } from '../utils/local.storage';
+import { getTextModelName } from '../utils/configuration';
 import apiMethods from '../services/api.methods';
 
 import { resizeImage } from '../utils/image.utils';

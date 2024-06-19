@@ -11,7 +11,7 @@ import './css/Main.css';
 
 import config from '../config';
 
-import { setTextAICharacter } from '../utils/local.storage';
+import { setTextAICharacter } from '../utils/configuration';
 
 const Main = () => {
   // to get sessionId from URL and load the session

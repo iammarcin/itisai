@@ -1,7 +1,7 @@
 // ChatHandleAPI.js
 import config from '../config';
 import apiMethods from '../services/api.methods';
-import { getTextAICharacter } from '../utils/local.storage';
+import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 
 const ChatHandleAPI = async ({
  userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg
@@ -37,6 +37,9 @@ const ChatHandleAPI = async ({
   }
   await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
    onChunkReceived: (chunk) => {
+    if (getTextAICharacter() === "tools_artgen" && getImageArtgenShowPrompt === false) {
+     return
+    }
     chunkBuffer += chunk;
 
     setChatContent(prevContent => {
@@ -59,6 +62,10 @@ const ChatHandleAPI = async ({
    },
    onStreamEnd: () => {
     setIsLoading(false);
+    if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
+     setErrorMsg("generating image")
+    }
+
    }
   });
  } catch (error) {

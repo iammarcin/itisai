@@ -1,4 +1,4 @@
-// utils/local.storage.js
+// utils/configuration.js
 
 // Keys
 const APP_MODE_PRODUCTION = "app_mode_production";

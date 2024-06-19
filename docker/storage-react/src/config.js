@@ -1,6 +1,6 @@
 // config.js
 
-import { getAppModeApiUrl, getIsProdMode } from './utils/local.storage';
+import { getAppModeApiUrl, getIsProdMode } from './utils/configuration';
 
 const config = {
   // userSettings here are temporarily - in auth.service i later manage it 

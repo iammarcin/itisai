@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import {
  getSpeechLanguage, setSpeechLanguage,
  getSpeechTemperature, setSpeechTemperature
-} from '../../utils/local.storage';
+} from '../../utils/configuration';
 
 const Speech = () => {
  const [language, setLocalLanguage] = useState(getSpeechLanguage());

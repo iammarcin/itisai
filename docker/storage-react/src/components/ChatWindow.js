@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import config from '../config';
 import './css/ChatWindow.css';
 
-import { setTextAICharacter } from '../utils/local.storage';
+import { setTextAICharacter } from '../utils/configuration';
 import { scrollToBottom } from '../utils/misc';
 
 const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
@@ -40,11 +40,11 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
     } else { // if its undefined - it's just new session
       setChatContent(null);
     }
-  }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection]);
+  }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection, setErrorMsg]);
 
   // scroll to bottom
   useEffect(() => {
-    if (config.DEBUG === 1) {
+    if (config.VERBOSE_SUPERB === 1) {
       console.log("chatContent: ", chatContent)
     }
     if (endOfMessagesRef.current) {

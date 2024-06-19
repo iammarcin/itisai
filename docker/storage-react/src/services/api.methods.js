@@ -1,6 +1,6 @@
 // api.methods.js
 import makeApiCall from './api.service';
-import { getSettingsDict } from '../utils/local.storage';
+import { getSettingsDict } from '../utils/configuration';
 import config from "../config";
 
 const triggerAPIRequest = async (endpoint, category, action, userInput) => {

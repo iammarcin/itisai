@@ -55,7 +55,7 @@ const Sidebar = ({ onSelectSession, setErrorMsg }) => {
       console.error('Failed to fetch chat sessions', error);
     }
     isFetchingRef.current = false;
-  }, [limit]);
+  }, [limit, setErrorMsg]);
 
   const loadMoreSessions = useCallback(() => {
     if (!isFetchingRef.current && !isSearchMode && hasMoreSessions) {

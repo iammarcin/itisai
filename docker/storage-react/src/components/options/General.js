@@ -11,7 +11,7 @@ import {
  setAppModeUseWatson,
  getAuthTokenForBackend,
  setAuthTokenForBackend
-} from '../../utils/local.storage';
+} from '../../utils/configuration';
 
 const General = () => {
  const isProduction = process.env.NODE_ENV === 'production';

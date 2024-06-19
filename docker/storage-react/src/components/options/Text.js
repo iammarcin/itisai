@@ -5,7 +5,7 @@ import {
  getTextTemperature, setTextTemperature,
  getTextMemorySize, setTextMemorySize,
  getIsStreamingEnabled, setIsStreamingEnabled
-} from '../../utils/local.storage';
+} from '../../utils/configuration';
 
 const Text = () => {
  const [temperature, setLocalTemperature] = useState(getTextTemperature());

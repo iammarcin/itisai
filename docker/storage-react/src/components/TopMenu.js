@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import './css/TopMenu.css';
-import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/local.storage';
+import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
 const TopMenu = ({ onNewChatClicked }) => {
