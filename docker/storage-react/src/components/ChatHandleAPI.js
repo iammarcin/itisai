@@ -37,7 +37,8 @@ const ChatHandleAPI = async ({
   }
   await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
    onChunkReceived: (chunk) => {
-    if (getTextAICharacter() === "tools_artgen" && getImageArtgenShowPrompt === false) {
+    // if it's artgen and user disabled show prompt - don't show it
+    if (getTextAICharacter() === "tools_artgen" && getImageArtgenShowPrompt() === false) {
      return
     }
     chunkBuffer += chunk;
@@ -60,12 +61,34 @@ const ChatHandleAPI = async ({
      return newContent;
     });
    },
-   onStreamEnd: () => {
-    setIsLoading(false);
+   onStreamEnd: async (fullResponse) => {
     if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
-     setErrorMsg("generating image")
+     const userInput = { "text": fullResponse };
+     await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then((response) => {
+      if (response.success) {
+       // if show prompt is true - then we have to add image to last message
+       if (getImageArtgenShowPrompt()) {
+        setChatContent(prevContent => {
+         const newContent = [...(prevContent || [])];
+         const lastMessage = newContent[newContent.length - 1];
+         if (lastMessage && !lastMessage.isUserMessage) {
+          lastMessage.imageLocations = [response.message.result];
+         }
+         return newContent;
+        });
+       } else {
+        // and if show prompt is false - we need to create new message
+        setChatContent(prevContent => [
+         ...(prevContent || []),
+         { message: "", isUserMessage: false, aiCharacterName: getTextAICharacter(), imageLocations: [response.message.result] }
+        ]);
+       }
+      } else {
+       setErrorMsg("Problem generating image");
+      }
+     });
     }
-
+    setIsLoading(false);
    }
   });
  } catch (error) {

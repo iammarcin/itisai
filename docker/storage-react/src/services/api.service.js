@@ -50,11 +50,14 @@ export default async function makeApiCall({
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let result;
+      var fullResponse = '';
       while (!(result = await reader.read()).done) {
         const chunk = decoder.decode(result.value, { stream: true });
+        fullResponse += chunk;
         onChunkReceived(chunk);
       }
-      onStreamEnd();
+      // full response received
+      onStreamEnd(fullResponse);
       return;
     }
 

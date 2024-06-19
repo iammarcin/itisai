@@ -45,6 +45,7 @@ const Main = () => {
     setUserInput('');
     setAttachedImages([]);
     setIsLoading(false);
+    setErrorMsg('');
     setTextAICharacter('assistant');
   }
 
