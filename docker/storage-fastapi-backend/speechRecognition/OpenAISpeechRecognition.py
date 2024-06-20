@@ -67,6 +67,9 @@ class OpenAISpeechRecognitionGenerator:
         if self.use_test_data:
             return {'code': 200, 'success': True, 'message': {"status": "completed", "result": "Hello! (TEST transcribed)"}}
 
+        # fail on purpose
+        # test = userInput['test']
+
         try:
             # only for chat - we have to save blob to file (as its coming from recorder from Chat in react)
             if action == "chat":

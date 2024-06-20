@@ -5,7 +5,7 @@ import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ onNewChatClicked }) => {
+const TopMenu = ({ onNewChatClicked, sessions, currentSessionIndex, setCurrentSessionIndex, setSessions }) => {
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
  // this is to show value in dropdown menu
@@ -51,6 +51,17 @@ const TopMenu = ({ onNewChatClicked }) => {
   setPopupVisible(false);
  };
 
+ const handleSessionClick = (sessionId) => {
+  setCurrentSessionIndex(sessionId);
+ };
+
+ const handleSessionClose = (sessionId) => {
+  const newSessions = { ...sessions };
+  delete newSessions[sessionId];
+  setCurrentSessionIndex(Object.keys(newSessions)[0] || null);
+  setSessions(newSessions);
+ };
+
  useEffect(() => {
   const handleClickOutside = (event) => {
    if (isPopupVisible && !event.target.closest('.popup')) {
@@ -75,6 +86,23 @@ const TopMenu = ({ onNewChatClicked }) => {
      <div className="dropdown-item" onClick={handleOptionsClick}>Options</div>
     </div>
    )}
+
+   <div className="session-buttons">
+    {Object.keys(sessions).map((sessionId, index) => (
+     <div key={sessionId} className={`session-button-container ${currentSessionIndex === sessionId ? 'active' : ''}`}>
+      <button
+       className={`session-button ${currentSessionIndex === sessionId ? 'active' : ''}`}
+       onClick={() => handleSessionClick(sessionId)}
+      >
+       {index + 1}
+      </button>
+      <button className="close-button" onClick={() => handleSessionClose(sessionId)}>×</button>
+     </div>
+    ))}
+    {Object.keys(sessions).length < 5 && (
+     <button className="session-button add-session" onClick={handleNewChatClick}>+</button>
+    )}
+   </div>
 
    <div className="menu-right">
     {!isProduction && (

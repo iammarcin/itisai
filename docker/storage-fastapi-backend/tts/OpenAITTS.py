@@ -70,6 +70,9 @@ class OpenAITTSGenerator:
         try:
             text = userInput["text"]
 
+            # fail on purpose
+            # test = userInput['test']
+
             response = self.client.audio.speech.create(
                 model=self.model_name,
                 voice=self.voice,

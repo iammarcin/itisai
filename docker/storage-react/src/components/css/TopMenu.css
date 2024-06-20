@@ -1,4 +1,5 @@
 /* TopMenu.css */
+
 .top-menu {
  display: flex;
  justify-content: space-between;
@@ -93,4 +94,58 @@
  align-items: center;
  justify-content: center;
  z-index: 101;
+}
+
+.session-buttons {
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ gap: 10px;
+ flex: 1;
+}
+
+.session-button-container {
+ position: relative;
+}
+
+.session-button {
+ background-color: #444;
+ border: none;
+ color: #fff;
+ border-radius: 50%;
+ width: 40px;
+ height: 40px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+}
+
+.session-button.active {
+ background-color: #e8eaed;
+ color: #1e1e1e;
+}
+
+.session-button.add-session {
+ background-color: #888;
+}
+
+.session-button:hover {
+ background-color: #666;
+}
+
+.close-button {
+ position: absolute;
+ top: -5px;
+ right: 0px;
+ background-color: black;
+ border: none;
+ border-radius: 50%;
+ width: 15px;
+ height: 15px;
+ color: white;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
 }
