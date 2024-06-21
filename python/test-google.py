@@ -1,3 +1,8 @@
+# LIST OF ENDPOINTS + SPEC
+# https://github.com/googleapis/google-api-python-client/blob/main/docs/dyn/index.md
+# pollen
+# https://googleapis.github.io/google-api-python-client/docs/dyn/pollen_v1.forecast.html
+
 from googleapiclient.discovery import build
 import os
 
@@ -6,22 +11,23 @@ api_key = os.environ.get('GOOGLE_MAPS_API_KEY', None)
 # GET https://pollen.googleapis.com/v1/forecast:lookup
 api_service_name = "pollen"
 api_version = "v1"
-endpoint = build(api_service_name, api_version, developerKey=api_key)
-print(endpoint)
-lat = {
-    "latitude": 41.7898095,
-    "longitude": 3.0238652,
-}
-metadata = {
-    "location": lat,
-    "days": 5,
-    "plantsDescription": True
-}
-request = endpoint.forecast().lookup(
-    body=metadata
-)
+endpoint = build(api_service_name, api_version,
+                 developerKey=api_key)
+# endpoint = build('pollen', version="v1", static_discovery=False)
 
-response = request.execute()
+print(endpoint)
+
+request = endpoint.forecast()
+print(request)
+
+request_next = request.lookup(
+    location_latitude=41.7898095,
+    location_longitude=3.0238652,
+    days=5
+)
+print(request_next)
+
+response = request_next.execute()
 print(response)
 
 '''
