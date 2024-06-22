@@ -11,16 +11,24 @@ import datetime
 import traceback
 
 import boto3
+from botocore.config import Config as BotoConfig
 from botocore.exceptions import BotoCoreError, ClientError
 
 logger = logconfig.logger
 
 # AWS S3
+boto_config = BotoConfig(
+    region_name=config.defaults["AWS_REGION"],
+    retries={'max_attempts': 3, 'mode': 'standard'},
+    connect_timeout=10,
+    read_timeout=30
+)
+
 s3_client = boto3.client(
     "s3",
-    region_name=config.defaults["AWS_REGION"],
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    config=boto_config
 )
 
 DEBUG = config.defaults["DEBUG"]
