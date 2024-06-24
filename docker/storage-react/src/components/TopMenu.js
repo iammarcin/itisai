@@ -5,7 +5,7 @@ import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ onNewChatClicked, sessions, currentSessionIndex, setCurrentSessionIndex, setSessions }) => {
+const TopMenu = ({ onNewChatClicked }) => {
  const [isPopupVisible, setPopupVisible] = useState(false);
  const [isDropdownVisible, setDropdownVisible] = useState(false);
  // this is to show value in dropdown menu
@@ -15,6 +15,8 @@ const TopMenu = ({ onNewChatClicked, sessions, currentSessionIndex, setCurrentSe
  // this is different then environment
  // this is to hide the dropdown menu in prod (behind nginx)
  const isProduction = process.env.NODE_ENV === 'production';
+ const [currentSessionIndex, setCurrentSessionIndex] = useState(null);
+ const [sessions, setSessions] = useState({});
 
  const handleTextModelChange = (event) => {
   setTextModelName(event.target.value);
@@ -62,6 +64,15 @@ const TopMenu = ({ onNewChatClicked, sessions, currentSessionIndex, setCurrentSe
   setSessions(newSessions);
  };
 
+ const handleSessionAdd = () => {
+  const newSessions = { ...sessions };
+  const newSessionId = Object.keys(newSessions).length + 1;
+  newSessions[newSessionId] = { sessionId: newSessionId };
+  setCurrentSessionIndex(newSessionId);
+  setSessions(newSessions);
+
+ }
+
  useEffect(() => {
   const handleClickOutside = (event) => {
    if (isPopupVisible && !event.target.closest('.popup')) {
@@ -86,7 +97,6 @@ const TopMenu = ({ onNewChatClicked, sessions, currentSessionIndex, setCurrentSe
      <div className="dropdown-item" onClick={handleOptionsClick}>Options</div>
     </div>
    )}
-
    <div className="session-buttons">
     {Object.keys(sessions).map((sessionId, index) => (
      <div key={sessionId} className={`session-button-container ${currentSessionIndex === sessionId ? 'active' : ''}`}>
@@ -100,10 +110,9 @@ const TopMenu = ({ onNewChatClicked, sessions, currentSessionIndex, setCurrentSe
      </div>
     ))}
     {Object.keys(sessions).length < 5 && (
-     <button className="session-button add-session" onClick={handleNewChatClick}>+</button>
+     <button className="session-button add-session" onClick={handleSessionAdd}>+</button>
     )}
    </div>
-
    <div className="menu-right">
     {!isProduction && (
      <div className="environment-selector">

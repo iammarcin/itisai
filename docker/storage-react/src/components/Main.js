@@ -17,9 +17,10 @@ const Main = () => {
   // to get sessionId from URL and load the session
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const [sessions, setSessions] = useState({});
-  const [currentSessionIndex, setCurrentSessionIndex] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
+  // chat content from chat window
+  const [chatContent, setChatContent] = useState([]);
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
   const [attachedImages, setAttachedImages] = useState([]);
@@ -31,20 +32,16 @@ const Main = () => {
       console.log("session: ", session)
     }
     navigate(`/session/${session.session_id}`);
-    setCurrentSessionIndex(session.session_id);
+    setSelectedSession(session);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
   };
 
   const handleOnNewChatClicked = () => {
     navigate(`/`);
-    const newSessionId = `session_${Date.now()}`;
-    setSessions((prevSessions) => ({
-      ...prevSessions,
-      [newSessionId]: [],
-    }));
-    setCurrentSessionIndex(newSessionId);
+    setChatContent([]);
     setShowCharacterSelection(true);
+    setSelectedSession(null);
     setUserInput('');
     setAttachedImages([]);
     setIsLoading(false);
@@ -58,15 +55,7 @@ const Main = () => {
 
     try {
       await ChatHandleAPI({
-        userInput,
-        attachedImages,
-        chatContent: sessions[currentSessionIndex],
-        setChatContent: (newContent) => {
-          setSessions((prevSessions) => ({
-            ...prevSessions,
-            [currentSessionIndex]: newContent,
-          }));
-        }, setIsLoading, setErrorMsg
+        userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg
       });
     } catch (e) {
       setIsLoading(false);
@@ -77,10 +66,6 @@ const Main = () => {
     <div className="layout">
       <TopMenu
         onNewChatClicked={handleOnNewChatClicked}
-        sessions={sessions}
-        currentSessionIndex={currentSessionIndex}
-        setCurrentSessionIndex={setCurrentSessionIndex}
-        setSessions={setSessions}
       />
       <div className="main-content">
         <Sidebar
@@ -90,14 +75,9 @@ const Main = () => {
         <div className="chat-area">
           <ChatWindow
             sessionId={sessionId}
-            currentSessionIndex={currentSessionIndex}
-            chatContent={sessions[currentSessionIndex]}
-            setChatContent={(newContent) => {
-              setSessions((prevSessions) => ({
-                ...prevSessions,
-                [currentSessionIndex]: newContent,
-              }));
-            }}
+            selectedSession={selectedSession}
+            chatContent={chatContent}
+            setChatContent={setChatContent}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
