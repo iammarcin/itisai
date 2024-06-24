@@ -103,7 +103,7 @@ class dbProvider:
                 try:
                     session_name = userInput.get('session_name', "New chat")
                     ai_character_name = userInput.get(
-                        'ai_character_name', "Assistant")
+                        'ai_character_name', "assistant")
                     chat_history = userInput.get('chat_history', [])
 
                     new_session_id = await self._db_new_session_internal(session, customerId, session_name, ai_character_name, chat_history)
