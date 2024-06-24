@@ -12,6 +12,7 @@ import './css/Main.css';
 import config from '../config';
 
 import { setTextAICharacter } from '../utils/configuration';
+import { setCurrentSessionId } from '../utils/session.utils';
 
 const Main = () => {
   // to get sessionId from URL and load the session
@@ -33,6 +34,7 @@ const Main = () => {
     }
     navigate(`/session/${session.session_id}`);
     setSelectedSession(session);
+    setCurrentSessionId(session.session_id);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
   };
