@@ -51,8 +51,21 @@ const Main = () => {
     setIsLoading(false);
     setErrorMsg('');
     setTextAICharacter('assistant');
+  }
 
-    setProgressBarMessage('Loading new chat session...');
+  // this is showProgress, hideProgress merged in one place
+  // accepting method - "show" and "hide"
+  // and then adding or removing specific text
+  const manageProgressText = (method, text) => {
+    if (method === 'show') {
+      setProgressBarMessage((prevMessage) => prevMessage ? `${prevMessage} ${text}` : text);
+    } else if (method === 'hide') {
+      setProgressBarMessage((prevMessage) => {
+        const messages = prevMessage.split(' ');
+        const filteredMessages = messages.filter((msg) => msg !== text);
+        return filteredMessages.join(' ');
+      });
+    }
   }
 
   const callChatAPI = async (userInput) => {
@@ -61,12 +74,14 @@ const Main = () => {
 
     try {
       await ChatHandleAPI({
-        userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg
+        userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
       });
     } catch (e) {
       setIsLoading(false);
     }
   };
+
+
 
   return (
     <div className="layout">

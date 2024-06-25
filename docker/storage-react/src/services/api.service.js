@@ -6,11 +6,11 @@ export default async function makeApiCall({
   method = "GET",
   headers = { "Content-Type": "application/json" },
   body = {},
-  timeout = 90000,
+  //timeout = 90000,
   binaryResponse = false,
   streamResponse = false,
   onChunkReceived = () => { },
-  onStreamEnd = () => { }
+  onStreamEnd = () => { },
 } = {}) {
   if (endpoint === "") {
     throw new Error("Endpoint is required");

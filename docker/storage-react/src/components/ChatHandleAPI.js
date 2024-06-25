@@ -4,9 +4,10 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 
 const ChatHandleAPI = async ({
- userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg
+ userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
 }) => {
  setIsLoading(true);
+ manageProgressText("show", "Text")
 
  // Add the user message to chat content
  setChatContent(prevContent => [
@@ -62,7 +63,9 @@ const ChatHandleAPI = async ({
     });
    },
    onStreamEnd: async (fullResponse) => {
+    manageProgressText("hide", "Text")
     if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
+     manageProgressText("show", "Image")
      const userInput = { "text": fullResponse };
      await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then((response) => {
       if (response.success) {
@@ -83,16 +86,26 @@ const ChatHandleAPI = async ({
          { message: "", isUserMessage: false, aiCharacterName: getTextAICharacter(), imageLocations: [response.message.result] }
         ]);
        }
+       manageProgressText("hide", "Image")
       } else {
        setErrorMsg("Problem generating image");
+       manageProgressText("hide", "Image")
       }
      });
     }
     setIsLoading(false);
+    manageProgressText("hide", "Text")
+   },
+   onError: (error) => {
+    setIsLoading(false);
+    manageProgressText("hide", "Text")
+    setErrorMsg("Error during streaming. Try again.")
+    console.error('Error during streaming:', error);
    }
   });
  } catch (error) {
   setIsLoading(false);
+  manageProgressText("hide", "Text")
   setErrorMsg("Error during streaming. Try again.")
   console.error('Error during streaming:', error);
  }

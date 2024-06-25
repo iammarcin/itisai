@@ -27,7 +27,7 @@ const triggerAPIRequest = async (endpoint, category, action, userInput) => {
   }
 }
 
-const triggerStreamingAPIRequest = async (endpoint, category, action, userInput, { onChunkReceived, onStreamEnd }) => {
+const triggerStreamingAPIRequest = async (endpoint, category, action, userInput, { onChunkReceived, onStreamEnd, onError }) => {
   const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
   const apiBody = {
@@ -48,6 +48,7 @@ const triggerStreamingAPIRequest = async (endpoint, category, action, userInput,
       onStreamEnd: onStreamEnd
     });
   } catch (error) {
+    onError(error);
     console.error('Error during streaming:', error);
   }
 }
