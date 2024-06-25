@@ -6,6 +6,7 @@ import TopMenu from './TopMenu';
 import BottomToolsMenu from './BottomToolsMenu';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
+import ProgressIndicator from './ProgressIndicator';
 import ChatHandleAPI from './ChatHandleAPI';
 import './css/Main.css';
 
@@ -27,6 +28,7 @@ const Main = () => {
   const [attachedImages, setAttachedImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [progressBarMessage, setProgressBarMessage] = useState('');
 
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
@@ -49,6 +51,8 @@ const Main = () => {
     setIsLoading(false);
     setErrorMsg('');
     setTextAICharacter('assistant');
+
+    setProgressBarMessage('Loading new chat session...');
   }
 
   const callChatAPI = async (userInput) => {
@@ -84,6 +88,7 @@ const Main = () => {
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
           />
+          {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}
           {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}
           <BottomToolsMenu
             userInput={userInput}
