@@ -39,6 +39,7 @@ const General = () => {
   const checked = e.target.checked;
   setLocalUseWatson(checked);
   setAppModeUseWatson(checked);
+  setURLForAPICalls();
  };
 
  const handleAuthTokenChange = (e) => {

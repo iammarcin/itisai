@@ -166,7 +166,8 @@ export const setURLForAPICalls = () => {
     ? "https://ai.atamai.biz/api"
     : getAppModeUseWatson()
       ? "http://192.168.1.123:8000"
-      : "http://192.168.1.150:8000";
+      //: "http://192.168.1.150:8000";
+      : "http://localhost:8000";
   setAppModeApiUrl(url);
 };
 
