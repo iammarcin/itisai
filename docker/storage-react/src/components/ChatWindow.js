@@ -47,7 +47,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
     } else {
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
-        updatedChatContent[currentSessionIndex] = { messages: [] };
+        updatedChatContent[currentSessionIndex].messages = [];
         return updatedChatContent;
       });
     }
