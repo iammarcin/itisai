@@ -5,7 +5,7 @@ import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ onNewChatClicked }) => {
+const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, sessions, setSessions }) => {
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   // this is to show value in dropdown menu
@@ -15,8 +15,6 @@ const TopMenu = ({ onNewChatClicked }) => {
   // this is different then environment
   // this is to hide the dropdown menu in prod (behind nginx)
   const isProduction = process.env.NODE_ENV === 'production';
-  const [currentSessionIndex, setCurrentSessionIndex] = useState(null);
-  const [sessions, setSessions] = useState({});
 
   const handleTextModelChange = (event) => {
     setTextModelName(event.target.value);
@@ -67,6 +65,8 @@ const TopMenu = ({ onNewChatClicked }) => {
   const handleSessionAdd = () => {
     const newSessions = { ...sessions };
     const newSessionId = Object.keys(newSessions).length + 1;
+    console.log("newSessionId", newSessionId);
+    console.log("newSessions", newSessions);
     newSessions[newSessionId] = { sessionId: newSessionId };
     setCurrentSessionIndex(newSessionId);
     setSessions(newSessions);

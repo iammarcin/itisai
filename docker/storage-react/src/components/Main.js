@@ -23,6 +23,13 @@ const Main = () => {
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   // chat content from chat window
   const [chatContent, setChatContent] = useState([]);
+  const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
+  const [sessions, setSessions] = useState({
+    "1": {
+      "sessionId": 1
+    }
+  });
+
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
   const [attachedImages, setAttachedImages] = useState([]);
@@ -87,6 +94,10 @@ const Main = () => {
     <div className="layout">
       <TopMenu
         onNewChatClicked={handleOnNewChatClicked}
+        currentSessionIndex={currentSessionIndex}
+        setCurrentSessionIndex={setCurrentSessionIndex}
+        sessions={sessions}
+        setSessions={setSessions}
       />
       <div className="main-content">
         <Sidebar
