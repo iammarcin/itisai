@@ -95,7 +95,7 @@ const ChatHandleAPI = async ({
         }
 
         // save to DB
-        const currentUserMessage = userInput
+        /*const currentUserMessage = userInput
         const currentAIResponse = fullResponse
 
         await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", userInput).then((response) => {
@@ -103,7 +103,7 @@ const ChatHandleAPI = async ({
           } else {
             setErrorMsg("Problem saving in DB");
           }
-        });
+        });*/
 
 
 

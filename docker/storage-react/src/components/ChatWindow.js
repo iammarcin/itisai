@@ -41,7 +41,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
     } else { // if its undefined - it's just new session
       setChatContent([]);
     }
-  }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection, setErrorMsg]);
+  }, [sessionId, selectedSession, currentSessionIndex, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg]);
 
   // scroll to bottom
   useEffect(() => {

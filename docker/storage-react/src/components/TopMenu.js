@@ -72,15 +72,6 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     console.log("newSessions", newSession);
     setChatContent([...chatContent, newSession]);
     setCurrentSessionIndex(chatContent.length);
-
-    /*const newSessions = { ...sessions };
-    const newSessionId = Object.keys(newSessions).length + 1;
-    console.log("newSessionId", newSessionId);
-    console.log("newSessions", newSessions);
-    newSessions[newSessionId] = { sessionId: newSessionId };
-    setCurrentSessionIndex(newSessionId);
-    setSessions(newSessions);*/
-
   }
 
   useEffect(() => {
