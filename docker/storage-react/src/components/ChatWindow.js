@@ -9,7 +9,7 @@ import './css/ChatWindow.css';
 import { setTextAICharacter } from '../utils/configuration';
 import { scrollToBottom } from '../utils/misc';
 
-const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
+const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, currentSessionIndex, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -24,8 +24,9 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
         const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
 
         const chatHistory = JSON.parse(response.message.result.chat_history);
+        chatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
 
-        setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
+        //setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
         setShowCharacterSelection(false);
       } catch (error) {
         setErrorMsg("Problem with fetching data. Try again.");
@@ -44,7 +45,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
 
   // scroll to bottom
   useEffect(() => {
-    if (config.VERBOSE_SUPERB === 1) {
+    if (config.VERBOSE_SUPERB === 0) {
       console.log("chatContent: ", chatContent);
     }
     if (endOfMessagesRef.current) {
@@ -77,7 +78,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
         <ChatCharacters onSelect={handleCharacterSelect} />
       ) : null}
       <div className="messages">
-        {chatContent && chatContent.map((message, index) => (
+        {chatContent[currentSessionIndex] ? chatContent[currentSessionIndex].messages.map((message, index) => (
           <ChatMessage
             key={index}
             index={index}
@@ -87,7 +88,9 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, s
             contextMenuIndex={contextMenuIndex}
             setContextMenuIndex={setContextMenuIndex}
           />
-        ))}
+        ))
+          : null
+        }
         <div ref={endOfMessagesRef} />
       </div>
     </div>

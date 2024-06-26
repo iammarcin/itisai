@@ -22,13 +22,13 @@ const Main = () => {
   const [selectedSession, setSelectedSession] = useState(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   // chat content from chat window
-  const [chatContent, setChatContent] = useState([]);
-  const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
-  const [sessions, setSessions] = useState({
-    "1": {
-      "sessionId": 1
+  const [chatContent, setChatContent] = useState([
+    {
+      id: 0,
+      messages: [] // Each session starts with an empty array of messages
     }
-  });
+  ]);
+  const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -81,7 +81,14 @@ const Main = () => {
 
     try {
       await ChatHandleAPI({
-        userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
+        userInput, attachedImages,
+        chatContent: chatContent[currentSessionIndex].messages, // Pass messages of current session
+        setChatContent: (newMessages) => {
+          const updatedSessions = [...chatContent];
+          updatedSessions[currentSessionIndex].messages = newMessages;
+          setChatContent(updatedSessions);
+        },
+        setIsLoading, setErrorMsg, manageProgressText
       });
     } catch (e) {
       setIsLoading(false);
@@ -96,8 +103,8 @@ const Main = () => {
         onNewChatClicked={handleOnNewChatClicked}
         currentSessionIndex={currentSessionIndex}
         setCurrentSessionIndex={setCurrentSessionIndex}
-        sessions={sessions}
-        setSessions={setSessions}
+        chatContent={chatContent}
+        setChatContent={setChatContent}
       />
       <div className="main-content">
         <Sidebar
@@ -110,6 +117,7 @@ const Main = () => {
             selectedSession={selectedSession}
             chatContent={chatContent}
             setChatContent={setChatContent}
+            currentSessionIndex={currentSessionIndex}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
