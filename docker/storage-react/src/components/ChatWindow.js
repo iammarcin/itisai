@@ -1,4 +1,5 @@
 // ChatWindow.js
+
 import React, { useEffect, useState, useRef } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
@@ -17,35 +18,44 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
   const endOfMessagesRef = useRef(null);
 
   // fetch chat content (for specific session)
+  const fetchChatContent = async (sessionIdToGet) => {
+    console.log("EXecuting fetchChatContent with sessionIdToGet: ", sessionIdToGet);
+    try {
+      const userInput = { "session_id": sessionIdToGet };
+      const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
+
+      const chatHistory = JSON.parse(response.message.result.chat_history);
+      setChatContent((prevChatContent) => {
+        const updatedChatContent = [...prevChatContent];
+        updatedChatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
+        return updatedChatContent;
+      });
+
+      setShowCharacterSelection(false);
+    } catch (error) {
+      setErrorMsg("Problem with fetching data. Try again.");
+      console.error('Failed to fetch chat content', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchChatContent = async (sessionIdToGet) => {
-      try {
-        const userInput = { "session_id": sessionIdToGet };
-        const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
-
-        const chatHistory = JSON.parse(response.message.result.chat_history);
-        chatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
-
-        //setChatContent(Array.isArray(chatHistory) ? chatHistory : []);
-        setShowCharacterSelection(false);
-      } catch (error) {
-        setErrorMsg("Problem with fetching data. Try again.");
-        console.error('Failed to fetch chat content', error);
-      }
-    };
-
+    console.log("Values of: sessionId, selectedSession, currentSessionIndex: ", sessionId, selectedSession, currentSessionIndex);
     if (sessionId) {
       fetchChatContent(sessionId);
     } else if (selectedSession) {
       fetchChatContent(selectedSession.session_id);
-    } else { // if its undefined - it's just new session
-      setChatContent([]);
+    } else {
+      setChatContent((prevChatContent) => {
+        const updatedChatContent = [...prevChatContent];
+        updatedChatContent[currentSessionIndex] = { messages: [] };
+        return updatedChatContent;
+      });
     }
-  }, [sessionId, selectedSession, currentSessionIndex, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg]);
+  }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection, setErrorMsg]);
 
   // scroll to bottom
   useEffect(() => {
-    if (config.VERBOSE_SUPERB === 0) {
+    if (config.VERBOSE_SUPERB === 1) {
       console.log("chatContent: ", chatContent);
     }
     if (endOfMessagesRef.current) {
@@ -78,7 +88,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
         <ChatCharacters onSelect={handleCharacterSelect} />
       ) : null}
       <div className="messages">
-        {chatContent[currentSessionIndex] ? chatContent[currentSessionIndex].messages.map((message, index) => (
+        {chatContent[currentSessionIndex] && chatContent[currentSessionIndex].messages ? chatContent[currentSessionIndex].messages.map((message, index) => (
           <ChatMessage
             key={index}
             index={index}

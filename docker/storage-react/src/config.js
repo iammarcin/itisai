@@ -56,5 +56,5 @@ if (getIsProdMode()) {
 }
 
 config.DEBUG = 1;
-config.VERBOSE_SUPERB = 0;
+config.VERBOSE_SUPERB = 1;
 export default config;

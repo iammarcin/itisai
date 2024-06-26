@@ -1,11 +1,13 @@
 // TopMenu.js
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, chatContent, setChatContent }) => {
+const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setSelectedSession, chatContent, setChatContent }) => {
+  const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   // this is to show value in dropdown menu
@@ -51,33 +53,46 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     setPopupVisible(false);
   };
 
-  const handleSessionClick = (sessionId) => {
-    setCurrentSessionIndex(sessionId);
+  const handleSessionClick = (sessionIndex) => {
+    setCurrentSessionIndex(sessionIndex);
   };
 
-  const handleSessionClose = (sessionId) => {
+  useEffect(() => {
+    console.log("TOP MENU! chatContent: ", chatContent);
+  }, [chatContent])
+
+  const handleSessionClose = (sessionIndex) => {
+    console.log("Handle session close", sessionIndex);
+    console.log("chatContent: ", chatContent);
     const newSessions = { ...chatContent };
-    delete newSessions[sessionId];
-    setCurrentSessionIndex(Object.keys(newSessions)[0] || null);
+    console.log("newSessions", newSessions);
+    delete newSessions[sessionIndex];
+    console.log("newSessions after delete", newSessions);
+    setCurrentSessionIndex(Object.keys(newSessions)[0] || 0);
+    console.log("switching to index : ", Object.keys(newSessions)[0] || 0)
     setChatContent(newSessions);
   };
 
   const handleSessionAdd = () => {
+    navigate(`/`);
+    setSelectedSession(null)
     const newSessionId = chatContent.length;
     const newSession = {
       id: newSessionId,
       messages: []
     };
+    setCurrentSessionIndex(newSessionId);
     console.log("newSessionId", newSessionId);
-    console.log("newSessions", newSession);
-    setChatContent([...chatContent, newSession]);
-    setCurrentSessionIndex(chatContent.length);
+    console.log("newSession", newSession);
+    setChatContent((prevChatContent) => {
+      console.log("Previous chat content:", prevChatContent);
+      const updatedChatContent = [...prevChatContent, newSession];
+      console.log("Updated chat content:", updatedChatContent);
+      return updatedChatContent;
+    });
+
+
   }
-
-  useEffect(() => {
-    console.log("chatContent changed", chatContent);
-
-  }, [chatContent]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -105,14 +120,14 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       )}
       <div className="session-buttons">
         {Object.keys(chatContent).map((sessionId, index) => (
-          <div key={sessionId} className={`session-button-container ${currentSessionIndex === sessionId ? 'active' : ''}`}>
+          <div key={sessionId} className={`session-button-container ${currentSessionIndex === index ? 'active' : ''}`}>
             <button
-              className={`session-button ${currentSessionIndex === sessionId ? 'active' : ''}`}
-              onClick={() => handleSessionClick(sessionId)}
+              className={`session-button ${currentSessionIndex === index ? 'active' : ''}`}
+              onClick={() => handleSessionClick(index)}
             >
               {index + 1}
             </button>
-            <button className="close-button" onClick={() => handleSessionClose(sessionId)}>×</button>
+            <button className="close-button" onClick={() => handleSessionClose(index)}>×</button>
           </div>
         ))}
         {Object.keys(chatContent).length < 5 && (

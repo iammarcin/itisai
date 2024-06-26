@@ -3,13 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
-import { useNavigate } from 'react-router-dom';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession, setErrorMsg }) => {
+const Sidebar = ({ selectedSession, setSelectedSession, onSelectSession, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
-  const [selectedSession, setSelectedSession] = useState(null);
   const [offset, setOffset] = useState(0);
   const limit = 20;
   const [searchText, setSearchText] = useState('');
@@ -22,7 +20,6 @@ const Sidebar = ({ onSelectSession, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const renameInputRef = useRef(null);
-  const navigate = useNavigate();
 
   const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {
     isFetchingRef.current = true;
@@ -81,13 +78,6 @@ const Sidebar = ({ onSelectSession, setErrorMsg }) => {
     if (isFetchingRef.current) return;
     fetchChatSessions(offset, debouncedSearchText);
   }, [offset, fetchChatSessions, debouncedSearchText]);
-
-  useEffect(() => {
-    if (selectedSession) {
-      const selected = chatSessions.find(session => session.session_id === selectedSession.session_id);
-      setSelectedSession(selected);
-    }
-  }, [selectedSession, chatSessions]);
 
   const handleSearch = (term) => {
     setSearchText(term);
@@ -204,8 +194,6 @@ const Sidebar = ({ onSelectSession, setErrorMsg }) => {
 
   const handleSelectSession = (session) => {
     onSelectSession(session);
-    setSelectedSession(session);
-    navigate(`/session/${session.session_id}`);
   };
 
   const handleKeyDown = (event) => {

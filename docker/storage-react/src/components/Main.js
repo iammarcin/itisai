@@ -46,6 +46,12 @@ const Main = () => {
     setCurrentSessionId(session.session_id);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
+    const chatHistory = JSON.parse(session.chat_history);
+    setChatContent((prevChatContent) => {
+      const updatedChatContent = [...prevChatContent];
+      updatedChatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
+      return updatedChatContent;
+    });
   };
 
   const handleOnNewChatClicked = () => {
@@ -103,11 +109,14 @@ const Main = () => {
         onNewChatClicked={handleOnNewChatClicked}
         currentSessionIndex={currentSessionIndex}
         setCurrentSessionIndex={setCurrentSessionIndex}
+        setSelectedSession={setSelectedSession}
         chatContent={chatContent}
         setChatContent={setChatContent}
       />
       <div className="main-content">
         <Sidebar
+          selectedSession={selectedSession}
+          setSelectedSession={setSelectedSession}
           onSelectSession={handleSelectSession}
           setErrorMsg={setErrorMsg}
         />
