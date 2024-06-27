@@ -64,13 +64,22 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
   const handleSessionClose = (sessionIndex) => {
     console.log("Handle session close", sessionIndex);
     console.log("chatContent: ", chatContent);
-    const newSessions = { ...chatContent };
-    console.log("newSessions", newSessions);
-    delete newSessions[sessionIndex];
-    console.log("newSessions after delete", newSessions);
-    setCurrentSessionIndex(Object.keys(newSessions)[0] || 0);
-    console.log("switching to index : ", Object.keys(newSessions)[0] || 0)
-    setChatContent(newSessions);
+
+    setChatContent((prevChatContent) => {
+      const newSessions = prevChatContent.filter((_, index) => index !== sessionIndex);
+      console.log("newSessions after filter", newSessions);
+
+      // Ensure the current session index is updated correctly
+      const newIndex = sessionIndex > 0 ? sessionIndex - 1 : 0;
+      // get sessionId of newIndex
+      const newSessionId = newSessions[newIndex].sessionId;
+      if (newSessionId)
+        navigate(`/session/${newSessionId}`);
+      setCurrentSessionIndex(newIndex);
+      console.log("switching to index : ", newIndex);
+
+      return newSessions;
+    });
   };
 
   const handleSessionAdd = () => {

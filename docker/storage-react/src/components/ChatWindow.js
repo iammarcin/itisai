@@ -1,6 +1,6 @@
 // ChatWindow.js
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
@@ -18,7 +18,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
   const endOfMessagesRef = useRef(null);
 
   // fetch chat content (for specific session)
-  const fetchChatContent = async (sessionIdToGet) => {
+  const fetchChatContent = useCallback(async (sessionIdToGet) => {
     console.log("EXecuting fetchChatContent with sessionIdToGet: ", sessionIdToGet);
     try {
       const userInput = { "session_id": sessionIdToGet };
@@ -27,6 +27,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
       const chatHistory = JSON.parse(response.message.result.chat_history);
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
+        updatedChatContent[currentSessionIndex].sessionId = sessionIdToGet;
         updatedChatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
         return updatedChatContent;
       });
@@ -36,7 +37,8 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
     }
-  };
+  }, [currentSessionIndex, setChatContent, setShowCharacterSelection, setErrorMsg]);
+
 
   useEffect(() => {
     console.log("Values of: sessionId, selectedSession, currentSessionIndex: ", sessionId, selectedSession, currentSessionIndex);
@@ -45,13 +47,16 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
     } else if (selectedSession) {
       fetchChatContent(selectedSession.session_id);
     } else {
+      console.log("MMM")
       setChatContent((prevChatContent) => {
+        console.log("prevChatContent: ", prevChatContent);
         const updatedChatContent = [...prevChatContent];
+        console.log("updatedChatContent: ", updatedChatContent);
         updatedChatContent[currentSessionIndex].messages = [];
         return updatedChatContent;
       });
     }
-  }, [sessionId, selectedSession, setChatContent, setShowCharacterSelection, setErrorMsg]);
+  }, [sessionId, selectedSession, currentSessionIndex, fetchChatContent, setChatContent]);
 
   // scroll to bottom
   useEffect(() => {
@@ -72,11 +77,15 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
   // for AI response is simple - because its just last message in chat content
   // but for user request - we need to check little bit more
   const isLastMessage = (index, message) => {
+    if (!message) return false;
+
     if (message.isUserMessage) {
+      console.log("executed?")
       // Check if the next message exists and is an AI response
       return (index === chatContent.length - 1) ||
         (index === chatContent.length - 2 && !chatContent[index + 1].isUserMessage);
     } else {
+      console.log("executed??")
       // For AI messages, the original logic works
       return index === chatContent.length - 1;
     }
@@ -88,19 +97,19 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
         <ChatCharacters onSelect={handleCharacterSelect} />
       ) : null}
       <div className="messages">
-        {chatContent[currentSessionIndex] && chatContent[currentSessionIndex].messages ? chatContent[currentSessionIndex].messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            index={index}
-            message={message}
-            isLastMessage={isLastMessage(index, message)}
-            isUserMessage={message.isUserMessage}
-            contextMenuIndex={contextMenuIndex}
-            setContextMenuIndex={setContextMenuIndex}
-          />
-        ))
-          : null
-        }
+        {chatContent[currentSessionIndex] && chatContent[currentSessionIndex].messages ? (
+          chatContent[currentSessionIndex].messages.map((message, index) => (
+            <ChatMessage
+              key={index}
+              index={index}
+              message={message}
+              isLastMessage={isLastMessage(index, message)}
+              isUserMessage={message.isUserMessage}
+              contextMenuIndex={contextMenuIndex}
+              setContextMenuIndex={setContextMenuIndex}
+            />
+          ))
+        ) : null}
         <div ref={endOfMessagesRef} />
       </div>
     </div>
