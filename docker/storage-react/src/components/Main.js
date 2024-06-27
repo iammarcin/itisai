@@ -98,13 +98,14 @@ const Main = () => {
     }
   }
 
+  // generate text API call (and potentially image)
   const callChatAPI = async () => {
     setShowCharacterSelection(false);
     setErrorMsg('');
 
     try {
       await ChatHandleAPI({
-        userInput, attachedImages, currentSessionIndex,
+        userInput, attachedImages, currentSessionIndex, currentSessionId,
         chatContent, setChatContent,
         setIsLoading, setErrorMsg, manageProgressText
       });

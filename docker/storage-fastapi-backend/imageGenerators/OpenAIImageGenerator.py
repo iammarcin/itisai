@@ -120,10 +120,8 @@ class OpenAIImageGenerator:
             logger.error("Error in generate_image (class)")
             logger.error(e)
             traceback.print_exc()
-            error_message = e.json_body.get(
-                'error', {}).get('message', 'Unknown error')
-            error_code = e.json_body.get(
-                'error', {}).get('code', 'unknown_error')
+            error_message = e.error.get('message', 'Unknown error')
+            error_code = e.error.get('code', 'unknown_error')
             if error_code == 'content_policy_violation':
                 return JSONResponse(content={"success": False, "code": 400, "message": {"status": "rejected", "result": error_message}}, status_code=400)
             raise HTTPException(status_code=500, detail=str(e)) from e

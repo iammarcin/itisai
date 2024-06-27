@@ -4,10 +4,11 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 
 const ChatHandleAPI = async ({
-  userInput, attachedImages, currentSessionIndex, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
+  userInput, attachedImages, currentSessionIndex, currentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text")
+  const sessionIdForAPI = currentSessionId;
 
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
@@ -15,6 +16,7 @@ const ChatHandleAPI = async ({
   updatedChatContent[currentSessionIndex].messages.push(userMessage);
   setChatContent(updatedChatContent);
 
+  // prepare user input for API call
   const finalUserInput = {
     "prompt": [
       { "type": "text", "text": userInput },
@@ -46,13 +48,11 @@ const ChatHandleAPI = async ({
   setChatContent(updatedChatContent);
 
   try {
-    if (config.DEBUG === 1) {
-      console.log("Api call to be executed!")
-      console.log("Final User Input", finalUserInput);
+    if (config.VERBOSE_SUPERB === 1) {
+      console.log("API call. Final User Input", finalUserInput);
     }
     await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
       onChunkReceived: (chunk) => {
-        console.log("chunk", chunk);
         // if it's artgen and user disabled show prompt - don't show it
         if (getTextAICharacter() === "tools_artgen" && getImageArtgenShowPrompt() === false) {
           return
@@ -64,37 +64,22 @@ const ChatHandleAPI = async ({
       },
       onStreamEnd: async (fullResponse) => {
         manageProgressText("hide", "Text")
-        console.log("fullResponse", fullResponse);
-        /*
+
+        // for artgen mode - if image is enabled and no images attached - generate image
         if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
           manageProgressText("show", "Image")
           const userInput = { "text": fullResponse };
           await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then((response) => {
             if (response.success) {
-              // if show prompt is true - then we have to add image to last message
-              if (getImageArtgenShowPrompt()) {
-                setChatContent(prevContent => {
-                  const newContent = [...(prevContent || [])];
-                  const lastMessage = newContent[newContent.length - 1];
-                  if (lastMessage && !lastMessage.isUserMessage) {
-                    lastMessage.imageLocations = [response.message.result];
-                  }
-                  return newContent;
-                });
-              } else {
-                // and if show prompt is false - we need to create new message
-                setChatContent(prevContent => [
-                  ...(prevContent || []),
-                  { message: "", isUserMessage: false, aiCharacterName: getTextAICharacter(), imageLocations: [response.message.result] }
-                ]);
-              }
+              updatedChatContent[currentSessionIndex].messages[aiMessageIndex].imageLocations = [response.message.result];
+              setChatContent([...updatedChatContent]);
               manageProgressText("hide", "Image")
             } else {
               setErrorMsg("Problem generating image");
               manageProgressText("hide", "Image")
             }
           });
-        }*/
+        }
 
         // save to DB
         /*const currentUserMessage = userInput
