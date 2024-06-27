@@ -3,13 +3,13 @@
 var currentSessionId = "";
 
 const setCurrentSessionId = (session_id) => {
- if (session_id) {
-  currentSessionId = session_id;
- }
+  if (session_id) {
+    currentSessionId = session_id;
+  }
 };
 
 const getCurrentSessionId = () => {
- return currentSessionId;
+  return currentSessionId;
 }
 
 export { setCurrentSessionId, getCurrentSessionId };

@@ -57,26 +57,18 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     setCurrentSessionIndex(sessionIndex);
   };
 
-  useEffect(() => {
-    console.log("TOP MENU! chatContent: ", chatContent);
-  }, [chatContent])
-
   const handleSessionClose = (sessionIndex) => {
-    console.log("Handle session close", sessionIndex);
-    console.log("chatContent: ", chatContent);
-
     setChatContent((prevChatContent) => {
       const newSessions = prevChatContent.filter((_, index) => index !== sessionIndex);
-      console.log("newSessions after filter", newSessions);
 
       // Ensure the current session index is updated correctly
       const newIndex = sessionIndex > 0 ? sessionIndex - 1 : 0;
+      setCurrentSessionIndex(newIndex);
       // get sessionId of newIndex
       const newSessionId = newSessions[newIndex].sessionId;
       if (newSessionId)
         navigate(`/session/${newSessionId}`);
-      setCurrentSessionIndex(newIndex);
-      console.log("switching to index : ", newIndex);
+
 
       return newSessions;
     });
@@ -91,12 +83,9 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       messages: []
     };
     setCurrentSessionIndex(newSessionId);
-    console.log("newSessionId", newSessionId);
-    console.log("newSession", newSession);
+
     setChatContent((prevChatContent) => {
-      console.log("Previous chat content:", prevChatContent);
       const updatedChatContent = [...prevChatContent, newSession];
-      console.log("Updated chat content:", updatedChatContent);
       return updatedChatContent;
     });
 

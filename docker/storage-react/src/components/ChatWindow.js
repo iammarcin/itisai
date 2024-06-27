@@ -19,7 +19,9 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
 
   // fetch chat content (for specific session)
   const fetchChatContent = useCallback(async (sessionIdToGet) => {
-    console.log("EXecuting fetchChatContent with sessionIdToGet: ", sessionIdToGet);
+    if (config.VERBOSE_SUPERB === 1) {
+      console.log("EXecuting fetchChatContent with sessionIdToGet: ", sessionIdToGet);
+    }
     try {
       const userInput = { "session_id": sessionIdToGet };
       const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
@@ -41,17 +43,16 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
 
 
   useEffect(() => {
-    console.log("Values of: sessionId, selectedSession, currentSessionIndex: ", sessionId, selectedSession, currentSessionIndex);
+    if (config.VERBOSE_SUPERB === 1) {
+      console.log("useEffect sessionId, selectedSession. Values of: sessionId, selectedSession, currentSessionIndex: ", sessionId, selectedSession, currentSessionIndex);
+    }
     if (sessionId) {
       fetchChatContent(sessionId);
     } else if (selectedSession) {
       fetchChatContent(selectedSession.session_id);
     } else {
-      console.log("MMM")
       setChatContent((prevChatContent) => {
-        console.log("prevChatContent: ", prevChatContent);
         const updatedChatContent = [...prevChatContent];
-        console.log("updatedChatContent: ", updatedChatContent);
         updatedChatContent[currentSessionIndex].messages = [];
         return updatedChatContent;
       });
@@ -80,12 +81,10 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
     if (!message) return false;
 
     if (message.isUserMessage) {
-      console.log("executed?")
       // Check if the next message exists and is an AI response
       return (index === chatContent.length - 1) ||
         (index === chatContent.length - 2 && !chatContent[index + 1].isUserMessage);
     } else {
-      console.log("executed??")
       // For AI messages, the original logic works
       return index === chatContent.length - 1;
     }
