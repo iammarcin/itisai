@@ -11,6 +11,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
 
+  // main send button on bottom
   const handleSendClick = () => {
     setErrorMsg('');
     const modelName = getTextModelName();

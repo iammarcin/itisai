@@ -18,6 +18,7 @@ const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionInde
   const endOfMessagesRef = useRef(null);
 
   // fetch chat content (for specific session)
+  // useCallback in use to ensure that execution is done only once
   const fetchChatContent = useCallback(async (sessionIdToGet) => {
     if (config.VERBOSE_SUPERB === 1) {
       console.log("EXecuting fetchChatContent with sessionIdToGet: ", sessionIdToGet);
@@ -42,6 +43,7 @@ const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionInde
   }, [currentSessionIndex, setChatContent, setShowCharacterSelection, setErrorMsg]);
 
 
+  // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
       console.log("useEffect sessionId. Values of: sessionId, currentSessionId, currentSessionIndex: ", sessionId, currentSessionId, currentSessionIndex);

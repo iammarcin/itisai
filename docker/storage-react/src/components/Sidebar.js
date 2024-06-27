@@ -21,6 +21,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
   const [renamePopup, setRenamePopup] = useState(null);
   const renameInputRef = useRef(null);
 
+  // get the list of user's sessions (for general first load and search mode)
   const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {
     isFetchingRef.current = true;
     try {
@@ -54,6 +55,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
     isFetchingRef.current = false;
   }, [limit, setErrorMsg]);
 
+  // load more sessions when user scrolls down
   const loadMoreSessions = useCallback(() => {
     if (!isFetchingRef.current && !isSearchMode && hasMoreSessions) {
       const newOffset = offset + limit;
@@ -74,6 +76,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
     }
   };
 
+  // making sure that we fetch the list of sessions properly (only once)
   useEffect(() => {
     if (isFetchingRef.current) return;
     fetchChatSessions(offset, debouncedSearchText);
@@ -120,6 +123,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
     }
   }, [renamePopup]);
 
+  // show context menu when right click is detected
   const handleRightClick = (event, session) => {
     event.preventDefault();
     setContextMenu({
@@ -192,10 +196,12 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
     setRenamePopup(null);
   };
 
+  // when any session chosen we trigger handleSelectSession from Main
   const handleSelectSession = (session) => {
     onSelectSession(session);
   };
 
+  // for pressing Enter or Escape we want to submit or cancel renaming
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       handleRenameSubmit();

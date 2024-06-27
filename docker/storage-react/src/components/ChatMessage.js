@@ -47,6 +47,7 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     return null;
   }
 
+  // show context menu when right clicked
   const handleRightClick = (event) => {
     event.preventDefault();
     setContextMenu(null);
@@ -85,6 +86,7 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     setContextMenu(null);
   };
 
+  // show context menu (on right click) - different per user and ai message
   const renderContextMenu = () => {
     if (!contextMenu || contextMenuIndex !== index) return null;
     return (

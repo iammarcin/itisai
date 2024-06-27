@@ -40,10 +40,12 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     onNewChatClicked()
   };
 
+  // top left menu
   const handleMenuButtonClick = () => {
     setDropdownVisible(!isDropdownVisible);
   };
 
+  // options button within top left menu
   const handleOptionsClick = () => {
     setPopupVisible(true);
     setDropdownVisible(false);
@@ -53,10 +55,13 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     setPopupVisible(false);
   };
 
+  // on top we have those circle buttons to switch between chat sessions
+  // this is choosing specific session / button
   const handleSessionClick = (sessionIndex) => {
     setCurrentSessionIndex(sessionIndex);
   };
 
+  // closing session - circle button 
   const handleSessionClose = (sessionIndex) => {
     setChatContent((prevChatContent) => {
       const newSessions = prevChatContent.filter((_, index) => index !== sessionIndex);
@@ -64,7 +69,7 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       // Ensure the current session index is updated correctly
       const newIndex = sessionIndex > 0 ? sessionIndex - 1 : 0;
       setCurrentSessionIndex(newIndex);
-      // get sessionId of newIndex
+      // get sessionId of newIndex (if it's set) - to make sure that if we switch back - data will be properly loaded (in fact fetchChatContent will be executed)
       const newSessionId = newSessions[newIndex].sessionId;
       if (newSessionId)
         setCurrentSessionId(newSessionId);
@@ -73,9 +78,10 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     });
   };
 
+  // add new session - via top circle buttons
   const handleSessionAdd = () => {
     navigate(`/`);
-    setCurrentSessionId("")
+    setCurrentSessionId("");
     const newSessionId = chatContent.length;
     const newSession = {
       id: newSessionId,
@@ -87,10 +93,9 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       const updatedChatContent = [...prevChatContent, newSession];
       return updatedChatContent;
     });
-
-
   }
 
+  // if clicked outside of popup window - we want to hide it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isPopupVisible && !event.target.closest('.popup')) {

@@ -39,6 +39,7 @@ const Main = () => {
   const [progressBarMessage, setProgressBarMessage] = useState('');
 
 
+  // if URL consists of sessionId
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
       console.log("sessionId set to: ", sessionId)
@@ -46,6 +47,7 @@ const Main = () => {
     setCurrentSessionId(sessionId);
   }, [sessionId]);
 
+  // this is executable in case session is chosen in Sidebar
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
       console.log("session: ", session)
@@ -63,9 +65,15 @@ const Main = () => {
     });
   };
 
+  // new chat session (in top menu) clicked - pretty much reset
   const handleOnNewChatClicked = () => {
     navigate(`/`);
-    setChatContent([]);
+    setChatContent([
+      {
+        id: 0,
+        messages: []
+      }
+    ]);
     setShowCharacterSelection(true);
     setCurrentSessionId("");
     setUserInput('');
@@ -90,6 +98,7 @@ const Main = () => {
     }
   }
 
+  // call api to get text generation (and btw some other stuff like potentially image generation)
   const callChatAPI = async (userInput) => {
     setShowCharacterSelection(false);
     setErrorMsg('');
@@ -97,7 +106,7 @@ const Main = () => {
     try {
       await ChatHandleAPI({
         userInput, attachedImages,
-        chatContent: chatContent[currentSessionIndex].messages, // Pass messages of current session
+        chatContent: chatContent[currentSessionIndex].messages,
         setChatContent: (newMessages) => {
           const updatedSessions = [...chatContent];
           updatedSessions[currentSessionIndex].messages = newMessages;
@@ -109,8 +118,6 @@ const Main = () => {
       setIsLoading(false);
     }
   };
-
-
 
   return (
     <div className="layout">
