@@ -72,7 +72,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
   const removeSession = (sessionId) => {
     setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
     if (currentSessionId === sessionId) {
-      setCurrentSessionId("");
+      setCurrentSessionId(null);
     }
   };
 

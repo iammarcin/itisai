@@ -29,7 +29,7 @@ const Main = () => {
   // this is index of sessions on top menu (in circle buttons) - to identify which button is currently active etc
   const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
   // this is to track current session Id - from DB
-  const [currentSessionId, setCurrentSessionId] = useState('');
+  const [currentSessionId, setCurrentSessionId] = useState(null);
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -75,7 +75,7 @@ const Main = () => {
       }
     ]);
     setShowCharacterSelection(true);
-    setCurrentSessionId("");
+    setCurrentSessionId(null);
     setUserInput('');
     setAttachedImages([]);
     setIsLoading(false);

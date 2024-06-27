@@ -59,6 +59,12 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
   // this is choosing specific session / button
   const handleSessionClick = (sessionIndex) => {
     setCurrentSessionIndex(sessionIndex);
+    const newSessionId = chatContent[sessionIndex].sessionId;
+    if (newSessionId) {
+      setCurrentSessionId(newSessionId);
+    } else {
+      setCurrentSessionId(null);
+    }
   };
 
   // closing session - circle button 
@@ -81,7 +87,7 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
   // add new session - via top circle buttons
   const handleSessionAdd = () => {
     navigate(`/`);
-    setCurrentSessionId("");
+    setCurrentSessionId(null);
     const newSessionId = chatContent.length;
     const newSession = {
       id: newSessionId,
