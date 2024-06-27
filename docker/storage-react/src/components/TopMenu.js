@@ -62,8 +62,10 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     const newSessionId = chatContent[sessionIndex].sessionId;
     if (newSessionId) {
       setCurrentSessionId(newSessionId);
+      navigate(`/session/${newSessionId}`);
     } else {
       setCurrentSessionId(null);
+      navigate(`/`);
     }
   };
 
