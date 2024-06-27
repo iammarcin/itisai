@@ -4,23 +4,23 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 
 const ChatHandleAPI = async ({
-  userInput, attachedImages, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
+  userInput, attachedImages, currentSessionIndex, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text")
 
   // Add the user message to chat content
-  setChatContent(prevContent => [
-    ...(prevContent || []),
-    { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) }
-  ]);
+  const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
+  const updatedChatContent = [...chatContent];
+  updatedChatContent[currentSessionIndex].messages.push(userMessage);
+  setChatContent(updatedChatContent);
 
   const finalUserInput = {
     "prompt": [
       { "type": "text", "text": userInput },
       ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
     ],
-    "chat_history": (chatContent || []).map((message) => ({
+    "chat_history": (chatContent[currentSessionIndex].messages || []).map((message) => ({
       "role": message.isUserMessage ? "user" : "assistant",
       "content": [
         { "type": "text", "text": message.message },
@@ -31,6 +31,20 @@ const ChatHandleAPI = async ({
 
   // Buffer to hold the chunks until the message is complete
   let chunkBuffer = '';
+  let aiMessageIndex;
+
+  // Add a placeholder for the AI message
+  const aiMessagePlaceholder = {
+    message: '',
+    isUserMessage: false,
+    imageLocations: [],
+    aiCharacterName: getTextAICharacter()
+  };
+
+  updatedChatContent[currentSessionIndex].messages.push(aiMessagePlaceholder);
+  aiMessageIndex = updatedChatContent[currentSessionIndex].messages.length - 1;
+  setChatContent(updatedChatContent);
+
   try {
     if (config.DEBUG === 1) {
       console.log("Api call to be executed!")
@@ -38,32 +52,20 @@ const ChatHandleAPI = async ({
     }
     await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
       onChunkReceived: (chunk) => {
+        console.log("chunk", chunk);
         // if it's artgen and user disabled show prompt - don't show it
         if (getTextAICharacter() === "tools_artgen" && getImageArtgenShowPrompt() === false) {
           return
         }
         chunkBuffer += chunk;
 
-        setChatContent(prevContent => {
-          const newContent = [...(prevContent || [])];
-          const lastMessage = newContent[newContent.length - 1];
-          // overwrite message (chunk)
-          if (lastMessage && !lastMessage.isUserMessage) {
-            lastMessage.message = chunkBuffer;
-            lastMessage.aiCharacterName = getTextAICharacter()
-          } else {
-            // or start writing chunk
-            newContent.push({
-              message: chunkBuffer,
-              isUserMessage: false,
-              aiCharacterName: getTextAICharacter()
-            });
-          }
-          return newContent;
-        });
+        updatedChatContent[currentSessionIndex].messages[aiMessageIndex].message = chunkBuffer;
+        setChatContent([...updatedChatContent]);
       },
       onStreamEnd: async (fullResponse) => {
         manageProgressText("hide", "Text")
+        console.log("fullResponse", fullResponse);
+        /*
         if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
           manageProgressText("show", "Image")
           const userInput = { "text": fullResponse };
@@ -92,19 +94,19 @@ const ChatHandleAPI = async ({
               manageProgressText("hide", "Image")
             }
           });
-        }
+        }*/
 
         // save to DB
         /*const currentUserMessage = userInput
         const currentAIResponse = fullResponse
-
+        
         await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", userInput).then((response) => {
           if (response.success) {
           } else {
             setErrorMsg("Problem saving in DB");
           }
-        });*/
-
+        });
+        */
 
 
 

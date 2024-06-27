@@ -19,7 +19,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
       setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
       return;
     }
-    callChatAPI(userInput);
+    callChatAPI();
     setUserInput("");
     setAttachedImages([]);
   };

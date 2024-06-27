@@ -98,20 +98,14 @@ const Main = () => {
     }
   }
 
-  // call api to get text generation (and btw some other stuff like potentially image generation)
-  const callChatAPI = async (userInput) => {
+  const callChatAPI = async () => {
     setShowCharacterSelection(false);
     setErrorMsg('');
 
     try {
       await ChatHandleAPI({
-        userInput, attachedImages,
-        chatContent: chatContent[currentSessionIndex].messages,
-        setChatContent: (newMessages) => {
-          const updatedSessions = [...chatContent];
-          updatedSessions[currentSessionIndex].messages = newMessages;
-          setChatContent(updatedSessions);
-        },
+        userInput, attachedImages, currentSessionIndex,
+        chatContent, setChatContent,
         setIsLoading, setErrorMsg, manageProgressText
       });
     } catch (e) {
