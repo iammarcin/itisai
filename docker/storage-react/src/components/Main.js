@@ -1,6 +1,6 @@
 // Main.js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopMenu from './TopMenu';
 import BottomToolsMenu from './BottomToolsMenu';
@@ -13,13 +13,11 @@ import './css/Main.css';
 import config from '../config';
 
 import { setTextAICharacter } from '../utils/configuration';
-import { setCurrentSessionId } from '../utils/session.utils';
 
 const Main = () => {
   // to get sessionId from URL and load the session
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const [selectedSession, setSelectedSession] = useState(null);
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   // chat content from chat window
   const [chatContent, setChatContent] = useState([
@@ -28,7 +26,10 @@ const Main = () => {
       messages: [] // Each session starts with an empty array of messages
     }
   ]);
+  // this is index of sessions on top menu (in circle buttons) - to identify which button is currently active etc
   const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
+  // this is to track current session Id - from DB
+  const [currentSessionId, setCurrentSessionId] = useState('');
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -37,12 +38,19 @@ const Main = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [progressBarMessage, setProgressBarMessage] = useState('');
 
+
+  useEffect(() => {
+    if (config.VERBOSE_SUPERB === 1) {
+      console.log("sessionId set to: ", sessionId)
+    }
+    setCurrentSessionId(sessionId);
+  }, [sessionId]);
+
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
       console.log("session: ", session)
     }
     navigate(`/session/${session.session_id}`);
-    setSelectedSession(session);
     setCurrentSessionId(session.session_id);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
@@ -59,7 +67,7 @@ const Main = () => {
     navigate(`/`);
     setChatContent([]);
     setShowCharacterSelection(true);
-    setSelectedSession(null);
+    setCurrentSessionId("");
     setUserInput('');
     setAttachedImages([]);
     setIsLoading(false);
@@ -110,24 +118,24 @@ const Main = () => {
         onNewChatClicked={handleOnNewChatClicked}
         currentSessionIndex={currentSessionIndex}
         setCurrentSessionIndex={setCurrentSessionIndex}
-        setSelectedSession={setSelectedSession}
+        setCurrentSessionId={setCurrentSessionId}
         chatContent={chatContent}
         setChatContent={setChatContent}
       />
       <div className="main-content">
         <Sidebar
-          selectedSession={selectedSession}
-          setSelectedSession={setSelectedSession}
           onSelectSession={handleSelectSession}
+          currentSessionId={currentSessionId}
+          setCurrentSessionId={setCurrentSessionId}
           setErrorMsg={setErrorMsg}
         />
         <div className="chat-area">
           <ChatWindow
             sessionId={sessionId}
-            selectedSession={selectedSession}
             chatContent={chatContent}
             setChatContent={setChatContent}
             currentSessionIndex={currentSessionIndex}
+            currentSessionId={currentSessionId}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}

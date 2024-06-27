@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ selectedSession, setSelectedSession, onSelectSession, setErrorMsg }) => {
+const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -69,8 +69,8 @@ const Sidebar = ({ selectedSession, setSelectedSession, onSelectSession, setErro
 
   const removeSession = (sessionId) => {
     setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
-    if (selectedSession && selectedSession.session_id === sessionId) {
-      setSelectedSession(null);
+    if (currentSessionId === sessionId) {
+      setCurrentSessionId("");
     }
   };
 
@@ -218,7 +218,7 @@ const Sidebar = ({ selectedSession, setSelectedSession, onSelectSession, setErro
             key={session.session_id}
             onClick={() => handleSelectSession(session)}
             onContextMenu={(e) => handleRightClick(e, session)}
-            className={selectedSession && selectedSession.session_id === session.session_id ? 'selected' : ''}
+            className={currentSessionId === session.session_id ? 'selected' : ''}
           >
             <div className="session-item">
               <img

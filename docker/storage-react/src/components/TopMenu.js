@@ -6,7 +6,7 @@ import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setSelectedSession, chatContent, setChatContent }) => {
+const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, chatContent, setChatContent }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -67,8 +67,7 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       // get sessionId of newIndex
       const newSessionId = newSessions[newIndex].sessionId;
       if (newSessionId)
-        navigate(`/session/${newSessionId}`);
-
+        setCurrentSessionId(newSessionId);
 
       return newSessions;
     });
@@ -76,7 +75,7 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
 
   const handleSessionAdd = () => {
     navigate(`/`);
-    setSelectedSession(null)
+    setCurrentSessionId("")
     const newSessionId = chatContent.length;
     const newSession = {
       id: newSessionId,

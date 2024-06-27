@@ -10,7 +10,7 @@ import './css/ChatWindow.css';
 import { setTextAICharacter } from '../utils/configuration';
 import { scrollToBottom } from '../utils/misc';
 
-const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, currentSessionIndex, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
+const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionIndex, currentSessionId, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -44,12 +44,10 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
 
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
-      console.log("useEffect sessionId, selectedSession. Values of: sessionId, selectedSession, currentSessionIndex: ", sessionId, selectedSession, currentSessionIndex);
+      console.log("useEffect sessionId. Values of: sessionId, currentSessionId, currentSessionIndex: ", sessionId, currentSessionId, currentSessionIndex);
     }
-    if (sessionId) {
-      fetchChatContent(sessionId);
-    } else if (selectedSession) {
-      fetchChatContent(selectedSession.session_id);
+    if (currentSessionId) {
+      fetchChatContent(currentSessionId);
     } else {
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
@@ -57,7 +55,7 @@ const ChatWindow = ({ sessionId, selectedSession, chatContent, setChatContent, c
         return updatedChatContent;
       });
     }
-  }, [sessionId, selectedSession, currentSessionIndex, fetchChatContent, setChatContent]);
+  }, [currentSessionId, currentSessionIndex, fetchChatContent, setChatContent]);
 
   // scroll to bottom
   useEffect(() => {
