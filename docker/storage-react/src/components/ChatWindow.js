@@ -53,7 +53,7 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
   // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
-      console.log("useEffect sessionId. Values of: currentSessionId, currentSessionIndex: ", currentSessionId, currentSessionIndex);
+      console.log("useEffect fetchSessionId. Values of: fetchSessionId, currentSessionIndex: ", fetchSessionId, currentSessionIndexRef.current);
     }
     if (fetchSessionId) {
       fetchChatContent(fetchSessionId);

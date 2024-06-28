@@ -147,7 +147,6 @@ const Main = () => {
         />
         <div className="chat-area">
           <ChatWindow
-            sessionId={sessionId}
             chatContent={chatContent}
             setChatContent={setChatContent}
             currentSessionIndex={currentSessionIndex}
