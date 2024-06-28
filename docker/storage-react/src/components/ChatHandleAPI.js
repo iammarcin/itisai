@@ -4,14 +4,11 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 
 const ChatHandleAPI = async ({
-  userInput, attachedImages, currentSessionIndex, currentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
+  userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
-  // session Id from DB
-  const sessionIdForAPI = currentSessionId;
-  // session index (top menu circle button)
-  const sessionIndexForAPI = currentSessionIndex;
+
 
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
@@ -76,15 +73,68 @@ const ChatHandleAPI = async ({
             if (response.success) {
               updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
               setChatContent([...updatedChatContent]);
-              manageProgressText("hide", "Image")
+              manageProgressText("hide", "Image");
+
+              // TODO
+              // save to DB as well
             } else {
               setErrorMsg("Problem generating image");
-              manageProgressText("hide", "Image")
+              manageProgressText("hide", "Image");
             }
           });
         }
 
         // save to DB
+        // get user chatContent 
+        const currentUserMessage = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 2]
+        const currentAIResponse = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 1]
+
+        console.log("chatContent", chatContent)
+        console.log("currentUserMessage", currentUserMessage)
+        console.log("currentAIResponse", currentAIResponse)
+
+        // prepare chat history for DB in expected format (same as android)
+        const chatHistoryForDB = (chatContent[sessionIndexForAPI].messages || []).map((message) => ({
+          "message": message.message,
+          "isUserMessage": message.isUserMessage,
+          "imageLocations": message.imageLocations || [],
+          "fileNames": message.fileNames || [],
+          "aiCharacterName": message.aiCharacterName || "",
+          "messageId": message.messageId || 0,
+          "isTTS": message.isTTS || false,
+          "showTranscribeButton": message.showTranscribeButton || false,
+          "isGPSLocationMessage": message.isGPSLocationMessage || false
+        }));
+
+        const finalInputForDB = {
+          "customer_id": 1,
+          "session_id": sessionIdForAPI,
+          "userMessage": {
+            "sender": "User",
+            "message": currentUserMessage.message,
+            "message_id": currentUserMessage.message_id || 0,
+            "image_locations": currentUserMessage.imageLocations || [],
+            "file_locations": currentUserMessage.fileNames || [],
+          },
+          "aiResponse": {
+            "sender": "AI",
+            "message": currentAIResponse.message,
+            "message_id": currentAIResponse.message_id || 0,
+            "image_locations": currentAIResponse.imageLocations || [],
+            "file_locations": currentAIResponse.fileNames || [],
+          },
+          "chat_history": chatHistoryForDB
+        }
+
+        await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", finalInputForDB).then((response) => {
+          if (response.success) {
+            console.log("response: ", response)
+          } else {
+            setErrorMsg("Problem saving in DB");
+          }
+        });
+
+
         /*const currentUserMessage = userInput
         const currentAIResponse = fullResponse
         

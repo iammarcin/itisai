@@ -104,8 +104,14 @@ const Main = () => {
     setErrorMsg('');
 
     try {
+      //those 2 to be sure that we're generating data for proper session (if user switches or whatever happens)
+      // session Id from DB
+      const sessionIdForAPI = currentSessionId;
+      // session index (top menu circle button)
+      const sessionIndexForAPI = currentSessionIndex;
+
       await ChatHandleAPI({
-        userInput, attachedImages, currentSessionIndex, currentSessionId,
+        userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI,
         chatContent, setChatContent,
         setIsLoading, setErrorMsg, manageProgressText
       });

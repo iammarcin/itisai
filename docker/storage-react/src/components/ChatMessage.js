@@ -8,7 +8,6 @@ import rehypeHighlight from 'rehype-highlight';
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-
 const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const messageRef = useRef(null);

@@ -126,13 +126,11 @@ class dbProvider:
                         userInput['session_id'] = await self._db_new_session_internal(session, customerId)
 
                     userMessage = userInput['userMessage']
-                    # might be null (for example for chats without AI response)
                     aiResponse = userInput.get('aiResponse')
 
                     logger.info("!*"*30)
                     logger.info("aiResponse: %s", aiResponse)
 
-                    # first create new item for user message in chat message
                     new_user_message = ChatMessage(
                         session_id=userInput['session_id'],
                         customer_id=customerId,
@@ -142,16 +140,11 @@ class dbProvider:
                         file_locations=userMessage.get('file_locations')
                     )
                     session.add(new_user_message)
-
-                    # Commit to generate message_id
                     await session.flush()
-
                     new_user_message_id = new_user_message.message_id
 
                     new_ai_response_id = 0
-                    # if its not error message (because it means we dont have AI response)
                     if aiResponse and aiResponse['message'] != config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']:
-                        # first create new item in chat message
                         new_ai_response = ChatMessage(
                             session_id=userInput['session_id'],
                             customer_id=customerId,
@@ -161,37 +154,25 @@ class dbProvider:
                             file_locations=aiResponse.get('file_locations')
                         )
                         session.add(new_ai_response)
-
-                        # Commit to generate message_id
                         await session.flush()
-
                         new_ai_response_id = new_ai_response.message_id
 
-                    # Update chat session's chat_history and last_update
                     chat_session = await session.get(ChatSession, userInput['session_id'])
                     if chat_session:
-                        # Use chat_history from userInput directly
                         chat_history = userInput['chat_history']
 
-                        # Update the last 2 messages or last message (if we have only user message) in chat history with the new user and AI message_id (very important because later we save chat history in chat sessions for future restore)
-                        # by default user message has -2 index (because there is user message and ai response), but if there is not ai response then -1 only
                         userMessageIndex = -2
                         if not aiResponse:
                             userMessageIndex = -1
                         if chat_history and isinstance(chat_history[userMessageIndex], dict):
                             chat_history[userMessageIndex]['messageId'] = new_user_message_id
-                        # > 0 - to check if ai response exists or there was no error message (because then we dont need to do anything)
                         if chat_history and isinstance(chat_history[-1], dict) and new_ai_response_id > 0:
                             chat_history[-1]['messageId'] = new_ai_response_id
 
-                        chat_session.chat_history = json.dumps(chat_history)
+                        chat_session.chat_history = chat_history
 
-                        # OK this probably could have been done better and from different place, but well...
-                        # we check first few messages in history (so later, in case of long chats - we skip simply this step and its minimally quicker)
-                        # and then we get oldest AI message and read AI character... so we can set it as default for this chat (so later it will be displayed in chat lists on top left menu)
                         chat_session_ai_character = ""
                         if len(chat_history) < 4:
-                            # Find the oldest AI message
                             for message in chat_history:
                                 if not message.get('isUserMessage'):
                                     ai_character_name = message.get(
@@ -201,7 +182,6 @@ class dbProvider:
                                         break
 
                         if chat_session_ai_character == "":
-                            # search in userSettings
                             if userSettings['text'].get('ai_character'):
                                 chat_session.ai_character_name = userSettings['text'].get(
                                     'ai_character')
@@ -219,13 +199,11 @@ class dbProvider:
                 except HTTPException as e:
                     logger.error("HTTP error in db_new_message: %s", str(e))
                     traceback.print_exc()
-                    # return JSONResponse(status_code=e.status_code, content={"success": False, "code": e.status_code, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! create_chat_message"}})
                     raise HTTPException(
                         status_code=500, detail="Error in DB! db_new_message")
                 except Exception as e:
                     logger.error("Error in DB! db_new_message: %s", str(e))
                     traceback.print_exc()
-                    # return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! create_chat_message"}}, status_code=500)
                     raise HTTPException(
                         status_code=500, detail="Error in DB! db_new_message")
 
