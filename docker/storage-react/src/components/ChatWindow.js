@@ -10,12 +10,19 @@ import './css/ChatWindow.css';
 import { setTextAICharacter } from '../utils/configuration';
 import { scrollToBottom } from '../utils/misc';
 
-const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionIndex, currentSessionId, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
+const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentSessionId, fetchSessionId, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
   // this is used for scrollToBottom
   const endOfMessagesRef = useRef(null);
+  // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions)
+  const currentSessionIndexRef = useRef(currentSessionIndex);
+
+  // Update ref every time currentSessionIndex changes 
+  useEffect(() => {
+    currentSessionIndexRef.current = currentSessionIndex;
+  }, [currentSessionIndex]);
 
   // fetch chat content (for specific session)
   // useCallback in use to ensure that execution is done only once
@@ -30,8 +37,8 @@ const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionInde
       const chatHistory = response.message.result.chat_history;
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
-        updatedChatContent[currentSessionIndex].sessionId = sessionIdToGet;
-        updatedChatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
+        updatedChatContent[currentSessionIndexRef.current].sessionId = sessionIdToGet;
+        updatedChatContent[currentSessionIndexRef.current].messages = Array.isArray(chatHistory) ? chatHistory : [];
         return updatedChatContent;
       });
 
@@ -40,7 +47,7 @@ const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionInde
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
     }
-  }, [currentSessionIndex, setChatContent, setShowCharacterSelection, setErrorMsg]);
+  }, [setChatContent, setShowCharacterSelection, setErrorMsg]);
 
 
   // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data
@@ -48,22 +55,19 @@ const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionInde
     if (config.VERBOSE_SUPERB === 1) {
       console.log("useEffect sessionId. Values of: currentSessionId, currentSessionIndex: ", currentSessionId, currentSessionIndex);
     }
-    if (currentSessionId) {
-      fetchChatContent(currentSessionId);
+    if (fetchSessionId) {
+      fetchChatContent(fetchSessionId);
     } else {
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
-        updatedChatContent[currentSessionIndex].messages = [];
+        updatedChatContent[currentSessionIndexRef.current].messages = [];
         return updatedChatContent;
       });
     }
-  }, [currentSessionId, currentSessionIndex, fetchChatContent, setChatContent]);
+  }, [fetchSessionId, fetchChatContent, setChatContent]);
 
   // scroll to bottom
   useEffect(() => {
-    if (config.VERBOSE_SUPERB === 1) {
-      console.log("chatContent: ", chatContent);
-    }
     if (endOfMessagesRef.current) {
       scrollToBottom(endOfMessagesRef.current);
     }

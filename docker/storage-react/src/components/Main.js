@@ -30,6 +30,8 @@ const Main = () => {
   const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
   // this is to track current session Id - from DB
   const [currentSessionId, setCurrentSessionId] = useState(null);
+  // this is to trigger fetch session in ChatWindow - i was trying to do it with currentSessionId - but was causing re-triggers when changing top menu sessions which i didn't want
+  const [fetchSessionId, setFetchSessionId] = useState(null);
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -45,6 +47,7 @@ const Main = () => {
       console.log("sessionId set to: ", sessionId)
     }
     setCurrentSessionId(sessionId);
+    setFetchSessionId(sessionId);
   }, [sessionId]);
 
   // this is executable in case session is chosen in Sidebar
@@ -54,6 +57,7 @@ const Main = () => {
     }
     navigate(`/session/${session.session_id}`);
     setCurrentSessionId(session.session_id);
+    setFetchSessionId(session.session_id);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
     const chatHistory = session.chat_history;
@@ -111,7 +115,8 @@ const Main = () => {
       const sessionIndexForAPI = currentSessionIndex;
 
       await ChatHandleAPI({
-        userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI,
+        userInput, attachedImages,
+        sessionIndexForAPI, sessionIdForAPI, currentSessionId, setCurrentSessionId,
         chatContent, setChatContent,
         setIsLoading, setErrorMsg, manageProgressText
       });
@@ -147,6 +152,7 @@ const Main = () => {
             setChatContent={setChatContent}
             currentSessionIndex={currentSessionIndex}
             currentSessionId={currentSessionId}
+            fetchSessionId={fetchSessionId}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
