@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './css/TopMenu.css';
-import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
+import './css/TopMenu.css';
 
-const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg, setTextAICharacter }) => {
+import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName, setTextAICharacter } from '../utils/configuration';
+
+const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -64,11 +65,16 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       setCurrentSessionId(newSessionId);
       navigate(`/session/${newSessionId}`);
       setShowCharacterSelection(false);
+      // if there is character set for this session (must be!) - lets set it globally
+      if (chatContent[sessionIndex].ai_character_name) {
+        setTextAICharacter(chatContent[sessionIndex].ai_character_name);
+      }
     } else {
       setCurrentSessionId(null);
       navigate(`/`);
       setShowCharacterSelection(true);
     }
+
   };
 
   // closing session - circle button 

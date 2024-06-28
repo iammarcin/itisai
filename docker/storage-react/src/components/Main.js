@@ -116,7 +116,7 @@ const Main = () => {
 
       await ChatHandleAPI({
         userInput, attachedImages,
-        sessionIndexForAPI, sessionIdForAPI, currentSessionId, setCurrentSessionId,
+        sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
         chatContent, setChatContent,
         setIsLoading, setErrorMsg, manageProgressText
       });

@@ -5,9 +5,9 @@ import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage
 
 // to clarify some of params:
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
-// currentSessionId, setCurrentSessionId - those are needed because we need to know (or set) global session (for example when we save in DB and new session is generated)
+// setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 const ChatHandleAPI = async ({
-  userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
+  userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -17,6 +17,7 @@ const ChatHandleAPI = async ({
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
+  updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
   updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   setChatContent(updatedChatContent);
 
