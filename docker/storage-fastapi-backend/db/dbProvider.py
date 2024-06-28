@@ -120,6 +120,36 @@ class dbProvider:
     async def db_new_message(self, userInput: dict, customerId: int, userSettings: dict = {}):
         async with AsyncSessionLocal() as session:
             async with session.begin():
+                # Fetch all chat sessions
+                result = await session.execute(select(ChatSession))
+                chat_sessions = result.scalars().all()
+
+                for chat_session in chat_sessions:
+                    if chat_session.chat_history:
+                        try:
+                            # Load the JSON data
+                            chat_history = json.loads(
+                                chat_session.chat_history)
+
+                            # Check if it's a list of strings and transform if necessary
+                            if isinstance(chat_history, str):
+                                chat_history = json.loads(chat_history)
+                            if isinstance(chat_history, list) and all(isinstance(item, dict) for item in chat_history):
+                                chat_session.chat_history = chat_history
+                            else:
+                                print(
+                                    f"Skipping session {chat_session.session_id}, invalid format.")
+
+                        except json.JSONDecodeError as e:
+                            print(
+                                f"Failed to decode JSON for session {chat_session.session_id}: {e}")
+                            continue
+
+                await session.commit()
+
+    async def db_new_message2(self, userInput: dict, customerId: int, userSettings: dict = {}):
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
                 try:
                     # Check if session_id is set, if not create a new session
                     if not userInput.get('session_id'):
