@@ -9,6 +9,7 @@ import os
 import shutil
 import datetime
 import traceback
+import time
 
 import boto3
 from botocore.config import Config as BotoConfig
@@ -73,7 +74,7 @@ class awsProvider:
         self, action: str, userInput: dict, assetInput: dict, customerId: int = None
     ):
         try:
-
+            #time.sleep(5)
             # maybe one day will set it in DB
             DISCUSSION_ID = 1
             file = userInput["file"]
