@@ -199,6 +199,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
   // when any session chosen we trigger handleSelectSession from Main
   const handleSelectSession = (session) => {
     onSelectSession(session);
+
   };
 
   // for pressing Enter or Escape we want to submit or cancel renaming

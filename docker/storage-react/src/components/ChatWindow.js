@@ -27,7 +27,7 @@ const ChatWindow = ({ sessionId, chatContent, setChatContent, currentSessionInde
       const userInput = { "session_id": sessionIdToGet };
       const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
 
-      const chatHistory = JSON.parse(response.message.result.chat_history);
+      const chatHistory = response.message.result.chat_history;
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
         updatedChatContent[currentSessionIndex].sessionId = sessionIdToGet;

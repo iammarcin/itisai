@@ -56,7 +56,7 @@ const Main = () => {
     setCurrentSessionId(session.session_id);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
-    const chatHistory = JSON.parse(session.chat_history);
+    const chatHistory = session.chat_history;
     setChatContent((prevChatContent) => {
       const updatedChatContent = [...prevChatContent];
       updatedChatContent[currentSessionIndex].sessionId = session.session_id;
