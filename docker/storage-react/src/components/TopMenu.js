@@ -6,7 +6,7 @@ import './css/TopMenu.css';
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName } from '../utils/configuration';
 import OptionsWindow from './OptionsWindow';
 
-const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, chatContent, setChatContent }) => {
+const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg, setTextAICharacter }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -63,9 +63,11 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     if (newSessionId) {
       setCurrentSessionId(newSessionId);
       navigate(`/session/${newSessionId}`);
+      setShowCharacterSelection(false);
     } else {
       setCurrentSessionId(null);
       navigate(`/`);
+      setShowCharacterSelection(true);
     }
   };
 
@@ -79,9 +81,12 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       setCurrentSessionIndex(newIndex);
       // get sessionId of newIndex (if it's set) - to make sure that if we switch back - data will be properly loaded (in fact fetchChatContent will be executed)
       const newSessionId = newSessions[newIndex].sessionId;
-      if (newSessionId)
+      if (newSessionId) {
         setCurrentSessionId(newSessionId);
-
+        setShowCharacterSelection(false);
+      } else {
+        setShowCharacterSelection(true);
+      }
       return newSessions;
     });
   };
@@ -101,6 +106,9 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
       const updatedChatContent = [...prevChatContent, newSession];
       return updatedChatContent;
     });
+    setErrorMsg('');
+    setTextAICharacter('assistant');
+    setShowCharacterSelection(true);
   }
 
   // if clicked outside of popup window - we want to hide it

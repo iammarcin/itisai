@@ -123,6 +123,9 @@ const Main = () => {
         setCurrentSessionId={setCurrentSessionId}
         chatContent={chatContent}
         setChatContent={setChatContent}
+        setShowCharacterSelection={setShowCharacterSelection}
+        setErrorMsg={setErrorMsg}
+        setTextAICharacter={setTextAICharacter}
       />
       <div className="main-content">
         <Sidebar

@@ -7,13 +7,16 @@ const ChatHandleAPI = async ({
   userInput, attachedImages, currentSessionIndex, currentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
 }) => {
   setIsLoading(true);
-  manageProgressText("show", "Text")
+  manageProgressText("show", "Text");
+  // session Id from DB
   const sessionIdForAPI = currentSessionId;
+  // session index (top menu circle button)
+  const sessionIndexForAPI = currentSessionIndex;
 
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
-  updatedChatContent[currentSessionIndex].messages.push(userMessage);
+  updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   setChatContent(updatedChatContent);
 
   // prepare user input for API call
@@ -22,7 +25,7 @@ const ChatHandleAPI = async ({
       { "type": "text", "text": userInput },
       ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
     ],
-    "chat_history": (chatContent[currentSessionIndex].messages || []).map((message) => ({
+    "chat_history": (chatContent[sessionIndexForAPI].messages || []).map((message) => ({
       "role": message.isUserMessage ? "user" : "assistant",
       "content": [
         { "type": "text", "text": message.message },
@@ -43,8 +46,8 @@ const ChatHandleAPI = async ({
     aiCharacterName: getTextAICharacter()
   };
 
-  updatedChatContent[currentSessionIndex].messages.push(aiMessagePlaceholder);
-  aiMessageIndex = updatedChatContent[currentSessionIndex].messages.length - 1;
+  updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
+  aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
   setChatContent(updatedChatContent);
 
   try {
@@ -59,7 +62,7 @@ const ChatHandleAPI = async ({
         }
         chunkBuffer += chunk;
 
-        updatedChatContent[currentSessionIndex].messages[aiMessageIndex].message = chunkBuffer;
+        updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].message = chunkBuffer;
         setChatContent([...updatedChatContent]);
       },
       onStreamEnd: async (fullResponse) => {
@@ -71,7 +74,7 @@ const ChatHandleAPI = async ({
           const userInput = { "text": fullResponse };
           await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then((response) => {
             if (response.success) {
-              updatedChatContent[currentSessionIndex].messages[aiMessageIndex].imageLocations = [response.message.result];
+              updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
               setChatContent([...updatedChatContent]);
               manageProgressText("hide", "Image")
             } else {
