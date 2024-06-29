@@ -9,7 +9,7 @@ import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/configuration';
 
-const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentSessionIndexRef, fetchSessionId, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
+const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentSessionIndexRef, fetchSessionId, endOfMessagesRef, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -99,6 +99,7 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
             />
           ))
         ) : null}
+        <div ref={endOfMessagesRef} />
       </div>
     </div>
   );

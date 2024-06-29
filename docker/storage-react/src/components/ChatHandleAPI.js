@@ -7,7 +7,7 @@ import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 const ChatHandleAPI = async ({
-  userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText
+  userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -66,6 +66,7 @@ const ChatHandleAPI = async ({
         console.log("Text / Image chunk and sessionIndexForAPI: ", chunk, sessionIndexForAPI);
         updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].message = chunkBuffer;
         setChatContent([...updatedChatContent]);
+        scrollToBottom(sessionIndexForAPI);
       },
       onStreamEnd: async (fullResponse) => {
         manageProgressText("hide", "Text")

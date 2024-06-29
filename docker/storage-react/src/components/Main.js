@@ -35,7 +35,8 @@ const Main = () => {
   // used in tandem with above - it will be set to false in most cases (by default so when user just provides URL, or when we click on Sidebar and we want session to be fetched) 
   // but sometimes will be set to true (for example in TopMenu when clicking between sessions) - because then we just want to navigate to URL but don't want sessions to be fetched (because they are already there)
   const [shouldSkipSessionFetching, setShouldSkipSessionFetching] = useState(false);
-  // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions)
+  // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions) - IMPORTANT! 
+  // and also for scrollToBottom function (to be sure that we're scrolling if we are generating data from APIs in active session only)
   const currentSessionIndexRef = useRef(currentSessionIndex);
 
   // user input (text + images) from bottom menu
@@ -45,7 +46,7 @@ const Main = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [progressBarMessage, setProgressBarMessage] = useState('');
 
-  // this is used for scrollToBottom
+  // (from ChatWindow) this is used for scrollToBottom
   const endOfMessagesRef = useRef(null);
 
   // if URL consists of sessionId
@@ -132,23 +133,17 @@ const Main = () => {
         userInput, attachedImages,
         sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
         chatContent, setChatContent,
-        setIsLoading, setErrorMsg, manageProgressText
+        setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
       });
     } catch (e) {
       setIsLoading(false);
     }
   };
 
-  // scroll to bottom
-  useEffect(() => {
-    if (endOfMessagesRef.current) {
-      scrollToBottom(endOfMessagesRef.current);
-    }
-  }, [chatContent]);
-
-  const scrollToBottom = (element) => {
-    if (element) {
-      element.scrollIntoView({
+  const scrollToBottom = (whichChat) => {
+    console.log("SCROLL EXECUTED. Values whichChat, currentSessionIndexRef: ", whichChat, currentSessionIndexRef.current)
+    if (whichChat === currentSessionIndexRef.current) {
+      endOfMessagesRef.current.scrollIntoView({
         behavior: 'smooth',
       });
     }
@@ -181,11 +176,11 @@ const Main = () => {
             currentSessionIndex={currentSessionIndex}
             currentSessionIndexRef={currentSessionIndexRef}
             fetchSessionId={fetchSessionId}
+            endOfMessagesRef={endOfMessagesRef}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
           />
-          <div ref={endOfMessagesRef} />
           {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}
           {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}
           <BottomToolsMenu
