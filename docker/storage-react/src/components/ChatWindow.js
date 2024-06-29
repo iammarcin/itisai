@@ -55,9 +55,12 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
     if (config.VERBOSE_SUPERB === 1) {
       console.log("useEffect fetchSessionId. Values of: fetchSessionId, currentSessionIndex: ", fetchSessionId, currentSessionIndexRef.current);
     }
+
+    // if there is sessionId - we fetch specific session data from DB
     if (fetchSessionId) {
       fetchChatContent(fetchSessionId);
     } else {
+      // if it is not provided - we just set empty array for future messages
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
         updatedChatContent[currentSessionIndexRef.current].messages = [];

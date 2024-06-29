@@ -7,7 +7,7 @@ import './css/TopMenu.css';
 
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName, setTextAICharacter } from '../utils/configuration';
 
-const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg }) => {
+const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, setShouldSkipSessionFetching, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -62,6 +62,8 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
     setCurrentSessionIndex(sessionIndex);
     const newSessionId = chatContent[sessionIndex].sessionId;
     if (newSessionId) {
+      // set the flag NOT to fetch sessions (handled in Main.js)
+      setShouldSkipSessionFetching(true);
       setCurrentSessionId(newSessionId);
       navigate(`/session/${newSessionId}`);
       setShowCharacterSelection(false);

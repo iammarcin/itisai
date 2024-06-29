@@ -30,8 +30,11 @@ const Main = () => {
   const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
   // this is to track current session Id - from DB
   const [currentSessionId, setCurrentSessionId] = useState(null);
-  // this is to trigger fetch session in ChatWindow - i was trying to do it with currentSessionId - but was causing re-triggers when changing top menu sessions which i didn't want
+  // this is to trigger fetch session in ChatWindow - this together with shouldSkipSessionFetching - will determine if we should fetchChatContent or not
   const [fetchSessionId, setFetchSessionId] = useState(null);
+  // used in tandem with above - it will be set to false in most cases (by default so when user just provides URL, or when we click on Sidebar and we want session to be fetched) 
+  // but sometimes will be set to true (for example in TopMenu when clicking between sessions) - because then we just want to navigate to URL but don't want sessions to be fetched (because they are already there)
+  const [shouldSkipSessionFetching, setShouldSkipSessionFetching] = useState(false);
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -40,14 +43,20 @@ const Main = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [progressBarMessage, setProgressBarMessage] = useState('');
 
-
   // if URL consists of sessionId
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
       console.log("sessionId set to: ", sessionId)
     }
     setCurrentSessionId(sessionId);
-    setFetchSessionId(sessionId);
+    if (shouldSkipSessionFetching) {
+      console.log("NOT TRIGGERING FETCHING SESSIONS")
+      // reset for next time
+      setShouldSkipSessionFetching(false);
+    } else {
+      setFetchSessionId(sessionId);
+    }
+
   }, [sessionId]);
 
   // this is executable in case session is chosen in Sidebar
@@ -57,7 +66,6 @@ const Main = () => {
     }
     navigate(`/session/${session.session_id}`);
     setCurrentSessionId(session.session_id);
-    setFetchSessionId(session.session_id);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
     const chatHistory = session.chat_history;
@@ -132,11 +140,11 @@ const Main = () => {
         currentSessionIndex={currentSessionIndex}
         setCurrentSessionIndex={setCurrentSessionIndex}
         setCurrentSessionId={setCurrentSessionId}
+        setShouldSkipSessionFetching={setShouldSkipSessionFetching}
         chatContent={chatContent}
         setChatContent={setChatContent}
         setShowCharacterSelection={setShowCharacterSelection}
         setErrorMsg={setErrorMsg}
-        setTextAICharacter={setTextAICharacter}
       />
       <div className="main-content">
         <Sidebar
