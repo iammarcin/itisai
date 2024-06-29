@@ -11,6 +11,13 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
 
+  // make sure that user input is active on load (so we will not need to click on it)
+  useEffect(() => {
+    if (userInputRef.current) {
+      userInputRef.current.focus();
+    }
+  }, []);
+
   // main send button on bottom
   const handleSendClick = () => {
     setErrorMsg('');
