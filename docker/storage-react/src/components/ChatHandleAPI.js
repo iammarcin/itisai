@@ -3,6 +3,23 @@ import config from '../config';
 import apiMethods from '../services/api.methods';
 import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 
+// helper function to prepare data for DB request in proper format - as it is used in few places
+const prepareChatHistoryForDB = (chatContent) => {
+  // prepare chat history for DB in expected format (same as android)
+  const chatHistoryForDB = (chatContent.messages || []).map((message) => ({
+    "message": message.message,
+    "isUserMessage": message.isUserMessage,
+    "imageLocations": message.imageLocations || [],
+    "fileNames": message.fileNames || [],
+    "aiCharacterName": message.aiCharacterName || "",
+    "messageId": message.messageId || 0,
+    "isTTS": message.isTTS || false,
+    "showTranscribeButton": message.showTranscribeButton || false,
+    "isGPSLocationMessage": message.isGPSLocationMessage || false
+  }));
+  return chatHistoryForDB;
+}
+
 // to clarify some of params:
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
@@ -11,8 +28,6 @@ const ChatHandleAPI = async ({
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
-
-  console.log("Current chatContent: ", chatContent);
 
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
@@ -63,59 +78,18 @@ const ChatHandleAPI = async ({
           return
         }
         chunkBuffer += chunk;
-        console.log("Text / Image chunk and sessionIndexForAPI: ", chunk, sessionIndexForAPI);
         updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].message = chunkBuffer;
         setChatContent([...updatedChatContent]);
         scrollToBottom(sessionIndexForAPI);
       },
       onStreamEnd: async (fullResponse) => {
-        manageProgressText("hide", "Text")
-        console.log("fullResponse: ", fullResponse);
-
-        // for artgen mode - if image is enabled and no images attached - generate image
-        if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
-          manageProgressText("show", "Image")
-          const userInput = { "text": fullResponse };
-          await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then((response) => {
-            if (response.success) {
-              console.log("Image sessionIndexForAPI: ", sessionIndexForAPI);
-              setChatContent((prevChatContent) => {
-                // Make sure we update the correct session
-                const updatedContent = [...prevChatContent];
-                console.log("inside image update prevChatContent", prevChatContent)
-                updatedContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
-                console.log("inside image update updatedContent", updatedContent)
-                return updatedContent;
-              });
-              //updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
-              //setChatContent([...updatedChatContent]);
-              manageProgressText("hide", "Image");
-            } else {
-              setErrorMsg("Problem generating image");
-              manageProgressText("hide", "Image");
-            }
-          });
-        }
+        manageProgressText("hide", "Text");
+        scrollToBottom(sessionIndexForAPI);
 
         // save to DB
         // get user chatContent 
         var currentUserMessage = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 2]
         var currentAIResponse = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 1]
-
-        console.log("chatContent", chatContent)
-
-        // prepare chat history for DB in expected format (same as android)
-        const chatHistoryForDB = (chatContent[sessionIndexForAPI].messages || []).map((message) => ({
-          "message": message.message,
-          "isUserMessage": message.isUserMessage,
-          "imageLocations": message.imageLocations || [],
-          "fileNames": message.fileNames || [],
-          "aiCharacterName": message.aiCharacterName || "",
-          "messageId": message.messageId || 0,
-          "isTTS": message.isTTS || false,
-          "showTranscribeButton": message.showTranscribeButton || false,
-          "isGPSLocationMessage": message.isGPSLocationMessage || false
-        }));
 
         const finalInputForDB = {
           "customer_id": 1,
@@ -134,7 +108,7 @@ const ChatHandleAPI = async ({
             "image_locations": currentAIResponse.imageLocations || [],
             "file_locations": currentAIResponse.fileNames || [],
           },
-          "chat_history": chatHistoryForDB
+          "chat_history": prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
         }
 
         await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", finalInputForDB).then((response) => {
@@ -142,14 +116,48 @@ const ChatHandleAPI = async ({
             // update session in chatContent (will be useful later when switching session in top menu) and set current session id
             updatedChatContent[sessionIndexForAPI].sessionId = response.message.result.sessionId;
             setCurrentSessionId(response.message.result.sessionId);
+            if (!sessionIdForAPI) {
+              // this is needed - because for example image generation is triggered later then this step - so if sessionIdForAPI is not set - it fails to update in DB
+              sessionIdForAPI = response.message.result.sessionId;
+            }
             // update messageId in chatContent
             currentAIResponse.messageId = response.message.result.aiMessageId;
             currentUserMessage.messageId = response.message.result.userMessageId;
-
-          } else {
-            setErrorMsg("Problem saving in DB");
           }
         });
+
+        // for artgen mode - if image is enabled and no images attached - generate image
+        if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
+          manageProgressText("show", "Image")
+          const userInput = { "text": fullResponse };
+          await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then(async (response) => {
+            if (response.success) {
+              // update chatContent with generated image
+              /*setChatContent((prevChatContent) => {
+                // Make sure we update the correct session
+                const updatedContent = [...prevChatContent];
+                updatedContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
+                return updatedContent;
+              });*/
+              updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
+              setChatContent([...updatedChatContent]);
+
+              manageProgressText("hide", "Image");
+              scrollToBottom(sessionIndexForAPI);
+
+              //db_update_session to DB 
+              const chatHistoryForDB = prepareChatHistoryForDB(chatContent[sessionIndexForAPI]);
+              const finalInputForDB = {
+                "session_id": sessionIdForAPI,
+                "chat_history": chatHistoryForDB
+              }
+              await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_update_session", finalInputForDB);
+            } else {
+              setErrorMsg("Problem generating image");
+              manageProgressText("hide", "Image");
+            }
+          });
+        }
 
         setIsLoading(false);
         manageProgressText("hide", "Text")

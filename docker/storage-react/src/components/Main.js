@@ -141,7 +141,6 @@ const Main = () => {
   };
 
   const scrollToBottom = (whichChat) => {
-    console.log("SCROLL EXECUTED. Values whichChat, currentSessionIndexRef: ", whichChat, currentSessionIndexRef.current)
     if (whichChat === currentSessionIndexRef.current) {
       endOfMessagesRef.current.scrollIntoView({
         behavior: 'smooth',
