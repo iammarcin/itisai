@@ -144,7 +144,7 @@ const ChatHandleAPI = async ({
 
               manageProgressText("hide", "Image");
               scrollToBottom(sessionIndexForAPI);
-
+              setFocusInput(true);
               //db_update_session to DB 
               const chatHistoryForDB = prepareChatHistoryForDB(chatContent[sessionIndexForAPI]);
               const finalInputForDB = {
