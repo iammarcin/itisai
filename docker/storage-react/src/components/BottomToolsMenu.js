@@ -6,17 +6,10 @@ import apiMethods from '../services/api.methods';
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, isLoading, setErrorMsg }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
   const userInputRef = useRef(null);
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
-
-  // make sure that user input is active on load (so we will not need to click on it)
-  useEffect(() => {
-    if (userInputRef.current) {
-      userInputRef.current.focus();
-    }
-  }, []);
 
   // main send button on bottom
   const handleSendClick = () => {
@@ -89,6 +82,19 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
       input.style.height = `${Math.min(input.scrollHeight, 100)}px`;
     }
   }, [userInput]);
+
+  // make sure that user input is active on load (so we will not need to click on it)
+  useEffect(() => {
+    if (userInputRef.current) {
+      userInputRef.current.focus();
+    }
+  }, []);
+  useEffect(() => {
+    if (focusInput && userInputRef.current) {
+      userInputRef.current.focus();
+      setFocusInput(false);
+    }
+  }, [focusInput, setFocusInput]);
 
   return (
     <div className="bottom-tools-menu">

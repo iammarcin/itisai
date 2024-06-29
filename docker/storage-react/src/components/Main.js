@@ -45,6 +45,8 @@ const Main = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [progressBarMessage, setProgressBarMessage] = useState('');
+  // this will be used to focus (make active) userInput text area from BottomToolsMenu - so i don't need to click on it to start typing
+  const [focusInput, setFocusInput] = useState(false);
 
   // (from ChatWindow) this is used for scrollToBottom
   const endOfMessagesRef = useRef(null);
@@ -132,7 +134,7 @@ const Main = () => {
       await ChatHandleAPI({
         userInput, attachedImages,
         sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
-        chatContent, setChatContent,
+        chatContent, setChatContent, setFocusInput,
         setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
       });
     } catch (e) {
@@ -188,6 +190,8 @@ const Main = () => {
             attachedImages={attachedImages}
             setAttachedImages={setAttachedImages}
             callChatAPI={callChatAPI}
+            focusInput={focusInput}
+            setFocusInput={setFocusInput}
             isLoading={isLoading}
             setErrorMsg={setErrorMsg}
           />
