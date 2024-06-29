@@ -49,21 +49,17 @@ const Main = () => {
       console.log("sessionId set to: ", sessionId)
     }
     setCurrentSessionId(sessionId);
-    if (shouldSkipSessionFetching) {
-      console.log("NOT TRIGGERING FETCHING SESSIONS")
-      // reset for next time
-      setShouldSkipSessionFetching(false);
-    } else {
+    if (!shouldSkipSessionFetching) {
       setFetchSessionId(sessionId);
     }
-
-  }, [sessionId]);
+  }, [sessionId, shouldSkipSessionFetching]);
 
   // this is executable in case session is chosen in Sidebar
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
       console.log("session: ", session)
     }
+    setShouldSkipSessionFetching(false);
     navigate(`/session/${session.session_id}`);
     setCurrentSessionId(session.session_id);
     setShowCharacterSelection(false);
