@@ -1,6 +1,6 @@
 // ChatWindow.js
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
@@ -8,21 +8,11 @@ import config from '../config';
 import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/configuration';
-import { scrollToBottom } from '../utils/misc';
 
-const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentSessionId, fetchSessionId, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
+const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentSessionIndexRef, fetchSessionId, showCharacterSelection, setShowCharacterSelection, setErrorMsg }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
-  // this is used for scrollToBottom
-  const endOfMessagesRef = useRef(null);
-  // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions)
-  const currentSessionIndexRef = useRef(currentSessionIndex);
-
-  // Update ref every time currentSessionIndex changes 
-  useEffect(() => {
-    currentSessionIndexRef.current = currentSessionIndex;
-  }, [currentSessionIndex]);
 
   // fetch chat content (for specific session)
   // useCallback in use to ensure that execution is done only once
@@ -47,7 +37,7 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
     }
-  }, [setChatContent, setShowCharacterSelection, setErrorMsg]);
+  }, [currentSessionIndexRef, setChatContent, setShowCharacterSelection, setErrorMsg]);
 
 
   // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data
@@ -67,14 +57,7 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
         return updatedChatContent;
       });
     }
-  }, [fetchSessionId, fetchChatContent, setChatContent]);
-
-  // scroll to bottom
-  useEffect(() => {
-    if (endOfMessagesRef.current) {
-      scrollToBottom(endOfMessagesRef.current);
-    }
-  }, [chatContent]);
+  }, [fetchSessionId, currentSessionIndexRef, fetchChatContent, setChatContent]);
 
   const handleCharacterSelect = (character) => {
     setShowCharacterSelection(false);
@@ -116,7 +99,6 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
             />
           ))
         ) : null}
-        <div ref={endOfMessagesRef} />
       </div>
     </div>
   );

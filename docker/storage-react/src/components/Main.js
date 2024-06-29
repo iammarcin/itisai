@@ -1,6 +1,6 @@
 // Main.js
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopMenu from './TopMenu';
 import BottomToolsMenu from './BottomToolsMenu';
@@ -35,6 +35,8 @@ const Main = () => {
   // used in tandem with above - it will be set to false in most cases (by default so when user just provides URL, or when we click on Sidebar and we want session to be fetched) 
   // but sometimes will be set to true (for example in TopMenu when clicking between sessions) - because then we just want to navigate to URL but don't want sessions to be fetched (because they are already there)
   const [shouldSkipSessionFetching, setShouldSkipSessionFetching] = useState(false);
+  // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions)
+  const currentSessionIndexRef = useRef(currentSessionIndex);
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -42,6 +44,9 @@ const Main = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [progressBarMessage, setProgressBarMessage] = useState('');
+
+  // this is used for scrollToBottom
+  const endOfMessagesRef = useRef(null);
 
   // if URL consists of sessionId
   useEffect(() => {
@@ -53,6 +58,11 @@ const Main = () => {
       setFetchSessionId(sessionId);
     }
   }, [sessionId, shouldSkipSessionFetching]);
+
+  // Update ref every time currentSessionIndex changes (use cases above)
+  useEffect(() => {
+    currentSessionIndexRef.current = currentSessionIndex;
+  }, [currentSessionIndex]);
 
   // this is executable in case session is chosen in Sidebar
   const handleSelectSession = (session) => {
@@ -129,6 +139,21 @@ const Main = () => {
     }
   };
 
+  // scroll to bottom
+  useEffect(() => {
+    if (endOfMessagesRef.current) {
+      scrollToBottom(endOfMessagesRef.current);
+    }
+  }, [chatContent]);
+
+  const scrollToBottom = (element) => {
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }
+  };
+
   return (
     <div className="layout">
       <TopMenu
@@ -154,12 +179,13 @@ const Main = () => {
             chatContent={chatContent}
             setChatContent={setChatContent}
             currentSessionIndex={currentSessionIndex}
-            currentSessionId={currentSessionId}
+            currentSessionIndexRef={currentSessionIndexRef}
             fetchSessionId={fetchSessionId}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
           />
+          <div ref={endOfMessagesRef} />
           {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}
           {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}
           <BottomToolsMenu
