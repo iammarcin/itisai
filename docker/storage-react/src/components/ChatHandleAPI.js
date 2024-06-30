@@ -133,10 +133,10 @@ const ChatHandleAPI = async ({
 
           // for artgen mode - if image is enabled and no images attached - generate image
           if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
-            manageProgressText("show", "Image")
-            const userInput = { "text": fullResponse };
-            await apiMethods.triggerAPIRequest("generate", "image", "generate", userInput).then(async (response) => {
-              if (response.success) {
+            manageProgressText("show", "Image");
+            try {
+              const imageLocation = await apiMethods.generateImage(fullResponse);
+              if (imageLocation) {
                 // update chatContent with generated image
                 /*setChatContent((prevChatContent) => {
                   // Make sure we update the correct session
@@ -144,31 +144,29 @@ const ChatHandleAPI = async ({
                   updatedContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
                   return updatedContent;
                 });*/
-                updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [response.message.result];
+                updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [imageLocation];
+                console.log("updatedChatContent", updatedChatContent)
                 setChatContent([...updatedChatContent]);
 
                 manageProgressText("hide", "Image");
                 scrollToBottom(sessionIndexForAPI);
                 setFocusInput(true);
                 //db_update_session to DB 
-                const chatHistoryForDB = prepareChatHistoryForDB(chatContent[sessionIndexForAPI]);
-                const finalInputForDB = {
-                  "session_id": sessionIdForAPI,
-                  "chat_history": chatHistoryForDB
-                }
-                await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_update_session", finalInputForDB);
+                await apiMethods.updateSessionInDB(chatContent[sessionIndexForAPI], sessionIdForAPI);
               } else {
                 setErrorMsg("Problem generating image");
                 manageProgressText("hide", "Image");
               }
-            });
+            } catch (error) {
+              setIsLoading(false);
+              manageProgressText("hide", "Text")
+              setErrorMsg("Error during streaming. Try again.")
+              console.error('Error during streaming:', error);
+              console.error(error);
+            } finally {
+              manageProgressText("hide", "Image");
+            }
           }
-        },
-        onError: (error) => {
-          setIsLoading(false);
-          manageProgressText("hide", "Text")
-          setErrorMsg("Error during streaming. Try again.")
-          console.error('Error during streaming:', error);
         }
       });
     } else {

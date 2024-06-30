@@ -25,6 +25,13 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     message.imageLocations ? message.imageLocations.filter(src => src !== "image_placeholder_url") : []
   );
 
+  // Update validImageLocations when message.imageLocations changes (for example when it's auto generated image)
+  useEffect(() => {
+    setValidImageLocations(
+      message.imageLocations ? message.imageLocations.filter(src => src !== "image_placeholder_url") : []
+    );
+  }, [message.imageLocations]);
+
   // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
   useEffect(() => {
     const handleClickOutside = (event) => {
