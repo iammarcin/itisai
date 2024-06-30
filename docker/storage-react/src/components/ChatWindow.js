@@ -68,8 +68,6 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
   // for AI response is simple - because its just last message in chat content
   // but for user request - we need to check little bit more
   const isLastMessage = (index, message) => {
-    console.log("chatContent 345: ", chatContent)
-    console.log("chatContent.length: ", chatContent.length, " index: ", index, " message: ", message.message)
     if (!message) return false;
     const currentChatContent = chatContent[currentSessionIndex].messages;
 

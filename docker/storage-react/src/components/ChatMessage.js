@@ -97,6 +97,16 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     setContextMenu(null);
   };
 
+  const handleNewSessionFromHere = () => {
+    console.log('handleNewSessionFromHere message');
+    setContextMenu(null);
+  };
+
+  const handleRemove = () => {
+    console.log('handleRemove message');
+    setContextMenu(null);
+  };
+
   // show context menu (on right click) - different per user and ai message
   const renderContextMenu = () => {
     if (!contextMenu || contextMenuIndex !== index) return null;
@@ -108,6 +118,9 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         {isUserMessage && isLastMessage && (
           <div className="context-menu-item" onClick={handleEdit}>Edit</div>
         )}
+        {isUserMessage && !isLastMessage && (
+          <div className="context-menu-item" onClick={handleRemove}>Remove</div>
+        )}
         {!isUserMessage && (
           <>
             {isLastMessage && (
@@ -115,6 +128,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
             )}
           </>
         )}
+        <div className="context-menu-item" onClick={handleNewSessionFromHere}>New Session from here</div>
         <div className="context-menu-item" onClick={handleCopy}>Copy</div>
       </div>
     );
