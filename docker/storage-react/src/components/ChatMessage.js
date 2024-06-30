@@ -166,6 +166,14 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     }
   }
 
+  const handleLocationClick = () => {
+    if (message.message.startsWith("GPS location:")) {
+      const coordinates = message.message.replace("GPS location:", "").trim();
+      const googleMapsUrl = `https://www.google.com/maps?q=${coordinates}`;
+      window.open(googleMapsUrl, '_blank');
+    }
+  };
+
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}
       onContextMenu={handleRightClick}
@@ -191,8 +199,13 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
           }}
         />
         {getTextAICharacter() === 'tools_artgen' && !message.isUserMessage ? (
-          <button className="img-gen-button" onClick={handleImgGenClick}>
+          <button className="img-chat-message-button" onClick={handleImgGenClick}>
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm40-80h480L570-480 450-320l-90-120-120 160Zm-40 80v-560 560Z" /></svg>
+          </button>
+        ) : null}
+        {message.isGPSLocationMessage ? (
+          <button className="img-chat-message-button" onClick={handleLocationClick}>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z" /></svg>
           </button>
         ) : null}
         {validImageLocations.length > 0 && (
@@ -209,16 +222,18 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
           </audio>
         ))}
       </div>
-      {isModalOpen && (
-        <ChatImageModal
-          images={validImageLocations}
-          currentIndex={currentImageIndex}
-          onClose={handleCloseModal}
-          onNext={handleNextImage}
-          onPrev={handlePrevImage}
-        />
-      )}
-    </div>
+      {
+        isModalOpen && (
+          <ChatImageModal
+            images={validImageLocations}
+            currentIndex={currentImageIndex}
+            onClose={handleCloseModal}
+            onNext={handleNextImage}
+            onPrev={handlePrevImage}
+          />
+        )
+      }
+    </div >
   );
 };
 

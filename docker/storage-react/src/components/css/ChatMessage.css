@@ -59,7 +59,7 @@
   margin-top: 10px;
 }
 
-.img-gen-button {
+.img-chat-message-button {
   background: none;
   border: none;
   color: white;
@@ -72,7 +72,7 @@
   align-items: center;
 }
 
-.img-gen-button:hover {
+.img-chat-message-button:hover {
   background-color: #2c2c2c;
   border-radius: 50%;
 }
