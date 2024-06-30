@@ -86,6 +86,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
     fetchChatSessions(offset, debouncedSearchText);
   }, [offset, fetchChatSessions, debouncedSearchText]);
 
+  // if refreshChatSessions is set in initial few messages (via ChatHandleAPI) - we want to refresh list of sessions (so new one appears)
   useEffect(() => {
     if (refreshChatSessions) {
       handleSearch("");
