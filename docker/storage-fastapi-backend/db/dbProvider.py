@@ -278,8 +278,7 @@ class dbProvider:
                     chat_session = await session.get(ChatSession, userInput['session_id'])
                     if chat_session:
                         # Use chat_history from userInput directly
-                        chat_session.chat_history = json.dumps(
-                            userInput['chat_history'])
+                        chat_session.chat_history = userInput['chat_history']
                         chat_session.last_update = func.now()
                     else:
                         raise HTTPException(
@@ -382,6 +381,7 @@ class dbProvider:
         new_session_name = userInput.get('new_session_name')
         new_ai_character_name = userInput.get('new_ai_character_name')
         chat_history = userInput.get('chat_history')
+
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
@@ -398,13 +398,13 @@ class dbProvider:
                     if new_ai_character_name:
                         chat_session.ai_character_name = new_ai_character_name
                     if chat_history:
-                        chat_session.chat_history = json.dumps(chat_history)
+                        chat_session.chat_history = chat_history
                     chat_session.last_update = func.now()
                     await session.commit()
                     return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session updated"}}, status_code=200)
                 except Exception as e:
                     logger.error("Error in DB! db_update_session: %s", str(e))
-                    traceback.print_exc()
+                    # traceback.print_exc()
                     raise HTTPException(
                         status_code=500, detail="Error in DB! db_update_session")
 
