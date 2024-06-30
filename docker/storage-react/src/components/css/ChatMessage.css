@@ -41,10 +41,17 @@
   /* Ensures long words break to prevent overflow */
 }
 
-.chat-message img {
-  max-width: 512px;
-  max-height: 512px;
-  margin-top: 3px;
+.chat-message .image-container {
+  display: flex;
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+.chat-message .image-container img {
+  max-width: 256px;
+  max-height: 256px;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
 .chat-message audio {

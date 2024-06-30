@@ -1,5 +1,6 @@
 // ChatMessage.js
 import React, { useState, useEffect, useRef } from 'react';
+import ChatImageModal from './ChatImageModal';
 import './css/ChatMessage.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -10,6 +11,8 @@ const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
 const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex }) => {
   const [contextMenu, setContextMenu] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const messageRef = useRef(null);
   const avatarSrc = message.isUserMessage
     ? '/imgs/UserAvatar.jpg'
@@ -108,6 +111,20 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     );
   };
 
+  // IMAGE MODAL
+  const handleImageClick = (index) => {
+    setCurrentImageIndex(index);
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % validImageLocations.length);
+  };
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + validImageLocations.length) % validImageLocations.length);
+  };
 
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}
@@ -133,9 +150,13 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
             code: ({ node, ...props }) => <code {...props} />
           }}
         />
-        {validImageLocations.map((src, index) => (
-          <img key={index} src={src} alt="Chat" />
-        ))}
+        {validImageLocations.length > 0 && (
+          <div className="image-container">
+            {validImageLocations.map((src, index) => (
+              <img key={index} src={src} alt="Chat" onClick={() => handleImageClick(index)} />
+            ))}
+          </div>
+        )}
         {message.fileNames && message.fileNames.map((src, index) => (
           <audio key={index} controls>
             <source src={src} type="audio/ogg" />
@@ -143,6 +164,15 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
           </audio>
         ))}
       </div>
+      {isModalOpen && (
+        <ChatImageModal
+          images={validImageLocations}
+          currentIndex={currentImageIndex}
+          onClose={handleCloseModal}
+          onNext={handleNextImage}
+          onPrev={handlePrevImage}
+        />
+      )}
     </div>
   );
 };
