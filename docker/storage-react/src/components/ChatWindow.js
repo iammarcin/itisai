@@ -80,6 +80,13 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
     }
   };
 
+  // Debugging only in super verbose mode
+  useEffect(() => {
+    if (config.VERBOSE_SUPERB === 1) {
+      console.log("Chat content: ", chatContent);
+    }
+  }, [chatContent]);
+
   return (
     <div className="chat-window">
       {showCharacterSelection ? (

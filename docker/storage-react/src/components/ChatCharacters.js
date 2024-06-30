@@ -3,7 +3,7 @@
 import React from 'react';
 import './css/ChatCharacters.css'; // Make sure to create appropriate styles
 
-const characters = [
+export const characters = [
   { name: "Assistant", imageResId: "assistant.png", nameForAPI: "assistant", autoResponse: true, showGPSButton: false },
   { name: "Art gen", imageResId: "tools_artgen.png", nameForAPI: "tools_artgen", autoResponse: true, showGPSButton: false },
   { name: "Alergy expert", imageResId: "alergy.png", nameForAPI: "alergy", autoResponse: true, showGPSButton: true },
@@ -49,7 +49,6 @@ const ChatCharacters = ({ onSelect }) => {
   const handleClick = (name) => {
     onSelect(name);
   };
-
 
   return (
     <>
