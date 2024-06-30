@@ -1,28 +1,14 @@
 // BottomToolsMenu.js
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
-import { getTextModelName } from '../utils/configuration';
 import apiMethods from '../services/api.methods';
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, callChatAPI, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, setShowCharacterSelection, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
   const userInputRef = useRef(null);
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
-
-  // main send button on bottom
-  const handleSendClick = () => {
-    setErrorMsg('');
-    const modelName = getTextModelName();
-    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
-      setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
-      return;
-    }
-    callChatAPI();
-    setUserInput("");
-    setAttachedImages([]);
-  };
 
   const handleAttachClick = () => {
     document.getElementById('file-input').click();
@@ -74,6 +60,12 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   };
 
+  const handleKeyDown = async (event) => {
+    if (event.key === "@" || event.key === 50) {
+      setShowCharacterSelection(true);
+    }
+  };
+
   // setting height of user input (if more then 1 line)
   useEffect(() => {
     const input = userInputRef.current;
@@ -118,6 +110,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
           value={userInput}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           rows={1}
           disabled={isLoading}
         />

@@ -12,7 +12,7 @@ import './css/Main.css';
 
 import config from '../config';
 
-import { setTextAICharacter } from '../utils/configuration';
+import { setTextAICharacter, getTextModelName } from '../utils/configuration';
 
 const Main = () => {
   // to get sessionId from URL and load the session
@@ -38,6 +38,8 @@ const Main = () => {
   // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions) - IMPORTANT! 
   // and also for scrollToBottom function (to be sure that we're scrolling if we are generating data from APIs in active session only)
   const currentSessionIndexRef = useRef(currentSessionIndex);
+  // used for editing messages
+  const [editingMessage, setEditingMessage] = useState(null);
 
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
@@ -120,6 +122,22 @@ const Main = () => {
     }
   }
 
+  const handleSendClick = () => {
+    setErrorMsg('');
+    const modelName = getTextModelName();
+    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
+      setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
+      return;
+    }
+    if (editingMessage !== null) {
+      handleEditSubmit();
+    } else {
+      callChatAPI();
+    }
+    setUserInput("");
+    setAttachedImages([]);
+  };
+
   // generate text API call (and potentially image)
   const callChatAPI = async () => {
     setShowCharacterSelection(false);
@@ -141,6 +159,27 @@ const Main = () => {
     } catch (e) {
       setIsLoading(false);
     }
+  };
+
+  const handleEditSubmit = () => {
+    const updatedMessages = chatContent[currentSessionIndex].messages.map((msg, idx) => {
+      if (idx === editingMessage.index) {
+        return { ...msg, message: userInput };
+      }
+      return msg;
+    });
+
+    const updatedChatContent = [...chatContent];
+    updatedChatContent[currentSessionIndex].messages = updatedMessages.slice(0, -2);
+
+    // Simulate callChatAPI without last two messages
+    ChatHandleAPI({
+      userInput, attachedImages,
+      sessionIndexForAPI: currentSessionIndex, sessionIdForAPI: currentSessionId, setCurrentSessionId,
+      chatContent: updatedChatContent, setChatContent, setFocusInput, setRefreshChatSessions,
+      setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+    });
+    setEditingMessage(null);
   };
 
   const scrollToBottom = (whichChat) => {
@@ -183,6 +222,8 @@ const Main = () => {
             endOfMessagesRef={endOfMessagesRef}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
+            setEditingMessage={setEditingMessage}
+            setUserInput={setUserInput}
             setErrorMsg={setErrorMsg}
             manageProgressText={manageProgressText}
           />
@@ -193,7 +234,8 @@ const Main = () => {
             setUserInput={setUserInput}
             attachedImages={attachedImages}
             setAttachedImages={setAttachedImages}
-            callChatAPI={callChatAPI}
+            setShowCharacterSelection={setShowCharacterSelection}
+            handleSendClick={handleSendClick}
             focusInput={focusInput}
             setFocusInput={setFocusInput}
             isLoading={isLoading}

@@ -4,23 +4,6 @@ import apiMethods from '../services/api.methods';
 import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 import { characters } from './ChatCharacters';
 
-// helper function to prepare data for DB request in proper format - as it is used in few places
-const prepareChatHistoryForDB = (chatContent) => {
-  // prepare chat history for DB in expected format (same as android)
-  const chatHistoryForDB = (chatContent.messages || []).map((message) => ({
-    "message": message.message,
-    "isUserMessage": message.isUserMessage,
-    "imageLocations": message.imageLocations || [],
-    "fileNames": message.fileNames || [],
-    "aiCharacterName": message.aiCharacterName || "",
-    "messageId": message.messageId || 0,
-    "isTTS": message.isTTS || false,
-    "showTranscribeButton": message.showTranscribeButton || false,
-    "isGPSLocationMessage": message.isGPSLocationMessage || false
-  }));
-  return chatHistoryForDB;
-}
-
 // to clarify some of params:
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
@@ -113,7 +96,7 @@ const ChatHandleAPI = async ({
               "image_locations": currentAIResponse.imageLocations || [],
               "file_locations": currentAIResponse.fileNames || [],
             },
-            "chat_history": prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
+            "chat_history": apiMethods.prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
           }
 
           await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", finalInputForDB).then((response) => {
@@ -181,7 +164,7 @@ const ChatHandleAPI = async ({
           "image_locations": attachedImages.map(image => image.url),
           "file_locations": [],
         },
-        "chat_history": prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
+        "chat_history": apiMethods.prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
       };
 
       await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", finalInputForDB).then((response) => {
