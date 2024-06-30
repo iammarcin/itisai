@@ -6,10 +6,13 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 
+import { getTextAICharacter } from '../utils/configuration';
+import apiMethods from '../services/api.methods';
+
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, chatContent, setChatContent, manageProgressText, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -17,11 +20,10 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
   const avatarSrc = message.isUserMessage
     ? '/imgs/UserAvatar.jpg'
     : `/imgs/${message.aiCharacterName}.png`;
-
-  // filter out placeholders
-  const validImageLocations = message.imageLocations
-    ? message.imageLocations.filter(src => src !== "image_placeholder_url")
-    : [];
+  // set section for images and filter out placeholders
+  const [validImageLocations, setValidImageLocations] = useState(
+    message.imageLocations ? message.imageLocations.filter(src => src !== "image_placeholder_url") : []
+  );
 
   // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
   useEffect(() => {
@@ -126,6 +128,37 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + validImageLocations.length) % validImageLocations.length);
   };
 
+  const handleImgGenClick = async () => {
+    try {
+      manageProgressText("show", "Image");
+      const imageLocation = await apiMethods.generateImage(message.message);
+      if (imageLocation) {
+        setValidImageLocations(prevLocations => [...prevLocations, imageLocation]);
+        // update chat content
+        setChatContent((prevChatContent) => {
+          // Make sure we update the correct session
+          const updatedContent = [...prevChatContent];
+          const sessionMessages = updatedContent[currentSessionIndex].messages;
+          const currentMessage = sessionMessages[index];
+
+          if (!currentMessage.imageLocations.includes(imageLocation)) {
+            currentMessage.imageLocations.push(imageLocation);
+          }
+          // save to DB - i had to do it here - because if it was out of setChatContent - it sent outdated data
+          apiMethods.updateSessionInDB(updatedContent[currentSessionIndex], currentSessionId);
+          return updatedContent;
+        });
+      } else {
+        throw new Error("Problem generating image");
+      }
+    } catch (error) {
+      setErrorMsg(error);
+      console.error(error);
+    } finally {
+      manageProgressText("hide", "Image");
+    }
+  }
+
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}
       onContextMenu={handleRightClick}
@@ -150,6 +183,11 @@ const ChatMessage = ({ message, index, isLastMessage, isUserMessage, contextMenu
             code: ({ node, ...props }) => <code {...props} />
           }}
         />
+        {getTextAICharacter() === 'tools_artgen' && !message.isUserMessage ? (
+          <button className="img-gen-button" onClick={handleImgGenClick}>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm40-80h480L570-480 450-320l-90-120-120 160Zm-40 80v-560 560Z" /></svg>
+          </button>
+        ) : null}
         {validImageLocations.length > 0 && (
           <div className="image-container">
             {validImageLocations.map((src, index) => (

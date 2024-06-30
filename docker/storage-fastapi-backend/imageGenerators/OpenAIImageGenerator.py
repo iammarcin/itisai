@@ -88,7 +88,7 @@ class OpenAIImageGenerator:
                 prompt = "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: " + prompt
 
             if self.use_test_data:
-                finalUrl = 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-xl9LUlwDaE7xHfomiY1yp9sG/user-qUElxkpAQyQkRERvyK5hqv4q/img-801AWeKt65VhkYZiG4UIujhd.png?st=2024-06-05T04%3A31%3A11Z&se=2024-06-05T06%3A31%3A11Z&sp=r&sv=2023-11-03&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-06-04T20%3A06%3A06Z&ske=2024-06-05T20%3A06%3A06Z&sks=b&skv=2023-11-03&sig=BsTz8Wfb1euVvI32hbOBdH6TVIbun0M1nZQojKZC9Cw%3D'
+                finalUrl = 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-xl9LUlwDaE7xHfomiY1yp9sG/user-qUElxkpAQyQkRERvyK5hqv4q/img-4DdoHjcSqIQVSLJU7ijWrCw2.png?st=2024-06-30T03%3A46%3A59Z&se=2024-06-30T05%3A46%3A59Z&sp=r&sv=2023-11-03&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-06-30T01%3A52%3A50Z&ske=2024-07-01T01%3A52%3A50Z&sks=b&skv=2023-11-03&sig=1PbGkkHGY9%2BGuyqvtnNe02GQ7F%2Blgcjk8mqqniPfTRw%3D'
                 finalUrl = await self.saveFileAndSendToS3(finalUrl, customerId)
                 return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalUrl}}, status_code=200)
             else:

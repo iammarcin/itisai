@@ -178,11 +178,13 @@ const Main = () => {
             setChatContent={setChatContent}
             currentSessionIndex={currentSessionIndex}
             currentSessionIndexRef={currentSessionIndexRef}
+            currentSessionId={currentSessionId}
             fetchSessionId={fetchSessionId}
             endOfMessagesRef={endOfMessagesRef}
             showCharacterSelection={showCharacterSelection}
             setShowCharacterSelection={setShowCharacterSelection}
             setErrorMsg={setErrorMsg}
+            manageProgressText={manageProgressText}
           />
           {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}
           {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}

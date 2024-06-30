@@ -3,6 +3,23 @@ import makeApiCall from './api.service';
 import { getSettingsDict } from '../utils/configuration';
 import config from "../config";
 
+// helper function to prepare data for DB request in proper format - as it is used in few places
+const prepareChatHistoryForDB = (chatContent) => {
+  // prepare chat history for DB in expected format (same as android)
+  const chatHistoryForDB = (chatContent.messages || []).map((message) => ({
+    "message": message.message,
+    "isUserMessage": message.isUserMessage,
+    "imageLocations": message.imageLocations || [],
+    "fileNames": message.fileNames || [],
+    "aiCharacterName": message.aiCharacterName || "",
+    "messageId": message.messageId || 0,
+    "isTTS": message.isTTS || false,
+    "showTranscribeButton": message.showTranscribeButton || false,
+    "isGPSLocationMessage": message.isGPSLocationMessage || false
+  }));
+  return chatHistoryForDB;
+}
+
 const triggerAPIRequest = async (endpoint, category, action, userInput) => {
   const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
@@ -74,9 +91,33 @@ const uploadFileToS3 = async (endpoint, category, action, file) => {
   return response;
 };
 
+const generateImage = async (image_prompt) => {
+  try {
+    const userInput = { "text": image_prompt };
+    const response = await triggerAPIRequest("generate", "image", "generate", userInput);
+    if (response.success) {
+      return response.message.result;
+    } else {
+      throw new Error('Failed to generate image');
+    }
+  } catch (error) {
+    console.error('Error generating image:', error);
+    throw error;
+  }
+}
+
+const updateSessionInDB = async (chatContent, sessionId) => {
+  //db_update_session to DB 
+  const chatHistoryForDB = prepareChatHistoryForDB(chatContent);
+  const finalInputForDB = {
+    "session_id": sessionId,
+    "chat_history": chatHistoryForDB
+  }
+  await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_update_session", finalInputForDB);
+}
 
 const apiMethods = {
-  triggerAPIRequest, triggerStreamingAPIRequest, uploadFileToS3
+  triggerAPIRequest, triggerStreamingAPIRequest, uploadFileToS3, prepareChatHistoryForDB, generateImage, updateSessionInDB
 };
 
 export default apiMethods;
