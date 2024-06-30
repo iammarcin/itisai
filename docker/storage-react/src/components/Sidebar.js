@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setErrorMsg }) => {
+const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refreshChatSessions, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -61,6 +61,10 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
       const newOffset = offset + limit;
       setOffset(newOffset);
     }
+    // and this is when we clear search text in search bar
+    if (!isFetchingRef.current && !isSearchMode && hasMoreSessions && fetchedSessionIds.current.size === 0) {
+      setOffset(0)
+    }
   }, [offset, limit, isSearchMode, hasMoreSessions]);
 
   const updateSessionName = (sessionId, newName) => {
@@ -81,6 +85,14 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, setEr
     if (isFetchingRef.current) return;
     fetchChatSessions(offset, debouncedSearchText);
   }, [offset, fetchChatSessions, debouncedSearchText]);
+
+  useEffect(() => {
+    if (refreshChatSessions) {
+      handleSearch("");
+      setOffset(0);
+      fetchChatSessions(0, debouncedSearchText);
+    }
+  }, [refreshChatSessions, debouncedSearchText, fetchChatSessions]);
 
   const handleSearch = (term) => {
     setSearchText(term);

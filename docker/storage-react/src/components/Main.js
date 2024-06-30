@@ -47,7 +47,8 @@ const Main = () => {
   const [progressBarMessage, setProgressBarMessage] = useState('');
   // this will be used to focus (make active) userInput text area from BottomToolsMenu - so i don't need to click on it to start typing
   const [focusInput, setFocusInput] = useState(false);
-
+  // this will be used to force refresh of chat sessions in Sidebar (when new session is created)
+  const [refreshChatSessions, setRefreshChatSessions] = useState(false);
   // (from ChatWindow) this is used for scrollToBottom
   const endOfMessagesRef = useRef(null);
 
@@ -134,7 +135,7 @@ const Main = () => {
       await ChatHandleAPI({
         userInput, attachedImages,
         sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
-        chatContent, setChatContent, setFocusInput,
+        chatContent, setChatContent, setFocusInput, setRefreshChatSessions,
         setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
       });
     } catch (e) {
@@ -168,6 +169,7 @@ const Main = () => {
           onSelectSession={handleSelectSession}
           currentSessionId={currentSessionId}
           setCurrentSessionId={setCurrentSessionId}
+          refreshChatSessions={refreshChatSessions}
           setErrorMsg={setErrorMsg}
         />
         <div className="chat-area">
