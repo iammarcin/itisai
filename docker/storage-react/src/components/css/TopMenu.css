@@ -124,6 +124,8 @@
 .session-button.active {
   background-color: #e8eaed;
   color: #1e1e1e;
+  width: 45px;
+  height: 45px;
 }
 
 .session-button.add-session {
@@ -135,14 +137,13 @@
 }
 
 .session-button img {
-  width: 100%;
   height: 100%;
   border-radius: 50%;
 }
 
 .session-avatar {
-  width: 30px;
-  height: 30px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
 }
 

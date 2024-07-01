@@ -151,7 +151,15 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
               className={`session-button ${currentSessionIndex === index ? 'active' : ''}`}
               onClick={() => handleSessionClick(index)}
             >
-              {index + 1}
+              {chatContent[sessionId].ai_character_name ? (
+                <img
+                  src={`/imgs/${chatContent[sessionId].ai_character_name}.png`}
+                  alt="avatar"
+                  className="session-avatar"
+                />
+              ) : (
+                index + 1
+              )}
             </button>
             <button className="close-button" onClick={() => handleSessionClose(index)}>×</button>
           </div>
