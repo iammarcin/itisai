@@ -25,20 +25,11 @@ const ChatHandleAPI = async ({
   // collect chat history (needed to send it API to get whole context of chat)
   // (excluding the latest message - as this will be sent via userPrompt), including images if any
   // or excluding 2 last messages - if its edited user message
-
-  var chatHistory;
+  var chatHistory = chatContent[sessionIndexForAPI].messages;
 
   if (editMessagePosition !== null) {
-    chatHistory = chatContent[sessionIndexForAPI].messages.slice(0, -2);
-  } else {
-    chatHistory = chatContent[sessionIndexForAPI].messages;
+    chatHistory = chatHistory.slice(0, -2);
   }
-
-
-  console.log("--------------");
-  console.log(chatContent[sessionIndexForAPI].messages);
-  console.log(chatHistory);
-  console.log("--------------");
 
   const finalUserInput = {
     "prompt": [
