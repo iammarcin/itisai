@@ -17,10 +17,6 @@ const ChatHandleAPI = async ({
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
-  if (editMessagePosition !== null) {
-    // if it's edited message, cut last two messages
-    updatedChatContent[sessionIndexForAPI].messages = updatedChatContent[sessionIndexForAPI].messages.slice(0, -2);
-  }
   updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
   updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   setChatContent(updatedChatContent);
@@ -28,13 +24,26 @@ const ChatHandleAPI = async ({
   // get current character (later we will check if auto response is set)
   const currentCharacter = characters.find(character => character.nameForAPI === getTextAICharacter());
 
+  // clone chatContent - because for history we want to cut last messages (not to be duplicated)
+  // and if edit message - then even one more
+  const chatContentForChatHistory = chatContent.map(session => ({
+    ...session,
+    messages: [...session.messages]
+  }));
+  if (editMessagePosition !== null) {
+    // if it's edited message, cut last two messages
+    chatContentForChatHistory[sessionIndexForAPI].messages = chatContentForChatHistory[sessionIndexForAPI].messages.slice(0, -2);
+  } else {
+    // if it's new message - just cut last message - because we add it as userInput
+    chatContentForChatHistory[sessionIndexForAPI].messages = chatContentForChatHistory[sessionIndexForAPI].messages.slice(0, -1);
+  }
   // prepare user input for API call
   const finalUserInput = {
     "prompt": [
       { "type": "text", "text": userInput },
       ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
     ],
-    "chat_history": (chatContent[sessionIndexForAPI].messages || []).map((message) => ({
+    "chat_history": (chatContentForChatHistory[sessionIndexForAPI].messages || []).map((message) => ({
       "role": message.isUserMessage ? "user" : "assistant",
       "content": [
         { "type": "text", "text": message.message },
@@ -83,7 +92,8 @@ const ChatHandleAPI = async ({
           // get user chatContent 
           var currentUserMessage = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 2]
           var currentAIResponse = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 1]
-
+          console.log("currentUserMessage", currentUserMessage);
+          console.log("currentAIResponse", currentAIResponse);
           const finalInputForDB = {
             "customer_id": 1,
             "session_id": sessionIdForAPI,
@@ -104,7 +114,11 @@ const ChatHandleAPI = async ({
             "chat_history": apiMethods.prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
           }
 
-          await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", finalInputForDB).then((response) => {
+          var apiCallDbMethod = "db_new_message";
+          if (editMessagePosition !== null) {
+            apiCallDbMethod = "db_edit_message";
+          }
+          await apiMethods.triggerAPIRequest("api/db", "provider.db", apiCallDbMethod, finalInputForDB).then((response) => {
             if (response.success) {
               // update session in chatContent (will be useful later when switching session in top menu) and set current session id
               updatedChatContent[sessionIndexForAPI].sessionId = response.message.result.sessionId;
@@ -133,7 +147,6 @@ const ChatHandleAPI = async ({
                   return updatedContent;
                 });*/
                 updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].imageLocations = [imageLocation];
-                console.log("updatedChatContent", updatedChatContent)
                 setChatContent([...updatedChatContent]);
 
                 manageProgressText("hide", "Image");
