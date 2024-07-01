@@ -49,8 +49,8 @@ const ChatHandleAPI = async ({
   if (editMessagePosition === null) {
     updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   } else {
-    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition].message = userInput;
-    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition].imageLocations = attachedImages.map(image => image.url);
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].message = userInput;
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].imageLocations = attachedImages.map(image => image.url);
   }
   setChatContent(updatedChatContent);
 
@@ -75,7 +75,7 @@ const ChatHandleAPI = async ({
         aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
       } else {
         // if its edited message - overwrite AI response
-        aiMessageIndex = editMessagePosition + 1;
+        aiMessageIndex = editMessagePosition.index + 1;
         // but if it doesn't exist - let's create it
         if (aiMessageIndex >= updatedChatContent[sessionIndexForAPI].messages.length) {
           const aiMessagePlaceholder = {

@@ -89,9 +89,9 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
 
   const handleEdit = () => {
     //setEditingMessage({ index, message: message.message });
-    setEditingMessage(index);
+    //setEditingMessage(index);
     // save message index (so we know which message was edited) and messageId from DB - so we can update it later in DB as well
-    //setEditingMessage({ index, messageId: message.messageId });
+    setEditingMessage({ index, messageId: message.messageId });
 
     setUserInput(message.message);
     setContextMenu(null);
