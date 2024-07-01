@@ -24,32 +24,25 @@ const ChatHandleAPI = async ({
   // get current character (later we will check if auto response is set)
   const currentCharacter = characters.find(character => character.nameForAPI === getTextAICharacter());
 
-  // clone chatContent - because for history we want to cut last messages (not to be duplicated)
-  // and if edit message - then even one more
-  const chatContentForChatHistory = chatContent.map(session => ({
-    ...session,
-    messages: [...session.messages]
-  }));
+  // collect chat history (needed to send it API to get whole context of chat)
+  // (excluding the latest message - as this will be sent via userPrompt), including images if any
+  // or excluding 2 last messages - if its edited user message
+  var dropHowMany = 1;
   if (editMessagePosition !== null) {
-    // if it's edited message, cut last two messages
-    chatContentForChatHistory[sessionIndexForAPI].messages = chatContentForChatHistory[sessionIndexForAPI].messages.slice(0, -2);
-  } else {
-    // if it's new message - just cut last message - because we add it as userInput
-    chatContentForChatHistory[sessionIndexForAPI].messages = chatContentForChatHistory[sessionIndexForAPI].messages.slice(0, -1);
+    dropHowMany = 2;
   }
-  // prepare user input for API call
   const finalUserInput = {
     "prompt": [
       { "type": "text", "text": userInput },
       ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
     ],
-    "chat_history": (chatContentForChatHistory[sessionIndexForAPI].messages || []).map((message) => ({
+    "chat_history": (chatContent[sessionIndexForAPI].messages.slice(0, -dropHowMany).map((message) => ({
       "role": message.isUserMessage ? "user" : "assistant",
       "content": [
         { "type": "text", "text": message.message },
         ...(message.imageLocations || []).map(imageUrl => ({ "type": "image_url", "image_url": { "url": imageUrl } }))
       ]
-    }))
+    }))),
   };
 
   // Buffer to hold the chunks until the message is complete
@@ -72,6 +65,7 @@ const ChatHandleAPI = async ({
       updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
       aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
       setChatContent(updatedChatContent);
+
 
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {
