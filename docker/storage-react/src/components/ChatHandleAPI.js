@@ -18,8 +18,6 @@ const ChatHandleAPI = async ({
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
   updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
-  updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
-  setChatContent(updatedChatContent);
 
   // get current character (later we will check if auto response is set)
   const currentCharacter = characters.find(character => character.nameForAPI === getTextAICharacter());
@@ -27,16 +25,27 @@ const ChatHandleAPI = async ({
   // collect chat history (needed to send it API to get whole context of chat)
   // (excluding the latest message - as this will be sent via userPrompt), including images if any
   // or excluding 2 last messages - if its edited user message
-  var dropHowMany = 1;
+
+  var chatHistory;
+
   if (editMessagePosition !== null) {
-    dropHowMany = 2;
+    chatHistory = chatContent[sessionIndexForAPI].messages.slice(0, -2);
+  } else {
+    chatHistory = chatContent[sessionIndexForAPI].messages;
   }
+
+
+  console.log("--------------");
+  console.log(chatContent[sessionIndexForAPI].messages);
+  console.log(chatHistory);
+  console.log("--------------");
+
   const finalUserInput = {
     "prompt": [
       { "type": "text", "text": userInput },
       ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
     ],
-    "chat_history": (chatContent[sessionIndexForAPI].messages.slice(0, -dropHowMany).map((message) => ({
+    "chat_history": (chatHistory.map((message) => ({
       "role": message.isUserMessage ? "user" : "assistant",
       "content": [
         { "type": "text", "text": message.message },
@@ -44,6 +53,15 @@ const ChatHandleAPI = async ({
       ]
     }))),
   };
+
+  // Add or replace user message
+  if (editMessagePosition === null) {
+    updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
+  } else {
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition].message = userInput;
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition].imageLocations = attachedImages.map(image => image.url);
+  }
+  setChatContent(updatedChatContent);
 
   // Buffer to hold the chunks until the message is complete
   let chunkBuffer = '';
@@ -54,18 +72,35 @@ const ChatHandleAPI = async ({
       console.log("API call. Final User Input", finalUserInput);
     }
     if (currentCharacter.autoResponse) {
-      // Add a placeholder for the AI message
-      const aiMessagePlaceholder = {
-        message: '',
-        isUserMessage: false,
-        imageLocations: [],
-        aiCharacterName: getTextAICharacter()
-      };
+      if (editMessagePosition === null) {
+        // Add a placeholder for the AI message
+        const aiMessagePlaceholder = {
+          message: '',
+          isUserMessage: false,
+          imageLocations: [],
+          aiCharacterName: getTextAICharacter()
+        };
+        updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
+        aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
+      } else {
+        // if its edited message - overwrite AI response
+        aiMessageIndex = editMessagePosition + 1;
+        // but if it doesn't exist - let's create it
+        if (aiMessageIndex >= updatedChatContent[sessionIndexForAPI].messages.length) {
+          const aiMessagePlaceholder = {
+            message: '',
+            isUserMessage: false,
+            imageLocations: [],
+            aiCharacterName: getTextAICharacter()
+          };
+          updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
+        } else {
+          // if exists - overwrite
+          updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].message = '';
+        }
+      }
 
-      updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
-      aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
       setChatContent(updatedChatContent);
-
 
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {
@@ -83,25 +118,23 @@ const ChatHandleAPI = async ({
           scrollToBottom(sessionIndexForAPI);
 
           // save to DB
-          // get user chatContent 
-          var currentUserMessage = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 2]
-          var currentAIResponse = chatContent[sessionIndexForAPI].messages[chatContent[sessionIndexForAPI].messages.length - 1]
-          console.log("currentUserMessage", currentUserMessage);
-          console.log("currentAIResponse", currentAIResponse);
+          const currentUserMessage = updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex - 1];
+          const currentAIResponse = updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex];
+
           const finalInputForDB = {
             "customer_id": 1,
             "session_id": sessionIdForAPI,
             "userMessage": {
               "sender": "User",
               "message": currentUserMessage.message,
-              "message_id": currentUserMessage.message_id || 0,
+              "message_id": currentUserMessage.messageId || 0,
               "image_locations": currentUserMessage.imageLocations || [],
               "file_locations": currentUserMessage.fileNames || [],
             },
             "aiResponse": {
               "sender": "AI",
               "message": currentAIResponse.message,
-              "message_id": currentAIResponse.message_id || 0,
+              "message_id": currentAIResponse.messageId || 0,
               "image_locations": currentAIResponse.imageLocations || [],
               "file_locations": currentAIResponse.fileNames || [],
             },
