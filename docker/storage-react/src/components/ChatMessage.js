@@ -109,8 +109,33 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   };
 
   const handleRemove = () => {
-    console.log('handleRemove message');
+    // Remove the chat item
+    const updatedChatContent = [...chatContent];
+    const sessionMessages = updatedChatContent[currentSessionIndex].messages;
+
+    sessionMessages.splice(index, 1);
+    setChatContent(updatedChatContent);
     setContextMenu(null);
+
+    // if next message is AI message - we should remove it too
+    if (index < sessionMessages.length && !sessionMessages[index].isUserMessage) {
+      sessionMessages.splice(index, 1);
+      setChatContent(updatedChatContent);
+    }
+
+    // Check if session is empty
+    const dbMethodToExecute = sessionMessages.length === 0 ? "db_remove_session" : "db_update_session";
+
+    const finalInputForDB = {
+      session_id: currentSessionId,
+      chat_history: sessionMessages.map(msg => ({ ...msg, messageId: msg.messageId || "" }))
+    };
+
+    if (dbMethodToExecute === "db_remove_session") {
+      apiMethods.triggerAPIRequest("api/db", "provider.db", "db_remove_session", finalInputForDB);
+    } else {
+      apiMethods.updateSessionInDB(updatedChatContent[currentSessionIndex], currentSessionId);
+    }
   };
 
   // show context menu (on right click) - different per user and ai message
