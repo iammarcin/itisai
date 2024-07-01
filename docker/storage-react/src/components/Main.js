@@ -202,6 +202,7 @@ const Main = () => {
             currentSessionIndex={currentSessionIndex}
             currentSessionIndexRef={currentSessionIndexRef}
             currentSessionId={currentSessionId}
+            setCurrentSessionId={setCurrentSessionId}
             fetchSessionId={fetchSessionId}
             endOfMessagesRef={endOfMessagesRef}
             showCharacterSelection={showCharacterSelection}

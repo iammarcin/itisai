@@ -12,7 +12,7 @@ import apiMethods from '../services/api.methods';
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, chatContent, setChatContent, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setErrorMsg }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -104,7 +104,18 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   };
 
   const handleNewSessionFromHere = () => {
-    console.log('handleNewSessionFromHere message');
+    // Extract messages up to and including the specified index
+    const selectedChatItems = chatContent[currentSessionIndex].messages.slice(0, index + 1).map(item => ({ ...item, messageId: null }));
+
+    const updatedChatContent = [...chatContent];
+    // preserve same character
+    updatedChatContent[currentSessionIndex].ai_character_name = chatContent[currentSessionIndex].ai_character_name;
+    updatedChatContent[currentSessionIndex].sessionId = ''; // New session will get a new ID from the backend
+    updatedChatContent[currentSessionIndex].messages = selectedChatItems;
+    setChatContent(updatedChatContent);
+
+    setCurrentSessionId(null);
+
     setContextMenu(null);
   };
 
