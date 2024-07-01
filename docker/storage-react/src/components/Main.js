@@ -48,6 +48,8 @@ const Main = () => {
   const [progressBarMessage, setProgressBarMessage] = useState('');
   // this will be used to focus (make active) userInput text area from BottomToolsMenu - so i don't need to click on it to start typing
   const [focusInput, setFocusInput] = useState(false);
+  // this is when we click regenerate in ChatMessage - we have to use useEffect here - because other way async data is not set before sending to API
+  const [readyForRegenerate, setReadyForRegenerate] = useState(false);
   // this will be used to force refresh of chat sessions in Sidebar (when new session is created)
   const [refreshChatSessions, setRefreshChatSessions] = useState(false);
   // (from ChatWindow) this is used for scrollToBottom
@@ -68,6 +70,14 @@ const Main = () => {
   useEffect(() => {
     currentSessionIndexRef.current = currentSessionIndex;
   }, [currentSessionIndex]);
+
+  // we monitor if handleRegenerate in ChatMessage was used
+  useEffect(() => {
+    if (readyForRegenerate) {
+      handleSendClick();
+      setReadyForRegenerate(false);
+    }
+  }, [readyForRegenerate, handleSendClick]);
 
   // this is executable in case session is chosen in Sidebar
   const handleSelectSession = (session) => {
@@ -199,6 +209,7 @@ const Main = () => {
           <ChatWindow
             chatContent={chatContent}
             setChatContent={setChatContent}
+            setAttachedImages={setAttachedImages}
             currentSessionIndex={currentSessionIndex}
             currentSessionIndexRef={currentSessionIndexRef}
             currentSessionId={currentSessionId}
@@ -211,6 +222,7 @@ const Main = () => {
             setUserInput={setUserInput}
             setFocusInput={setFocusInput}
             setErrorMsg={setErrorMsg}
+            setReadyForRegenerate={setReadyForRegenerate}
             manageProgressText={manageProgressText}
           />
           {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}

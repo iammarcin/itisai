@@ -12,7 +12,7 @@ import apiMethods from '../services/api.methods';
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setErrorMsg }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -94,12 +94,26 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     setEditingMessage({ index, messageId: message.messageId });
 
     setUserInput(message.message);
+    setAttachedImages(message.imageLocations);
     setFocusInput(true);
     setContextMenu(null);
   };
 
   const handleRegenerate = () => {
-    console.log('Regenerate message');
+    if (index > 0) {
+      const previousMessage = chatContent[currentSessionIndex].messages[index - 1];
+
+      // Check if the previous message is a user message
+      if (previousMessage.isUserMessage) {
+        setUserInput(previousMessage.message);
+        //const attachedFiles = previousMessage.fileNames;
+        setAttachedImages(previousMessage.imageLocations);
+        // Set the editing message position
+        setEditingMessage({ index: index - 1, messageId: previousMessage.messageId });
+
+        setReadyForRegenerate(true);
+      }
+    }
     setContextMenu(null);
   };
 

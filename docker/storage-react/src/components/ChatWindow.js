@@ -9,7 +9,7 @@ import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/configuration';
 
-const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentSessionIndexRef, currentSessionId, setCurrentSessionId, fetchSessionId, endOfMessagesRef, showCharacterSelection, setShowCharacterSelection, setEditingMessage, setUserInput, setFocusInput, setErrorMsg, manageProgressText }) => {
+const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, currentSessionIndex, currentSessionIndexRef, currentSessionId, setCurrentSessionId, fetchSessionId, endOfMessagesRef, showCharacterSelection, setShowCharacterSelection, setEditingMessage, setUserInput, setFocusInput, setErrorMsg, setReadyForRegenerate, manageProgressText }) => {
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -109,10 +109,12 @@ const ChatWindow = ({ chatContent, setChatContent, currentSessionIndex, currentS
               setCurrentSessionId={setCurrentSessionId}
               chatContent={chatContent}
               setChatContent={setChatContent}
+              setAttachedImages={setAttachedImages}
               setEditingMessage={setEditingMessage}
               setUserInput={setUserInput}
               setFocusInput={setFocusInput}
               manageProgressText={manageProgressText}
+              setReadyForRegenerate={setReadyForRegenerate}
               setErrorMsg={setErrorMsg}
             />
           ))
