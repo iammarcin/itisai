@@ -12,7 +12,7 @@ import apiMethods from '../services/api.methods';
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, chatContent, setChatContent, setEditingMessage, setUserInput, manageProgressText, setErrorMsg }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, chatContent, setChatContent, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -94,6 +94,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     setEditingMessage({ index, messageId: message.messageId });
 
     setUserInput(message.message);
+    setFocusInput(true);
     setContextMenu(null);
   };
 

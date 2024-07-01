@@ -209,6 +209,7 @@ const Main = () => {
             setShowCharacterSelection={setShowCharacterSelection}
             setEditingMessage={setEditingMessage}
             setUserInput={setUserInput}
+            setFocusInput={setFocusInput}
             setErrorMsg={setErrorMsg}
             manageProgressText={manageProgressText}
           />
