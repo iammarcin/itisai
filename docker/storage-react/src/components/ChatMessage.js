@@ -105,6 +105,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
 
       // Check if the previous message is a user message
       if (previousMessage.isUserMessage) {
+        console.log("previousMessage: ", previousMessage);
         setUserInput(previousMessage.message);
         //const attachedFiles = previousMessage.fileNames;
         setAttachedImages(previousMessage.imageLocations);

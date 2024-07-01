@@ -1,6 +1,6 @@
 // Main.js
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopMenu from './TopMenu';
 import BottomToolsMenu from './BottomToolsMenu';
@@ -71,14 +71,6 @@ const Main = () => {
     currentSessionIndexRef.current = currentSessionIndex;
   }, [currentSessionIndex]);
 
-  // we monitor if handleRegenerate in ChatMessage was used
-  useEffect(() => {
-    if (readyForRegenerate) {
-      handleSendClick();
-      setReadyForRegenerate(false);
-    }
-  }, [readyForRegenerate, handleSendClick]);
-
   // this is executable in case session is chosen in Sidebar
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
@@ -131,25 +123,9 @@ const Main = () => {
     }
   }
 
-  const handleSendClick = () => {
-    setErrorMsg('');
-    const modelName = getTextModelName();
-    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
-      setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
-      return;
-    }
-    if (editingMessage !== null) {
-      callChatAPI(editingMessage);
-    } else {
-      callChatAPI();
-    }
-    setUserInput("");
-    setAttachedImages([]);
-  };
-
   // generate text API call (and potentially image)
   // if editMessagePosition is not null - it means it is edited message
-  const callChatAPI = async (editMessagePosition = null) => {
+  const callChatAPI = useCallback(async (editMessagePosition = null) => {
     setShowCharacterSelection(false);
     setErrorMsg('');
 
@@ -159,6 +135,10 @@ const Main = () => {
       const sessionIdForAPI = currentSessionId;
       // session index (top menu circle button)
       const sessionIndexForAPI = currentSessionIndex;
+
+      console.log("editingMessage: ", editingMessage)
+      console.log("editMessagePosition: ", editMessagePosition)
+      console.log("userInput: ", userInput)
 
       await ChatHandleAPI({
         userInput, editMessagePosition, attachedImages,
@@ -174,7 +154,32 @@ const Main = () => {
     } catch (e) {
       setIsLoading(false);
     }
-  };
+  }, [userInput, attachedImages, currentSessionId, currentSessionIndex, chatContent]);
+
+  const handleSendClick = useCallback(() => {
+    setErrorMsg('');
+    const modelName = getTextModelName();
+    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
+      setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
+      return;
+    }
+    if (editingMessage !== null) {
+      callChatAPI(editingMessage);
+    } else {
+      callChatAPI();
+    }
+    setUserInput("");
+    setAttachedImages([]);
+  }, [attachedImages, editingMessage, callChatAPI]);
+
+
+  // we monitor if handleRegenerate in ChatMessage was used
+  useEffect(() => {
+    if (readyForRegenerate) {
+      handleSendClick();
+      setReadyForRegenerate(false);
+    }
+  }, [readyForRegenerate, handleSendClick]);
 
   const scrollToBottom = (whichChat) => {
     if (whichChat === currentSessionIndexRef.current) {
