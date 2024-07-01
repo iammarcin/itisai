@@ -73,7 +73,7 @@ const Main = () => {
   // this is executable in case session is chosen in Sidebar
   const handleSelectSession = (session) => {
     if (config.DEBUG === 1) {
-      console.log("session: ", session)
+      console.log("session selected: ", session)
     }
     setShouldSkipSessionFetching(false);
     navigate(`/session/${session.session_id}`);
@@ -130,7 +130,7 @@ const Main = () => {
       return;
     }
     if (editingMessage !== null) {
-      handleEditSubmit();
+      callChatAPI(editingMessage);
     } else {
       callChatAPI();
     }
@@ -139,7 +139,8 @@ const Main = () => {
   };
 
   // generate text API call (and potentially image)
-  const callChatAPI = async () => {
+  // if editMessagePosition is not null - it means it is edited message
+  const callChatAPI = async (editMessagePosition = null) => {
     setShowCharacterSelection(false);
     setErrorMsg('');
 
@@ -151,35 +152,19 @@ const Main = () => {
       const sessionIndexForAPI = currentSessionIndex;
 
       await ChatHandleAPI({
-        userInput, attachedImages,
+        userInput, editMessagePosition, attachedImages,
         sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
         chatContent, setChatContent, setFocusInput, setRefreshChatSessions,
         setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
       });
+
+      // reset edit message position
+      if (editMessagePosition !== null) {
+        setEditingMessage(null);
+      }
     } catch (e) {
       setIsLoading(false);
     }
-  };
-
-  const handleEditSubmit = () => {
-    const updatedMessages = chatContent[currentSessionIndex].messages.map((msg, idx) => {
-      if (idx === editingMessage.index) {
-        return { ...msg, message: userInput };
-      }
-      return msg;
-    });
-
-    const updatedChatContent = [...chatContent];
-    updatedChatContent[currentSessionIndex].messages = updatedMessages.slice(0, -2);
-
-    // Simulate callChatAPI without last two messages
-    ChatHandleAPI({
-      userInput, attachedImages,
-      sessionIndexForAPI: currentSessionIndex, sessionIdForAPI: currentSessionId, setCurrentSessionId,
-      chatContent: updatedChatContent, setChatContent, setFocusInput, setRefreshChatSessions,
-      setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
-    });
-    setEditingMessage(null);
   };
 
   const scrollToBottom = (whichChat) => {

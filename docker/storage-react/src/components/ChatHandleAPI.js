@@ -5,10 +5,11 @@ import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage
 import { characters } from './ChatCharacters';
 
 // to clarify some of params:
+// editMessagePosition - this is set to index of edited message - if its null its normal, new message, if not - it is edited message
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 const ChatHandleAPI = async ({
-  userInput, attachedImages, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+  userInput, editMessagePosition, attachedImages, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -16,6 +17,10 @@ const ChatHandleAPI = async ({
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
+  if (editMessagePosition !== null) {
+    // if it's edited message, cut last two messages
+    updatedChatContent[sessionIndexForAPI].messages = updatedChatContent[sessionIndexForAPI].messages.slice(0, -2);
+  }
   updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
   updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   setChatContent(updatedChatContent);
@@ -42,23 +47,23 @@ const ChatHandleAPI = async ({
   let chunkBuffer = '';
   let aiMessageIndex;
 
-  // Add a placeholder for the AI message
-  const aiMessagePlaceholder = {
-    message: '',
-    isUserMessage: false,
-    imageLocations: [],
-    aiCharacterName: getTextAICharacter()
-  };
-
-  updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
-  aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
-  setChatContent(updatedChatContent);
-
   try {
     if (config.VERBOSE_SUPERB === 1) {
       console.log("API call. Final User Input", finalUserInput);
     }
     if (currentCharacter.autoResponse) {
+      // Add a placeholder for the AI message
+      const aiMessagePlaceholder = {
+        message: '',
+        isUserMessage: false,
+        imageLocations: [],
+        aiCharacterName: getTextAICharacter()
+      };
+
+      updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
+      aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
+      setChatContent(updatedChatContent);
+
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {
           // if it's artgen and user disabled show prompt - don't show it
@@ -160,16 +165,23 @@ const ChatHandleAPI = async ({
         "userMessage": {
           "sender": "User",
           "message": userInput,
-          "message_id": 0,
+          "message_id": editMessagePosition !== null ? editMessagePosition.messageId : 0,
           "image_locations": attachedImages.map(image => image.url),
           "file_locations": [],
         },
         "chat_history": apiMethods.prepareChatHistoryForDB(chatContent[sessionIndexForAPI])
       };
 
-      await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_new_message", finalInputForDB).then((response) => {
+      var apiCallDbMethod = "db_new_message";
+      if (editMessagePosition !== null) {
+        apiCallDbMethod = "db_edit_message";
+      }
+      await apiMethods.triggerAPIRequest("api/db", "provider.db", apiCallDbMethod, finalInputForDB).then((response) => {
         if (response.success) {
+          // update sessionID (from DB) for this chat session
           updatedChatContent[sessionIndexForAPI].sessionId = response.message.result.sessionId;
+          // update current message with userMessageId
+          updatedChatContent[sessionIndexForAPI].messages[updatedChatContent[sessionIndexForAPI].messages.length - 1].messageId = response.message.result.userMessageId;
           setCurrentSessionId(response.message.result.sessionId);
         }
       }).catch((error) => {
