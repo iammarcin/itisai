@@ -88,10 +88,6 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   }, [focusInput, setFocusInput]);
 
-  useEffect(() => {
-    console.log("attachedImages", attachedImages)
-  }, [attachedImages]);
-
   return (
     <div className="bottom-tools-menu">
       <div className="image-preview-container">

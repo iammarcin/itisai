@@ -6,6 +6,8 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 
+import { convertImageLocationsToAttachedImages } from '../utils/misc';
+
 import { getTextAICharacter } from '../utils/configuration';
 import apiMethods from '../services/api.methods';
 
@@ -90,9 +92,11 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   const handleEdit = () => {
     // save message index (so we know which message was edited) and messageId from DB - so we can update it later in DB as well
     setEditingMessage({ index, messageId: message.messageId });
-    console.log("imageLocations", message.imageLocations);
+
+    // Convert image locations to attached images format
+    const attachedImages = convertImageLocationsToAttachedImages(message.imageLocations);
     setUserInput(message.message);
-    setAttachedImages(message.imageLocations);
+    setAttachedImages(attachedImages);
     setFocusInput(true);
     setContextMenu(null);
   };
@@ -103,10 +107,10 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
 
       // Check if the previous message is a user message
       if (previousMessage.isUserMessage) {
-        console.log("previousMessage: ", previousMessage);
         setUserInput(previousMessage.message);
-        //const attachedFiles = previousMessage.fileNames;
-        setAttachedImages(previousMessage.imageLocations);
+        // Convert image locations to attached images format
+        const attachedImages = convertImageLocationsToAttachedImages(previousMessage.imageLocations);
+        setAttachedImages(attachedImages);
         // Set the editing message position
         setEditingMessage({ index: index - 1, messageId: previousMessage.messageId });
 

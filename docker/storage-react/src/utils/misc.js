@@ -10,4 +10,14 @@ const formatDate = (dateString) => {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
-export { formatDate };
+// used in ChatMessage - when we execute handleEdit 
+// to convert list of attached image to proper format so it can be used later to submit to API
+const convertImageLocationsToAttachedImages = (imageLocations) => {
+  return imageLocations.map(url => ({
+    file: null, // Since we don't have the file, this can be null
+    url: url,
+    placeholder: false
+  }));
+};
+
+export { formatDate, convertImageLocationsToAttachedImages };
