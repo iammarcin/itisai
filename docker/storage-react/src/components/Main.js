@@ -40,7 +40,6 @@ const Main = () => {
   const currentSessionIndexRef = useRef(currentSessionIndex);
   // used for editing messages
   const [editingMessage, setEditingMessage] = useState(null);
-
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
   const [attachedImages, setAttachedImages] = useState([]);

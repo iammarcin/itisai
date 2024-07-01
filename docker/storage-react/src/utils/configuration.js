@@ -8,7 +8,6 @@ const TEXT_MODEL_NAME = "text_model_name";
 const TEXT_TEMPERATURE = "text_temperature";
 const TEXT_MEMORY_SIZE = "text_memory_size";
 const TEXT_STREAMING = "text_streaming";
-const TEXT_AI_CHARACTER = "text_ai_character";
 const GENERAL_USE_BLUETOOTH = "general_use_bluetooth";
 const GENERAL_TEST_DATA = "general_test_data";
 const GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING = "general_download_audio_files_before_playing";
@@ -36,7 +35,6 @@ const defaultSettings = {
   [APP_MODE_API_URL]: "https://ai.atamai.biz/api/",
   [APP_MODE_USE_WATSON]: false,
   [TEXT_MODEL_NAME]: "GPT-4o",
-  [TEXT_AI_CHARACTER]: "assistant",
   [TEXT_TEMPERATURE]: 0.0,
   [TEXT_MEMORY_SIZE]: 2000,
   [TEXT_STREAMING]: false,
@@ -100,13 +98,16 @@ const setItem = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
+// this needs to be only in memory - because we don't want to be preserved between web refreshes
+let currentTextAICharacter = "assistant";
+
 // Getter methods
 export const getIsProdMode = () => getItem(APP_MODE_PRODUCTION, defaultSettings[APP_MODE_PRODUCTION]);
 export const getAppModeApiUrl = () => getItem(APP_MODE_API_URL, defaultSettings[APP_MODE_API_URL]);
 export const getAppModeUseWatson = () => getItem(APP_MODE_USE_WATSON, defaultSettings[APP_MODE_USE_WATSON]);
 export const getDownloadAudioFilesBeforePlaying = () => getItem(GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING, defaultSettings[GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING]);
 export const getTextModelName = () => getItem(TEXT_MODEL_NAME, defaultSettings[TEXT_MODEL_NAME]);
-export const getTextAICharacter = () => getItem(TEXT_AI_CHARACTER, defaultSettings[TEXT_AI_CHARACTER]);
+export const getTextAICharacter = () => { return currentTextAICharacter; };
 export const getTextTemperature = () => getItem(TEXT_TEMPERATURE, defaultSettings[TEXT_TEMPERATURE]);
 export const getTextMemorySize = () => getItem(TEXT_MEMORY_SIZE, defaultSettings[TEXT_MEMORY_SIZE]);
 export const getIsStreamingEnabled = () => getItem(TEXT_STREAMING, defaultSettings[TEXT_STREAMING]);
@@ -136,7 +137,7 @@ export const setAppModeApiUrl = (value) => setItem(APP_MODE_API_URL, value);
 export const setAppModeUseWatson = (value) => setItem(APP_MODE_USE_WATSON, value);
 export const setDownloadAudioFilesBeforePlaying = (value) => setItem(GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING, value);
 export const setTextModelName = (value) => setItem(TEXT_MODEL_NAME, value);
-export const setTextAICharacter = (value) => setItem(TEXT_AI_CHARACTER, value);
+export const setTextAICharacter = (value) => { currentTextAICharacter = value; };
 export const setTextTemperature = (value) => setItem(TEXT_TEMPERATURE, value);
 export const setTextMemorySize = (value) => setItem(TEXT_MEMORY_SIZE, value);
 export const setIsStreamingEnabled = (value) => setItem(TEXT_STREAMING, value);
