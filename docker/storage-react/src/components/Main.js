@@ -136,10 +136,6 @@ const Main = () => {
       // session index (top menu circle button)
       const sessionIndexForAPI = currentSessionIndex;
 
-      console.log("editingMessage: ", editingMessage)
-      console.log("editMessagePosition: ", editMessagePosition)
-      console.log("userInput: ", userInput)
-
       await ChatHandleAPI({
         userInput, editMessagePosition, attachedImages,
         sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,

@@ -285,7 +285,7 @@ class dbProvider:
                             status_code=404, detail="Chat session not found")
 
                     await session.commit()
-                    return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": {"aiMessageId": new_ai_message_id}}}, status_code=200)
+                    return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": {"aiMessageId": new_ai_message_id, "userMessageId": user_message_id, "sessionId": userInput['session_id']}}}, status_code=200)
                 except Exception as e:
                     logger.error(
                         "Error in DB! edit_chat_message_for_user: %s", str(e))

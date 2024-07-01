@@ -111,8 +111,6 @@ const ChatHandleAPI = async ({
           // save to DB
           const currentUserMessage = updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex - 1];
           const currentAIResponse = updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex];
-          console.log("currentUserMessage", currentUserMessage)
-          console.log("currentAIResponse", currentAIResponse)
 
           const finalInputForDB = {
             "customer_id": 1,
@@ -141,16 +139,19 @@ const ChatHandleAPI = async ({
           await apiMethods.triggerAPIRequest("api/db", "provider.db", apiCallDbMethod, finalInputForDB).then((response) => {
             if (response.success) {
               // update session in chatContent (will be useful later when switching session in top menu) and set current session id
-              if (!updatedChatContent[sessionIndexForAPI].sessionId)
+              if (!updatedChatContent[sessionIndexForAPI].sessionId) {
                 updatedChatContent[sessionIndexForAPI].sessionId = response.message.result.sessionId;
-              setCurrentSessionId(response.message.result.sessionId);
+                setCurrentSessionId(response.message.result.sessionId);
+              }
               if (!sessionIdForAPI) {
                 // this is needed - because for example image generation is triggered later then this step - so if sessionIdForAPI is not set - it fails to update in DB
                 sessionIdForAPI = response.message.result.sessionId;
               }
               // update messageId in chatContent
-              currentAIResponse.messageId = response.message.result.aiMessageId;
-              currentUserMessage.messageId = response.message.result.userMessageId;
+              if (response.message.result.aiMessageId)
+                currentAIResponse.messageId = response.message.result.aiMessageId;
+              if (response.message.result.userMessageId)
+                currentUserMessage.messageId = response.message.result.userMessageId;
             }
           });
 
