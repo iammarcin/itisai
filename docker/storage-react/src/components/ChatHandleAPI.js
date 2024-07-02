@@ -97,6 +97,7 @@ const ChatHandleAPI = async ({
       console.log("getSettingsDict will happen now")
       console.log("getOriginalAICharacter", getOriginalAICharacter())
       console.log("getTextAICharacter: ", getTextAICharacter());
+      console.log("test ", getTextAICharacter() || getOriginalAICharacter())
 
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {

@@ -1,87 +1,87 @@
 .bottom-tools-menu {
- align-items: center;
- padding: 10px 20px;
- background-color: #2c2c2c;
- border-top: 0px solid #444;
- width: 100%;
- flex-direction: column;
- position: relative;
- display: flex;
- bottom: 0;
- box-sizing: border-box;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #2c2c2c;
+  border-top: 0px solid #444;
+  width: 100%;
+  flex-direction: column;
+  position: relative;
+  display: flex;
+  bottom: 0;
+  box-sizing: border-box;
 }
 
 .image-preview-container {
- display: flex;
- overflow-x: auto;
- width: 100%;
- margin-bottom: 10px;
+  display: flex;
+  overflow-x: auto;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .image-preview {
- position: relative;
- margin-right: 10px;
+  position: relative;
+  margin-right: 10px;
 }
 
 .image-preview img {
- max-width: 100px;
- max-height: 100px;
- border-radius: 5px;
+  max-width: 100px;
+  max-height: 100px;
+  border-radius: 5px;
 }
 
 .remove-button {
- position: absolute;
- top: 0;
- right: 0;
- background: white;
- border: none;
- color: black;
- font-size: 16px;
- cursor: pointer;
- border-radius: 50%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: white;
+  border: none;
+  color: black;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 .input-container {
- display: flex;
- align-items: center;
- width: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .message-input {
- flex-grow: 1;
- padding: 5px;
- padding-left: 10px;
- padding-top: 10px;
- font-size: 18px;
- background-color: #1e1e1e;
- border: 0px solid #444;
- color: #fff;
- border-radius: 10px;
- max-height: 200px;
- overflow: auto;
- margin-right: 10px;
+  flex-grow: 1;
+  padding: 5px;
+  padding-left: 10px;
+  padding-top: 10px;
+  font-size: 18px;
+  background-color: #1e1e1e;
+  border: 0px solid #444;
+  color: #fff;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow: auto;
+  margin-right: 10px;
 }
 
 .button-container {
- display: flex;
+  display: flex;
 }
 
 .send-button,
 .attach-button {
- background: none;
- border: none;
- color: white;
- font-size: 28px;
- cursor: pointer;
- margin-right: 10px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  margin-right: 10px;
 }
 
 .attach-button {
- margin-right: 0;
+  margin-right: 0;
 }
 
 .bottom-tools-menu .image-preview-container .placeholder {
- width: 100px;
- height: 100px;
- background-color: black;
+  width: 100px;
+  height: 100px;
+  background-color: black;
 }

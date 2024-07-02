@@ -2,9 +2,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
 import apiMethods from '../services/api.methods';
-import ChatCharacters from './ChatCharacters';
+import ChatCharacters, { filterCharacters, characters } from './ChatCharacters';
 
-import { getTextAICharacter, getOriginalAICharacter, setOriginalAICharacter } from '../utils/configuration';
+import { getTextAICharacter, setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter } from '../utils/configuration';
 
 import { resizeImage } from '../utils/image.utils';
 
@@ -13,6 +13,8 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
   const [showLocalCharacterSelect, setShowLocalCharacterSelect] = useState(false);
+  // used when choosing character after @ is used
+  const [displayedCharacters, setDisplayedCharacters] = useState(characters);
 
   const handleAttachClick = () => {
     document.getElementById('file-input').click();
@@ -54,7 +56,25 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   };
 
   const handleInputChange = (e) => {
-    setUserInput(e.target.value);
+    const inputValue = e.target.value;
+    setUserInput(inputValue);
+
+    if (inputValue.includes("@")) {
+      setShowLocalCharacterSelect(true);
+      const atIndex = inputValue.lastIndexOf("@");
+      const query = inputValue.substring(atIndex + 1).toLowerCase();
+      if (query === "") {
+        setDisplayedCharacters(characters);
+      } else {
+        setDisplayedCharacters(filterCharacters(query));
+      }
+    } else {
+      setShowLocalCharacterSelect(false);
+    }
+
+    if (inputValue === "") {
+      setShowLocalCharacterSelect(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -73,6 +93,8 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   const handleCharacterSelect = (character) => {
     setShowLocalCharacterSelect(false);
     setOriginalAICharacter(getOriginalAICharacter() || getTextAICharacter());
+    setTextAICharacter(character.nameForAPI);
+    setDisplayedCharacters(characters);
     setUserInput((prevInput) => {
       const cursorPosition = userInputRef.current.selectionStart;
       const atIndex = prevInput.lastIndexOf("@", cursorPosition - 1);
@@ -108,7 +130,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
 
   return (
     <div className="bottom-tools-menu">
-      {showLocalCharacterSelect && <ChatCharacters onSelect={handleCharacterSelect} />}
+      {showLocalCharacterSelect && <ChatCharacters onSelect={handleCharacterSelect} characters={displayedCharacters} />}
       <div className="image-preview-container">
         {attachedImages.map((image, index) => (
           <div key={index} className="image-preview">

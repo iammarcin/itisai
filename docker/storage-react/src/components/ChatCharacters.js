@@ -44,7 +44,15 @@ export const characters = [
   { name: "Rick Sanchez", imageResId: "rick.png", nameForAPI: "rick", autoResponse: true, showGPSButton: false },
 ];
 
-const ChatCharacters = ({ onSelect }) => {
+// used when @ in bottom area is used - this is to filter characters
+export const filterCharacters = (query) => {
+  const lowerCaseQuery = query.toLowerCase();
+  return characters.filter(character => character.name.toLowerCase().includes(lowerCaseQuery));
+};
+
+const ChatCharacters = ({ onSelect, characters: propCharacters }) => {
+  // we did it this way - because sometimes we provide characters (when filtering out after @ is used, but mostly we just want full list)
+  const charactersToDisplay = propCharacters || characters;
 
   const handleClick = (name) => {
     onSelect(name);
@@ -52,9 +60,8 @@ const ChatCharacters = ({ onSelect }) => {
 
   return (
     <>
-
       <div className="personas-container">
-        {characters.map((persona, index) => (
+        {charactersToDisplay.map((persona, index) => (
           <div key={index} className="persona" onClick={() => handleClick(persona)}>
             <img src={`./imgs/${persona.imageResId}`} alt={persona.name} className="persona-avatar" />
             <div className="persona-name">{persona.name}</div>
