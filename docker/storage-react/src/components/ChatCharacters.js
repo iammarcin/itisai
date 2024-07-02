@@ -74,7 +74,7 @@ const ChatCharacters = ({ onSelect, characters: propCharacters, selectedCharacte
           onClick={() => handleClick(persona)}
           ref={selectedCharacterName === persona.name ? selectedCharacterRef : null}
         >
-          <img src={`./imgs/${persona.imageResId}`} alt={persona.name} className="persona-avatar" />
+          <img src={`/imgs/${persona.imageResId}`} alt={persona.name} className="persona-avatar" />
           <div className="persona-name">{persona.name}</div>
         </div>
       ))}
