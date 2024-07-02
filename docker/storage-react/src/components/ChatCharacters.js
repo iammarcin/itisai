@@ -1,6 +1,6 @@
 // ChatCharacters.js
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import './css/ChatCharacters.css'; // Make sure to create appropriate styles
 
 export const characters = [
@@ -50,25 +50,35 @@ export const filterCharacters = (query) => {
   return characters.filter(character => character.name.toLowerCase().includes(lowerCaseQuery));
 };
 
-const ChatCharacters = ({ onSelect, characters: propCharacters }) => {
+const ChatCharacters = ({ onSelect, characters: propCharacters, selectedCharacterName: propSelectedName }) => {
   // we did it this way - because sometimes we provide characters (when filtering out after @ is used, but mostly we just want full list)
   const charactersToDisplay = propCharacters || characters;
+  const selectedCharacterName = propSelectedName || "Assistant";
+  const selectedCharacterRef = useRef(null);
 
   const handleClick = (name) => {
     onSelect(name);
   };
 
+  useEffect(() => {
+    if (selectedCharacterRef.current) {
+      selectedCharacterRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [selectedCharacterName]);
+
   return (
-    <>
-      <div className="personas-container">
-        {charactersToDisplay.map((persona, index) => (
-          <div key={index} className="persona" onClick={() => handleClick(persona)}>
-            <img src={`./imgs/${persona.imageResId}`} alt={persona.name} className="persona-avatar" />
-            <div className="persona-name">{persona.name}</div>
-          </div>
-        ))}
-      </div>
-    </>
+    <div className="personas-container">
+      {charactersToDisplay.map((persona, index) => (
+        <div key={index}
+          className={`persona${persona.name === selectedCharacterName ? ' active' : ''}`}
+          onClick={() => handleClick(persona)}
+          ref={selectedCharacterName === persona.name ? selectedCharacterRef : null}
+        >
+          <img src={`./imgs/${persona.imageResId}`} alt={persona.name} className="persona-avatar" />
+          <div className="persona-name">{persona.name}</div>
+        </div>
+      ))}
+    </div>
   );
 };
 

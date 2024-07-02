@@ -15,6 +15,13 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   const [showLocalCharacterSelect, setShowLocalCharacterSelect] = useState(false);
   // used when choosing character after @ is used
   const [displayedCharacters, setDisplayedCharacters] = useState(characters);
+  // when filtering characters - one will be selected by default - this was done because when hitting enter (when character select view was visible) it was submitting message and not choosing character
+  const [selectedCharacterName, setSelectedCharacterName] = useState("Assistant");
+
+  const handleSendButtonClick = () => {
+    setShowLocalCharacterSelect(false);
+    handleSendClick();
+  }
 
   const handleAttachClick = () => {
     document.getElementById('file-input').click();
@@ -66,7 +73,8 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
       if (query === "") {
         setDisplayedCharacters(characters);
       } else {
-        setDisplayedCharacters(filterCharacters(query));
+        const filtered = filterCharacters(query);
+        setDisplayedCharacters(filtered);
       }
     } else {
       setShowLocalCharacterSelect(false);
@@ -85,7 +93,23 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   };
 
   const handleKeyDown = async (event) => {
-    if (event.key === "@" || event.key === 50) {
+    if (showLocalCharacterSelect) {
+      const currentIndex = displayedCharacters.findIndex(char => char.name === selectedCharacterName);
+      if (event.key === "Enter" || event.key === 13) {
+        event.preventDefault();
+        handleCharacterSelect(displayedCharacters[currentIndex]);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        const nextIndex = (currentIndex + 1) % displayedCharacters.length;
+        setSelectedCharacterName(displayedCharacters[nextIndex].name);
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        const prevIndex = (currentIndex - 1 + displayedCharacters.length) % displayedCharacters.length;
+        setSelectedCharacterName(displayedCharacters[prevIndex].name);
+      } else if (event.key === "Escape" || event.key === 27) {
+        setShowLocalCharacterSelect(false);
+      }
+    } else if (event.key === "@" || event.key === 50) {
       setShowLocalCharacterSelect(true);
     }
   };
@@ -105,6 +129,8 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
       return prevInput;
     });
   };
+
+
 
   // setting height of user input (if more then 1 line)
   useEffect(() => {
@@ -130,7 +156,9 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
 
   return (
     <div className="bottom-tools-menu">
-      {showLocalCharacterSelect && <ChatCharacters onSelect={handleCharacterSelect} characters={displayedCharacters} />}
+      <div className="bottom-tools-menu-characters">
+        {showLocalCharacterSelect && <ChatCharacters onSelect={handleCharacterSelect} characters={displayedCharacters} selectedCharacterName={selectedCharacterName} />}
+      </div>
       <div className="image-preview-container">
         {attachedImages.map((image, index) => (
           <div key={index} className="image-preview">
@@ -156,7 +184,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
           disabled={isLoading}
         />
         <div className="button-container">
-          <button className="send-button" onClick={handleSendClick} disabled={isLoading || uploading}>
+          <button className="send-button" onClick={handleSendButtonClick} disabled={isLoading || uploading}>
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" /></svg>
           </button>
           <button className="attach-button" onClick={handleAttachClick} disabled={isLoading || uploading}>

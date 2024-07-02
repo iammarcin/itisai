@@ -1,3 +1,5 @@
+/* BottomToolsMenu.css */
+
 .bottom-tools-menu {
   align-items: center;
   padding: 10px 20px;
@@ -84,4 +86,9 @@
   width: 100px;
   height: 100px;
   background-color: black;
+}
+
+.bottom-tools-menu-characters {
+  background-color: #1e1e1e;
+  width: 100%;
 }
