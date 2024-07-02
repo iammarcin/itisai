@@ -183,7 +183,7 @@ export const getSettingsDict = () => ({
     temperature: getTextTemperature(),
     model: getTextModelName(),
     memory_limit: getTextMemorySize(),
-    ai_character: getOriginalAICharacter() ? getOriginalAICharacter() : getTextAICharacter(),
+    ai_character: getTextAICharacter(),
     streaming: getIsStreamingEnabled(),
   },
   tts: {

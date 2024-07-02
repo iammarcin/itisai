@@ -51,15 +51,17 @@ export const filterCharacters = (query) => {
 };
 
 const ChatCharacters = ({ onSelect, characters: propCharacters, selectedCharacterName: propSelectedName }) => {
-  // we did it this way - because sometimes we provide characters (when filtering out after @ is used, but mostly we just want full list)
+  // we did it this way - because sometimes we provide characters (when filtering out after @ is used in BottomToolsMenu, but mostly we just want full list)
   const charactersToDisplay = propCharacters || characters;
   const selectedCharacterName = propSelectedName || "Assistant";
+  // this is used when we want to scroll to selected character (when using left and right arrow)
   const selectedCharacterRef = useRef(null);
 
   const handleClick = (name) => {
     onSelect(name);
   };
 
+  // this is used when we want to scroll to selected character (when using left and right arrow)
   useEffect(() => {
     if (selectedCharacterRef.current) {
       selectedCharacterRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });

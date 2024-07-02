@@ -66,17 +66,18 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     const inputValue = e.target.value;
     setUserInput(inputValue);
 
+    // if @ is used - we trigger character selection view
     if (inputValue.includes("@")) {
-      setShowLocalCharacterSelect(true);
       const atIndex = inputValue.lastIndexOf("@");
       const query = inputValue.substring(atIndex + 1).toLowerCase();
+      // we can filter out characters by name
       if (query === "") {
         setDisplayedCharacters(characters);
       } else {
         const filtered = filterCharacters(query);
         setDisplayedCharacters(filtered);
       }
-    } else {
+    } else { // if there is @ in userInput (for example removed) - hide selection view
       setShowLocalCharacterSelect(false);
     }
 
@@ -92,17 +93,29 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   };
 
+  useEffect(() => {
+    console.log("showLocalCharacterSelect: ", showLocalCharacterSelect)
+  }, [showLocalCharacterSelect]);
+
+  // to handle ENTER, arrows (when choosing AI character from the list)
   const handleKeyDown = async (event) => {
+    console.log("showLocalCharacterSelect: ", showLocalCharacterSelect)
     if (showLocalCharacterSelect) {
-      const currentIndex = displayedCharacters.findIndex(char => char.name === selectedCharacterName);
+      var currentIndex = displayedCharacters.findIndex(char => char.name === selectedCharacterName);
+      console.log("currentIndex: ", currentIndex)
+      // there were some stupid problems - where currentIndex was found as -1
+      if (displayedCharacters.length === 1) currentIndex = 0;
+      console.log("displayedCharacters: ", displayedCharacters)
+      console.log("displayedCharacters[currentIndex]: ", displayedCharacters[currentIndex])
+
       if (event.key === "Enter" || event.key === 13) {
         event.preventDefault();
         handleCharacterSelect(displayedCharacters[currentIndex]);
-      } else if (event.key === "ArrowRight") {
+      } else if (event.key === "ArrowRight" || event.key === 39) {
         event.preventDefault();
         const nextIndex = (currentIndex + 1) % displayedCharacters.length;
         setSelectedCharacterName(displayedCharacters[nextIndex].name);
-      } else if (event.key === "ArrowLeft") {
+      } else if (event.key === "ArrowLeft" || event.key === 37) {
         event.preventDefault();
         const prevIndex = (currentIndex - 1 + displayedCharacters.length) % displayedCharacters.length;
         setSelectedCharacterName(displayedCharacters[prevIndex].name);
@@ -114,11 +127,16 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   };
 
+  // executed when character is chosen from the list
   const handleCharacterSelect = (character) => {
     setShowLocalCharacterSelect(false);
-    setOriginalAICharacter(getOriginalAICharacter() || getTextAICharacter());
+    // set current (main AI character) to temporary variable (so later in ChatHandleAPI we can fallback)
+    setOriginalAICharacter(getTextAICharacter());
+    // and temporarily set chosen character as main AI character
     setTextAICharacter(character.nameForAPI);
+    // reset display character (for next execution)
     setDisplayedCharacters(characters);
+    // set nicely full name of AI character after @
     setUserInput((prevInput) => {
       const cursorPosition = userInputRef.current.selectionStart;
       const atIndex = prevInput.lastIndexOf("@", cursorPosition - 1);
@@ -129,8 +147,6 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
       return prevInput;
     });
   };
-
-
 
   // setting height of user input (if more then 1 line)
   useEffect(() => {
