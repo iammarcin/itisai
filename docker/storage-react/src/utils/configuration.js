@@ -99,7 +99,10 @@ const setItem = (key, value) => {
 };
 
 // this needs to be only in memory - because we don't want to be preserved between web refreshes
+// AI persona to use in API calls
 let currentTextAICharacter = "assistant";
+// if we mention @ - and different AI character for single message - here we will store original AI character
+let originalAICharacter = null;
 
 // Getter methods
 export const getIsProdMode = () => getItem(APP_MODE_PRODUCTION, defaultSettings[APP_MODE_PRODUCTION]);
@@ -108,6 +111,7 @@ export const getAppModeUseWatson = () => getItem(APP_MODE_USE_WATSON, defaultSet
 export const getDownloadAudioFilesBeforePlaying = () => getItem(GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING, defaultSettings[GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING]);
 export const getTextModelName = () => getItem(TEXT_MODEL_NAME, defaultSettings[TEXT_MODEL_NAME]);
 export const getTextAICharacter = () => { return currentTextAICharacter; };
+export const getOriginalAICharacter = () => { return originalAICharacter; };
 export const getTextTemperature = () => getItem(TEXT_TEMPERATURE, defaultSettings[TEXT_TEMPERATURE]);
 export const getTextMemorySize = () => getItem(TEXT_MEMORY_SIZE, defaultSettings[TEXT_MEMORY_SIZE]);
 export const getIsStreamingEnabled = () => getItem(TEXT_STREAMING, defaultSettings[TEXT_STREAMING]);
@@ -138,6 +142,7 @@ export const setAppModeUseWatson = (value) => setItem(APP_MODE_USE_WATSON, value
 export const setDownloadAudioFilesBeforePlaying = (value) => setItem(GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING, value);
 export const setTextModelName = (value) => setItem(TEXT_MODEL_NAME, value);
 export const setTextAICharacter = (value) => { currentTextAICharacter = value; };
+export const setOriginalAICharacter = (value) => { originalAICharacter = value; };
 export const setTextTemperature = (value) => setItem(TEXT_TEMPERATURE, value);
 export const setTextMemorySize = (value) => setItem(TEXT_MEMORY_SIZE, value);
 export const setIsStreamingEnabled = (value) => setItem(TEXT_STREAMING, value);
@@ -178,7 +183,7 @@ export const getSettingsDict = () => ({
     temperature: getTextTemperature(),
     model: getTextModelName(),
     memory_limit: getTextMemorySize(),
-    ai_character: getTextAICharacter(),
+    ai_character: getOriginalAICharacter() ? getOriginalAICharacter() : getTextAICharacter(),
     streaming: getIsStreamingEnabled(),
   },
   tts: {

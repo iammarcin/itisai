@@ -233,7 +233,6 @@ const Main = () => {
             setUserInput={setUserInput}
             attachedImages={attachedImages}
             setAttachedImages={setAttachedImages}
-            setShowCharacterSelection={setShowCharacterSelection}
             handleSendClick={handleSendClick}
             focusInput={focusInput}
             setFocusInput={setFocusInput}

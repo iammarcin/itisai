@@ -1,7 +1,7 @@
 // ChatHandleAPI.js
 import config from '../config';
 import apiMethods from '../services/api.methods';
-import { getTextAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
+import { getTextAICharacter, setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 import { characters } from './ChatCharacters';
 
 // to clarify some of params:
@@ -17,7 +17,8 @@ const ChatHandleAPI = async ({
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
-  updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
+  if (!updatedChatContent[sessionIndexForAPI].ai_character_name)
+    updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
 
   // get current character (later we will check if auto response is set)
   const currentCharacter = characters.find(character => character.nameForAPI === getTextAICharacter());
@@ -92,6 +93,10 @@ const ChatHandleAPI = async ({
       }
 
       setChatContent(updatedChatContent);
+
+      console.log("getSettingsDict will happen now")
+      console.log("getOriginalAICharacter", getOriginalAICharacter())
+      console.log("getTextAICharacter: ", getTextAICharacter());
 
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {
@@ -236,6 +241,12 @@ const ChatHandleAPI = async ({
     if ((currentCharacter.autoResponse && chatContent[sessionIndexForAPI].messages.length < 3) ||
       (!currentCharacter.autoResponse && chatContent[sessionIndexForAPI].messages.length < 2)) {
       setRefreshChatSessions(true);
+    }
+
+    // fallback to original AI character (after single use of different one)
+    if (getOriginalAICharacter()) {
+      setTextAICharacter(getOriginalAICharacter());
+      setOriginalAICharacter(null);
     }
 
 

@@ -2,13 +2,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './css/BottomToolsMenu.css';
 import apiMethods from '../services/api.methods';
+import ChatCharacters from './ChatCharacters';
+
+import { getTextAICharacter, getOriginalAICharacter, setOriginalAICharacter } from '../utils/configuration';
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, setShowCharacterSelection, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
   const userInputRef = useRef(null);
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
+  const [showLocalCharacterSelect, setShowLocalCharacterSelect] = useState(false);
 
   const handleAttachClick = () => {
     document.getElementById('file-input').click();
@@ -62,8 +66,22 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
 
   const handleKeyDown = async (event) => {
     if (event.key === "@" || event.key === 50) {
-      setShowCharacterSelection(true);
+      setShowLocalCharacterSelect(true);
     }
+  };
+
+  const handleCharacterSelect = (character) => {
+    setShowLocalCharacterSelect(false);
+    setOriginalAICharacter(getOriginalAICharacter() || getTextAICharacter());
+    setUserInput((prevInput) => {
+      const cursorPosition = userInputRef.current.selectionStart;
+      const atIndex = prevInput.lastIndexOf("@", cursorPosition - 1);
+      if (atIndex !== -1) {
+        const newText = prevInput.substring(0, atIndex + 1) + character.name + " " + prevInput.substring(cursorPosition);
+        return newText;
+      }
+      return prevInput;
+    });
   };
 
   // setting height of user input (if more then 1 line)
@@ -90,6 +108,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
 
   return (
     <div className="bottom-tools-menu">
+      {showLocalCharacterSelect && <ChatCharacters onSelect={handleCharacterSelect} />}
       <div className="image-preview-container">
         {attachedImages.map((image, index) => (
           <div key={index} className="image-preview">
