@@ -94,11 +94,6 @@ const ChatHandleAPI = async ({
 
       setChatContent(updatedChatContent);
 
-      console.log("getSettingsDict will happen now")
-      console.log("getOriginalAICharacter", getOriginalAICharacter())
-      console.log("getTextAICharacter: ", getTextAICharacter());
-      console.log("test ", getTextAICharacter() || getOriginalAICharacter())
-
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {
           // if it's artgen and user disabled show prompt - don't show it
@@ -249,7 +244,6 @@ const ChatHandleAPI = async ({
       setTextAICharacter(getOriginalAICharacter());
       setOriginalAICharacter(null);
     }
-
 
   } catch (error) {
     setIsLoading(false);

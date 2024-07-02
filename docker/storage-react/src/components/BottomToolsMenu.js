@@ -4,7 +4,7 @@ import './css/BottomToolsMenu.css';
 import apiMethods from '../services/api.methods';
 import ChatCharacters, { filterCharacters, characters } from './ChatCharacters';
 
-import { getTextAICharacter, setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter } from '../utils/configuration';
+import { getTextAICharacter, setTextAICharacter, setOriginalAICharacter } from '../utils/configuration';
 
 import { resizeImage } from '../utils/image.utils';
 
@@ -93,20 +93,12 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   };
 
-  useEffect(() => {
-    console.log("showLocalCharacterSelect: ", showLocalCharacterSelect)
-  }, [showLocalCharacterSelect]);
-
   // to handle ENTER, arrows (when choosing AI character from the list)
   const handleKeyDown = async (event) => {
-    console.log("showLocalCharacterSelect: ", showLocalCharacterSelect)
     if (showLocalCharacterSelect) {
       var currentIndex = displayedCharacters.findIndex(char => char.name === selectedCharacterName);
-      console.log("currentIndex: ", currentIndex)
       // there were some stupid problems - where currentIndex was found as -1
       if (displayedCharacters.length === 1) currentIndex = 0;
-      console.log("displayedCharacters: ", displayedCharacters)
-      console.log("displayedCharacters[currentIndex]: ", displayedCharacters[currentIndex])
 
       if (event.key === "Enter" || event.key === 13) {
         event.preventDefault();
