@@ -45,16 +45,16 @@ config.apiEndpoint = getAppModeApiUrl();
 if (getIsProdMode()) {
   config.AWS_REGION = 'eu-south-2';
   config.S3_BUCKET = "myaiappess3bucket";
+  config.DEBUG = 0;
 } else {
   config.AWS_REGION = 'eu-south-2';
   config.S3_BUCKET = "myaiappess3bucketnonprod";
-
+  config.DEBUG = 1;
   if (process.env.REACT_APP_MY_NODE_ENV === 'local') {
     config.AWS_REGION = 'eu-south-2';
     config.S3_BUCKET = "myaiappess3bucketnonprod";
   }
 }
 
-config.DEBUG = 1;
-config.VERBOSE_SUPERB = 1;
+config.VERBOSE_SUPERB = 0;
 export default config;
