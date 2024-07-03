@@ -128,6 +128,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     setTextAICharacter(character.nameForAPI);
     // reset display character (for next execution)
     setDisplayedCharacters(characters);
+    setFocusInput(true);
     // set nicely full name of AI character after @
     setUserInput((prevInput) => {
       const cursorPosition = userInputRef.current.selectionStart;
