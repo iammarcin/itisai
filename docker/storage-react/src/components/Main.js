@@ -84,6 +84,7 @@ const Main = () => {
     const chatHistory = session.chat_history;
     setChatContent((prevChatContent) => {
       const updatedChatContent = [...prevChatContent];
+      updatedChatContent[currentSessionIndex].ai_character_name = session.ai_character_name;
       updatedChatContent[currentSessionIndex].sessionId = session.session_id;
       updatedChatContent[currentSessionIndex].messages = Array.isArray(chatHistory) ? chatHistory : [];
       return updatedChatContent;

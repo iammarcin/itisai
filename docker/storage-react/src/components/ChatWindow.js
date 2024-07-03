@@ -27,6 +27,7 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, currentSes
       const chatHistory = response.message.result.chat_history;
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
+        updatedChatContent[currentSessionIndexRef.current].ai_character_name = response.message.result.ai_character_name;
         updatedChatContent[currentSessionIndexRef.current].sessionId = sessionIdToGet;
         updatedChatContent[currentSessionIndexRef.current].messages = Array.isArray(chatHistory) ? chatHistory : [];
         return updatedChatContent;
