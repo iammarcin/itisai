@@ -206,6 +206,7 @@ const Main = () => {
           currentSessionId={currentSessionId}
           setCurrentSessionId={setCurrentSessionId}
           refreshChatSessions={refreshChatSessions}
+          setRefreshChatSessions={setRefreshChatSessions}
           setErrorMsg={setErrorMsg}
         />
         <div className="chat-area">

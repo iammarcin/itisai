@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refreshChatSessions, setErrorMsg }) => {
+const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refreshChatSessions, setRefreshChatSessions, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -41,7 +41,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
       uniqueSessions.forEach(session => fetchedSessionIds.current.add(session.session_id));
 
       setChatSessions(prevSessions => (newOffset === 0 ? uniqueSessions : [...prevSessions, ...uniqueSessions]));
-
+      setRefreshChatSessions(false);
       // Check if we received fewer sessions than the limit, indicating no more sessions are available
       if (sessions.length < limit) {
         setHasMoreSessions(false);
