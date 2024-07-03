@@ -172,7 +172,8 @@ class dbProvider:
                         chat_session.chat_history = chat_history
 
                         chat_session_ai_character = ""
-                        if len(chat_history) < 4:
+                        # verify first few AI messages
+                        if len(chat_history) < 3:
                             for message in chat_history:
                                 if not message.get('isUserMessage'):
                                     ai_character_name = message.get(
@@ -180,6 +181,10 @@ class dbProvider:
                                     if ai_character_name:
                                         chat_session_ai_character = ai_character_name
                                         break
+
+                        # but if it's set already - let's leave it as is (important! because we don't want to overwrite if we have one time message to different character - using @)
+                        if chat_session.ai_character_name != "":
+                            chat_session_ai_character = chat_session.ai_character_name
 
                         if chat_session_ai_character == "":
                             if userSettings['text'].get('ai_character'):
@@ -447,7 +452,7 @@ class dbProvider:
                         status_code=500, detail="Error in DB! db_remove_session")
 
     # Helper function to create a new chat session (it's used in two diff functions)
-    async def _db_new_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "Assistant", chat_history: list = []):
+    async def _db_new_session_internal(self, session, customerId: int, session_name: str = "New chat", ai_character_name: str = "assistant", chat_history: list = []):
         new_session = ChatSession(
             session_id=str(uuid.uuid4()),
             customer_id=customerId,
