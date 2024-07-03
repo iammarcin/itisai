@@ -12,7 +12,7 @@ import './css/Main.css';
 
 import config from '../config';
 
-import { setTextAICharacter, getTextModelName } from '../utils/configuration';
+import { getTextAICharacter, setTextAICharacter, getTextModelName } from '../utils/configuration';
 
 const Main = () => {
   // to get sessionId from URL and load the session
@@ -136,9 +136,10 @@ const Main = () => {
       // session index (top menu circle button)
       const sessionIndexForAPI = currentSessionIndex;
 
+      console.log("current AI char 1: ", getTextAICharacter())
       await ChatHandleAPI({
         userInput, editMessagePosition, attachedImages,
-        sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
+        currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
         chatContent, setChatContent, setFocusInput, setRefreshChatSessions,
         setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
       });

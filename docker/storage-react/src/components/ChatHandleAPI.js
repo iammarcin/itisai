@@ -8,8 +8,9 @@ import { characters } from './ChatCharacters';
 // editMessagePosition - this is set to index of edited message - if its null its normal, new message, if not - it is edited message
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
+// currentSessionIndex - also needed - as we're checking if currently generating in active session
 const ChatHandleAPI = async ({
-  userInput, editMessagePosition, attachedImages, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+  userInput, editMessagePosition, attachedImages, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -156,8 +157,10 @@ const ChatHandleAPI = async ({
             }
           });
 
+          console.log("current AI char: ", getTextAICharacter())
+          console.log("currentAIResponse.aiCharacterName", currentAIResponse.aiCharacterName)
           // for artgen mode - if image is enabled and no images attached - generate image
-          if (getTextAICharacter() === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
+          if (currentAIResponse.aiCharacterName === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
             manageProgressText("show", "Image");
             try {
               const imageLocation = await apiMethods.generateImage(fullResponse);
@@ -239,10 +242,13 @@ const ChatHandleAPI = async ({
       setRefreshChatSessions(true);
     }
 
-    // fallback to original AI character (after single use of different one)
-    if (getOriginalAICharacter()) {
-      setTextAICharacter(getOriginalAICharacter());
-      setOriginalAICharacter(null);
+    // only if it's current session
+    if (sessionIndexForAPI === currentSessionIndex) {
+      // fallback to original AI character (after single use of different one)
+      if (getOriginalAICharacter()) {
+        setTextAICharacter(getOriginalAICharacter());
+        setOriginalAICharacter(null);
+      }
     }
 
   } catch (error) {

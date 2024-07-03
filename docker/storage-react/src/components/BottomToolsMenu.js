@@ -98,7 +98,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     if (showLocalCharacterSelect) {
       var currentIndex = displayedCharacters.findIndex(char => char.name === selectedCharacterName);
       // there were some stupid problems - where currentIndex was found as -1
-      if (displayedCharacters.length === 1) currentIndex = 0;
+      if (displayedCharacters.length === 1 || currentIndex === -1) currentIndex = 0;
 
       if (event.key === "Enter" || event.key === 13) {
         event.preventDefault();
