@@ -7,6 +7,7 @@ import logconfig
 
 logger = logconfig.logger
 
+
 class Garmin:
     def __init__(self):
         self.garmin_home = "~/.garmin_session"
@@ -20,16 +21,17 @@ class Garmin:
 
     def login(self):
         try:
-          self.garth.load(self.garmin_home)
+            self.garth.load(self.garmin_home)
         except Exception as e:
-          logger.info(f"Garmin Connect auth failed. {e}")
-          return False
+            logger.info(f"Garmin Connect auth failed. {e}")
+            return False
 
         self.display_name = self.garth.profile["displayName"]
         self.full_name = self.garth.profile["fullName"]
 
-        settings = self.call_api("/userprofile-service/userprofile/user-settings")
-        
+        settings = self.call_api(
+            "/userprofile-service/userprofile/user-settings")
+
         self.unit_system = settings["userData"]["measurementSystem"]
         logger.debug(f"Logged in as {self.display_name} ({self.full_name})")
         logger.debug(f"Unit system: {self.unit_system}")
@@ -66,7 +68,7 @@ class Garmin:
         """Return available max metric data for 'date' format 'YYYY-MM-DD'."""
 
         url = f"/metrics-service/metrics/maxmet/daily/{date}/{date}"
-        
+
         return self.call_api(url)
 
     # VERY IMPORTANT - but very long
@@ -78,7 +80,7 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
-    # VERY IMPORTANT 
+    # VERY IMPORTANT
     def get_rhr_day(self, date: str):
         """Return resting heartrate data for current user."""
 
@@ -91,8 +93,8 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
-
     # important!
+
     def get_training_readiness(self, date: str):
         """Return training readiness data for current user."""
 
@@ -100,8 +102,8 @@ class Garmin:
 
         return self.call_api(url)
 
-
     # should be useful - endurance
+
     def get_endurance_score(self, startdate: str, enddate=None):
         """
         Return endurance score by day for 'startdate' format 'YYYY-MM-DD'
@@ -172,7 +174,7 @@ class Garmin:
 
         return activities
 
-    # maybe useful - as HR data is not anywhere else 
+    # maybe useful - as HR data is not anywhere else
     def get_activity_hr_in_timezones(self, activity_id):
         """Return activity heartrate in timezones."""
 
@@ -183,8 +185,8 @@ class Garmin:
 
     ########################## OTHER METHODS ##########################
     # my tests via watching Network in browser Inspect
-    #GET https://connect.garmin.com/fitnessage-service/stats/daily/2024-05-17/2024-06-13?_=1718293562451
-    #def get_fitness_age(self, activity_id):
+    # GET https://connect.garmin.com/fitnessage-service/stats/daily/2024-05-17/2024-06-13?_=1718293562451
+    # def get_fitness_age(self, activity_id):
     '''
     [
     {
@@ -198,11 +200,6 @@ class Garmin:
         }
     },
     '''
-
-
-
-
-
 
     ########################## OTHER METHODS ##########################
     # MAYBE IN NEAR FUTURE
@@ -218,7 +215,7 @@ class Garmin:
         url = f"/activity-service/activity/{activity_id}/details"
 
         return self.call_api(url, params=params)
-      
+
     # MAYBE LATER
     # maybe useful - if we want more data about trainings
     def get_activity(self, activity_id):
@@ -229,7 +226,7 @@ class Garmin:
 
         return self.call_api(url)
 
-    # MIGHT BE USEFUL - as a simple summary -number of activities between dates 
+    # MIGHT BE USEFUL - as a simple summary -number of activities between dates
     # but i think I'll use get_activities_by_date
     def get_progress_summary_between_dates(
         self, startdate, enddate, metric="distance"
@@ -260,7 +257,7 @@ class Garmin:
 
         url = f"/mobile-gateway/heartRate/forDate/{fordate}"
 
-        return self.call_api(url)    
+        return self.call_api(url)
 
     # RATHER NOT USEFUL ( avgSleepRespirationValue, which is not in daily summary - but is in sleep)
     def get_respiration_data(self, date: str):
@@ -269,8 +266,8 @@ class Garmin:
         url = f"/wellness-service/wellness/daily/respiration/{date}"
 
         return self.call_api(url)
-      
-    # NOT NEEDED 
+
+    # NOT NEEDED
     def get_body_battery(self, start: str, end=None):
         """
         Return body battery values by day for 'startdate' format
@@ -356,7 +353,7 @@ class Garmin:
 
         return self.call_api(url)
 
-    # NOT NEEDED 
+    # NOT NEEDED
     def get_heart_rates(self, date):
         """Fetch available heart rates data 'date' format 'YYYY-MM-DD'."""
 
@@ -365,8 +362,8 @@ class Garmin:
 
         return self.call_api(url, params=params)
 
-
     # looks like duplicated with get_rhr_day
+
     def get_hrv_data(self, date: str):
         """Return Heart Rate Variability (hrv) data for current user."""
 
