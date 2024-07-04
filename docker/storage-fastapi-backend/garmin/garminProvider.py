@@ -9,6 +9,9 @@ import traceback
 import logconfig
 import config as config
 
+# import test data
+from garmin.garmin_test_data import TEST_DATA
+
 logger = logconfig.logger
 
 DEBUG = config.defaults["DEBUG"]
@@ -25,12 +28,8 @@ class garminProvider:
 
     def set_settings(self, user_settings={}):
         if user_settings:
-            # and now process aws settings (doubt it will be used)
-            # this is not in use - just for maybe future
-            user_settings = user_settings.get("aws", {})
-            # Update model name
-            if "aws_region" in user_settings:
-                self.aws_region = user_settings["aws_region"]
+            self.use_test_data = user_settings["general"]["returnTestData"]
+            user_settings = user_settings.get("provider.garmin", {})
 
     def call_api(self, path, **kwargs):
         return self.garth.connectapi(path, **kwargs)
@@ -60,25 +59,32 @@ class garminProvider:
 
         try:
             if action == "get_sleep_data":
-                return await self.get_sleep_data(userInput, customerId)
+                return await self.get_sleep_data(userInput)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
-            logger.error("Error processing DB request: %s", str(e))
+            logger.error("Error processing Garmin request: %s", str(e))
             raise HTTPException(
-                status_code=500, detail="Error processing DB request")
+                status_code=500, detail="Error processing Garmin request")
 
-    async def get_sleep_data(self, userInput: dict, customerId: int):
+    async def get_sleep_data(self, userInput: dict):
+        if self.use_test_data:
+            response = TEST_DATA["get_sleep_data"]
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
         # date in format 2024-06-08
-        date = userInput.get(date)
+        print("userInput: ", userInput)
+        date = userInput.get('date', None)
+
         if not date:
             raise HTTPException(
                 status_code=400, detail="Date is required for get_sleep_data")
         try:
             url = f"/wellness-service/wellness/dailySleepData/{self.display_name}"
             params = {"date": str(date), "nonSleepBufferMinutes": 60}
-
+            # login = self.login()
+            # print(login)
             response = self.call_api(url, params=params)
+            # response = "OK"
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
         except Exception as e:
             logger.error("Error in db_new_session: %s", str(e))

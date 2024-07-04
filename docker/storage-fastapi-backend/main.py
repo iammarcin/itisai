@@ -11,7 +11,7 @@ import json
 import sys
 
 from pydanticValidation.general_schemas import MediaModel
-from main_generators import startup_event_generators, get_generator
+from main_generators import startup_event_generators, get_generator, get_garmin_provider
 from main_auth_token import auth_user_token
 import config as config
 
@@ -73,7 +73,7 @@ async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
     try:
-        if job_request.category == "tts" or job_request.category == "image" or job_request.category == "garmin":
+        if job_request.category in ["tts", "image"]:
             my_generator = get_generator(
                 job_request.category, job_request.userSettings[job_request.category])
             if my_generator is None:
@@ -213,8 +213,10 @@ async def aws_methods(
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"code": 500, "success": False, "message": {"status": "fail", "result": str(e)}})
 
-
+########### DB ###########################
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
+
+
 @app.post("/api/db")
 async def db_methods(job_request: MediaModel, request: Request):  # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
@@ -245,6 +247,32 @@ async def db_methods(job_request: MediaModel, request: Request):  # token below
 
     except Exception as e:
         logger.info("ALL NOT 2 OK")
+        logger.error("Error while processing request")
+        logger.error(e)
+        traceback.print_exc()
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"code": 500, "success": False, "message": {"status": "fail", "result": str(e)}})
+
+
+########### GARMIN ###########################
+@app.post("/api/garmin")
+async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)):
+    logger.info("!"*100)
+    logger.info("Job request: " + str(job_request))
+    try:
+        garmin_provider = get_garmin_provider(app)
+        response = await garmin_provider.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)
+
+        response_content = response.body.decode(
+            "utf-8") if isinstance(response, JSONResponse) else response
+        logger.info("ALL OK")
+        logger.info(response_content)
+        return JSONResponse(content=json.loads(response_content), status_code=response.status_code, media_type="application/json")
+
+    except HTTPException as e:
+        logger.info("ERROR: %s" % e)
+        return JSONResponse(status_code=e.status_code, content={"code": e.status_code, "success": False, "message": {"status": "fail", "result": str(e)}})
+    except Exception as e:
         logger.error("Error while processing request")
         logger.error(e)
         traceback.print_exc()
