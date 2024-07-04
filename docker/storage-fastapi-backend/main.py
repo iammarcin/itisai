@@ -44,6 +44,8 @@ if config.defaults['environment'] != 'production':
     )
 
 # middleware for catching problems with pydantic data validation
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.info("Error validating request data")
