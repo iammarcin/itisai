@@ -79,6 +79,5 @@ class garminProvider:
         except Exception as e:
             logger.error("Error in db_new_session: %s", str(e))
             traceback.print_exc()
-            # return JSONResponse(content={"False": True, "code": 400, "message": {"status": "fail", "result": str(e)}}, status_code=400)
             raise HTTPException(
-                status_code=500, detail="Error in DB! db_new_session")
+                status_code=500, detail="Error in garmin. get_sleep_data")
