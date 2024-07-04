@@ -8,4 +8,4 @@ docker rmi -f $(docker images -aq)
 docker volume prune -f --all
 
 # build only fastapi
-# docker-compose build fastapibackend
+# docker-compose -f docker-compose.local.yml --env-file .env.local build fastapibackend

@@ -73,7 +73,7 @@ async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)
     logger.info("!"*100)
     logger.info("Job request: " + str(job_request))
     try:
-        if job_request.category == "tts" or job_request.category == "image":
+        if job_request.category == "tts" or job_request.category == "image" or job_request.category == "garmin":
             my_generator = get_generator(
                 job_request.category, job_request.userSettings[job_request.category])
             if my_generator is None:
