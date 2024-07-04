@@ -5,6 +5,7 @@ from imageGenerators.OpenAIImageGenerator import OpenAIImageGenerator
 from tts.OpenAITTS import OpenAITTSGenerator
 from aws.awsProvider import awsProvider
 from db.dbProvider import dbProvider
+from garmin.garminProvider import garminProvider
 
 import config as config
 
@@ -40,6 +41,10 @@ def get_s3_provider():
 def get_db_provider():
     return dbProvider()
 
+
+def get_garmin_provider():
+    return garminProvider()
+
 # method used in multiple API endpoints - to simplify choosing generator
 
 
@@ -51,6 +56,7 @@ def get_generator(category: str, userSettings: dict):
         "tts": {"function": get_tts_generator},
         "provider.s3": {"function": get_s3_provider},
         "provider.db": {"function": get_db_provider},
+        "provider.garmin": {"function": get_garmin_provider},
     }
 
     if category in generators:
