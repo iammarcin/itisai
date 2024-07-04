@@ -69,7 +69,11 @@ class garminProvider:
                 status_code=500, detail="Error processing DB request")
 
     async def get_sleep_data(self, userInput: dict, customerId: int):
+        # date in format 2024-06-08
         date = userInput.get(date)
+        if not date:
+            raise HTTPException(
+                status_code=400, detail="Date is required for get_sleep_data")
         try:
             url = f"/wellness-service/wellness/dailySleepData/{self.display_name}"
             params = {"date": str(date), "nonSleepBufferMinutes": 60}

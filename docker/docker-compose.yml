@@ -21,6 +21,7 @@ services:
     volumes:
       - ./storage-fastapi-backend:/app
       - ./storage-common:/storage
+      - ~/.garmin_session:/root/.garmin_session
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
