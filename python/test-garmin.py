@@ -11,17 +11,17 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_sleep_data",
+        "action": "get_endurance_score",
         "category": "provider.garmin",
-        "userInput": {"date": "2024-06-08"},
+        "userInput": {"date": "2024-06-08", "date_end": "2024-06-08" },
         "userSettings": {'text': {
             'temperature': 0.05, 'model': 'GPT-3.5', 'memory_limit': 680,
             'ai_character': 'assistant', 'streaming': True},
             'tts': {'stability': 0, 'similarity_boost': 0, 'voice': 'alloy', 'streaming':
                     True, 'speed': 1, 'model': 'tts-1'}, 'speech': {'language': 'en', 'temperature': 0},
             'image': {'model': 'dall-e-3', 'number_of_images': 1, 'size_of_image': 1024, 'quality_hd': False, 'disable_safe_prompt_adjust': False},
-            'general': {'returnTestData': True},
-            'provider.garmin': {'returnTestData': False}
+            'general': {'returnTestData': False},
+            'provider.garmin': {}
         },
         "customerId": 1
     },

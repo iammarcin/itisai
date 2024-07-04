@@ -134,7 +134,7 @@ class garminProvider:
             date = userInput.get('date', None)
             date_end = userInput.get('date_end', None)
             url = f"/weight-service/weight/dateRange"
-            params = {"startDate": str(date), "endDate": str(date_end)}
+            params = {"startDate": str(date), "endDate": str(date_end or date)}
 
             response = self.call_api(url, params=params)
 
