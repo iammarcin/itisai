@@ -53,7 +53,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
       console.error('Failed to fetch chat sessions', error);
     }
     isFetchingRef.current = false;
-  }, [limit, setErrorMsg]);
+  }, [limit, setErrorMsg, setRefreshChatSessions]);
 
   // load more sessions when user scrolls down
   const loadMoreSessions = useCallback(() => {

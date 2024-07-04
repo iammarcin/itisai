@@ -1,9 +1,12 @@
+# MY_AUTH_BEARER_TOKEN
+
+''' 
 from garmin.garminProvider import Garmin
 
 garmin = Garmin()
 result = garmin.login()
 print(result)
-''' 
+
 #WORKS WELL
 GARTH_HOME = "~/.garmin_session"
 

@@ -8,7 +8,6 @@ import rehypeHighlight from 'rehype-highlight';
 
 import { convertImageLocationsToAttachedImages } from '../utils/misc';
 
-import { getTextAICharacter } from '../utils/configuration';
 import apiMethods from '../services/api.methods';
 
 // TODO MOVE TO CONFIG LATER
