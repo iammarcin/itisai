@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 import logconfig
 import config as config
 
-from db.garminHealth import *
+from db.dbGarminHealth import *
 
 logger = logconfig.logger
 
