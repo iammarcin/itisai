@@ -8,14 +8,15 @@ from datetime import datetime, date, time
 import json
 import bcrypt
 import traceback
-from tenacity import retry, stop_after_attempt, wait_fixed
+# from tenacity import retry, stop_after_attempt, wait_fixed
 
-
-from sqlalchemy import create_engine, MetaData, func, select, and_, or_, distinct
+from sqlalchemy import create_engine, MetaData, func, select, and_, or_, distinct, insert
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 import logconfig
 import config as config
+
+from db.garminHealth import *
 
 logger = logconfig.logger
 
@@ -88,6 +89,9 @@ class dbProvider:
                 return await self.db_remove_session(userInput, customerId)
             elif action == "db_auth_user":
                 return await self.db_auth_user(userInput, customerId)
+            # GARMIN HEALTH DATA (separated file)
+            elif action == "insert_sleep_data":
+                return await insert_sleep_data(AsyncSessionLocal, userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
