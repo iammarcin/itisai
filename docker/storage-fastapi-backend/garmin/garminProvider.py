@@ -54,177 +54,64 @@ class garminProvider:
         return True
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
-        # OPTIONS
         self.set_settings(userSettings)
-
-        # date in format 2024-06-08
         date = userInput.get('date', None)
+        date_end = userInput.get('date_end', None)
         if not date:
             raise HTTPException(
                 status_code=400, detail="Date is required for Garmin provider")
 
+        actions_map = {
+            "get_sleep_data": "/wellness-service/wellness/dailySleepData/{self.display_name}",
+            "get_user_summary": "/usersummary-service/usersummary/daily/{self.display_name}",
+            "get_body_composition": "/weight-service/weight/dateRange",
+            "get_rhr_day": "/userstats-service/wellness/daily/{self.display_name}",
+            "get_training_readiness": "/metrics-service/metrics/trainingreadiness/{date}",
+            "get_endurance_score": "/metrics-service/metrics/endurancescore/stats" if date_end is not None else "/metrics-service/metrics/endurancescore",
+            "get_training_status": "/metrics-service/metrics/trainingstatus/aggregated/{date}"
+        }
+
+        if action not in actions_map:
+            raise HTTPException(status_code=400, detail="Unknown action")
+
         try:
-            if action == "get_sleep_data":
-                return await self.get_sleep_data(userInput)
-            elif action == "get_user_summary":
-                return self.get_user_summary(userInput)
-            elif action == "get_body_composition":
-                return self.get_body_composition(userInput)
-            elif action == "get_rhr_day":
-                return self.get_rhr_day(userInput)
-            elif action == "get_training_readiness":
-                return self.get_training_readiness(userInput)
-            elif action == "get_endurance_score":
-                return self.get_endurance_score(userInput)
-            elif action == "get_training_status":
-                return self.get_training_status(userInput)
+            if self.use_test_data:
+                response = TEST_DATA[action]
             else:
-                raise HTTPException(status_code=400, detail="Unknown action")
+                url = actions_map[action]
+                params = self.construct_params(action, userInput)
+                response = self.call_api(url, params=params)
+
+                if action == "get_user_summary" and response.get("privacyProtected"):
+                    raise HTTPException(
+                        status_code=500, detail="User data is private")
+
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
+
         except Exception as e:
             logger.error("Error processing Garmin request: %s", str(e))
+            traceback.print_exc()
             raise HTTPException(
                 status_code=500, detail="Error processing Garmin request")
 
-    async def get_sleep_data(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_sleep_data"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
+    def construct_params(self, action, userInput):
+        date = userInput.get('date', None)
+        date_end = userInput.get('date_end', None)
 
-        try:
-            date = userInput.get('date', None)
-            url = f"/wellness-service/wellness/dailySleepData/{self.display_name}"
-            params = {"date": str(date), "nonSleepBufferMinutes": 60}
-            response = self.call_api(url, params=params)
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
-
-    def get_user_summary(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_user_summary"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-
-        try:
-            date = userInput.get('date', None)
-            url = f"/usersummary-service/usersummary/daily/{self.display_name}"
-            params = {"calendarDate": str(date)}
-
-            response = self.call_api(url, params=params)
-
-            if response["privacyProtected"] is True:
-                raise HTTPException(
-                    status_code=500, detail="User data is private")
-
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
-
-    def get_body_composition(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_body_composition"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-
-        try:
-            date = userInput.get('date', None)
-            date_end = userInput.get('date_end', None)
-            url = f"/weight-service/weight/dateRange"
-            params = {"startDate": str(date), "endDate": str(date_end or date)}
-
-            response = self.call_api(url, params=params)
-
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
-
-    def get_rhr_day(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_rhr_day"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-
-        try:
-            date = userInput.get('date', None)
-            date_end = userInput.get('date_end', None)
-            url = f"/userstats-service/wellness/daily/{self.display_name}"
-            params = {
-                "fromDate": str(date),
-                # if end not set, use start date
-                "untilDate": str(date_end or date),
-                "metricId": 60,
-            }
-
-            response = self.call_api(url, params=params)
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
-
-    def get_training_readiness(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_training_readiness"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-
-        try:
-            date = userInput.get('date', None)
-            url = f"/metrics-service/metrics/trainingreadiness/{date}"
-
-            response = self.call_api(url)
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
-
-    def get_endurance_score(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_endurance_score"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-
-        try:
-            date = userInput.get('date', None)
-            date_end = userInput.get('date_end', None)
+        if action == "get_sleep_data":
+            return {"date": str(date), "nonSleepBufferMinutes": 60}
+        elif action == "get_user_summary":
+            return {"calendarDate": str(date)}
+        elif action == "get_body_composition":
+            return {"startDate": str(date), "endDate": str(date_end or date)}
+        elif action == "get_rhr_day":
+            return {"fromDate": str(date), "untilDate": str(date_end or date), "metricId": 60}
+        elif action in ["get_training_readiness", "get_training_status"]:
+            return None
+        elif action == "get_endurance_score":
             if date_end is None:
-                url = "/metrics-service/metrics/endurancescore"
-                params = {"calendarDate": str(date)}
+                return {"calendarDate": str(date)}
             else:
-                url = "/metrics-service/metrics/endurancescore/stats"
-                params = {
-                    "startDate": str(date),
-                    "endDate": str(date_end),
-                    "aggregation": "weekly",
-                }
+                return {"startDate": str(date), "endDate": str(date_end), "aggregation": "weekly"}
 
-            response = self.call_api(url, params=params)
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
-
-    def get_training_status(self, userInput: dict):
-        if self.use_test_data:
-            response = TEST_DATA["get_training_status"]
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        try:
-            date = userInput.get('date', None)
-            url = f"/metrics-service/metrics/trainingstatus/aggregated/{date}"
-
-            response = self.call_api(url)
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
-        except Exception as e:
-            logger.error("Error in garmin provider: %s", str(e))
-            traceback.print_exc()
-            raise HTTPException(
-                status_code=500, detail="Error in garmin provider")
+        return {}

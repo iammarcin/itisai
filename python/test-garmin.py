@@ -11,9 +11,9 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_endurance_score",
+        "action": "get_training_status",
         "category": "provider.garmin",
-        "userInput": {"date": "2024-06-08", "date_end": "2024-06-08" },
+        "userInput": {"date": "2024-06-20"},
         "userSettings": {'text': {
             'temperature': 0.05, 'model': 'GPT-3.5', 'memory_limit': 680,
             'ai_character': 'assistant', 'streaming': True},
@@ -32,6 +32,15 @@ for chunk in response.iter_content(chunk_size=12):
     if chunk:
         print(str(chunk, encoding="utf-8"), end="")
 
+
+'''
+# get_sleep_data
+sleepTimeSeconds
+napTimeSeconds
+
+
+
+'''
 
 ''' 
 from garmin.garminProvider import Garmin
