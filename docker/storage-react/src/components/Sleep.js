@@ -1,18 +1,43 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
 import apiMethods from '../services/api.methods';
 
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
 const Sleep = () => {
-  const [chartData, setChartData] = useState({});
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: []
+  });
   const [isError, setIsError] = useState(false);
   const hasFetchedData = useRef(false);
 
-  // Define fetchData using useCallback
   const fetchData = useCallback(async () => {
     try {
       const userInput = {
         "start_date": "2024-01-01",
-        "end_date": "2024-01-03",
+        "end_date": "2024-07-01",
       };
       const response = await apiMethods.triggerAPIRequest(
         "api/db",
@@ -29,7 +54,6 @@ const Sleep = () => {
         throw new Error('No data received');
       }
 
-      // Extract relevant data for the graph
       const dates = data.map(entry => entry.calendar_date);
       console.log("dates: ", dates)
       const overallScores = data.map(entry => entry.overall_score_value);
@@ -39,24 +63,17 @@ const Sleep = () => {
       const remSleepTimes = data.map(entry => entry.rem_sleep_seconds / 3600);
       const awakeSleepTimes = data.map(entry => entry.awake_sleep_seconds / 3600);
 
-      console.log("overallScores: ", overallScores);
-      console.log("sleepTimes: ", sleepTimes);
-      console.log("deepSleepTimes: ", deepSleepTimes);
-      console.log("lightSleepTimes: ", lightSleepTimes);
-      console.log("remSleepTimes: ", remSleepTimes);
-      console.log("awakeSleepTimes: ", awakeSleepTimes);
-
       setChartData({
         labels: dates,
         datasets: [
-          {
+          /*{
             label: 'Overall Sleep Score',
             data: overallScores,
             backgroundColor: 'rgba(75,192,192,0.2)',
             borderColor: 'rgba(75,192,192,1)',
             borderWidth: 1,
             fill: true,
-          },
+          },*/
           {
             label: 'Total Sleep Time (hours)',
             data: sleepTimes,
@@ -128,7 +145,8 @@ const Sleep = () => {
               title: {
                 display: true,
                 text: 'Date'
-              }
+              },
+              type: 'category' // Specify the type explicitly
             },
             y: {
               title: {
