@@ -31,11 +31,11 @@ def insert_data(response, fetch_data_action, date):
         data = None
         if fetch_data_action == "get_sleep_data":
             action = "insert_sleep_data"
-            data = response.json()["message"]["result"]["dailySleepDTO"]
+            data = response.json()["message"]["result"]
 
         db_url = API_URL + "/db"
 
-        if data and data['id'] is not None:
+        if data and data["dailySleepDTO"]["id"] is not None:
             db_response = requests.post(
                 db_url,
                 headers={"accept": "application/json",

@@ -9,7 +9,7 @@ from garminHelper import fetch_data, insert_data
 
 action = "get_sleep_data"
 
-start_date = datetime.strptime("2024-07-06", "%Y-%m-%d")
+start_date = datetime.strptime("2024-01-02", "%Y-%m-%d")
 end_date = datetime.strptime("2024-07-06", "%Y-%m-%d")
 
 current_date = start_date
