@@ -35,7 +35,7 @@ def insert_data(response, fetch_data_action, date):
 
         db_url = API_URL + "/db"
 
-        if data:
+        if data and data['id'] is not None:
             db_response = requests.post(
                 db_url,
                 headers={"accept": "application/json",

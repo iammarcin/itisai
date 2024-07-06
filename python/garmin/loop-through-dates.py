@@ -18,6 +18,14 @@ while current_date <= end_date:
 
     response = fetch_data(date_str, action)
 
-    insert_data(response, action, date_str)
+    if response.status_code == 200:
+        response_json = response.json()
+        if response_json["message"]["result"]["dailySleepDTO"]["id"] is not None:
+            insert_data(response, action, date_str)
+        else:
+            print(f"No sleep data for {date_str}")
+    else:
+        print(
+            f"Failed to get sleep data for {date_str}: {response.status_code}")
 
     current_date += timedelta(days=1)
