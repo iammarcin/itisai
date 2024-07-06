@@ -5,15 +5,16 @@ authToken = os.getenv("MY_AUTH_BEARER_TOKEN")
 # ES
 # url = "http://192.168.1.19:8000/chat"
 # PT
-url = "http://localhost:8000/api/garmin"
+url = "http://localhost:8000/api/db"
 response = requests.post(
     url,
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_training_status",
-        "category": "provider.garmin",
-        "userInput": {"date": "2024-06-20"},
+        "action": "get_sleep_data",
+        "category": "provider.db",
+        # "userInput": {"start_date": "2024-06-08", "end_date": "2024-06-09"},
+        "userInput": {"sort_type": "desc", "offset": 0, "limit": 1},
         "userSettings": {'text': {
             'temperature': 0.05, 'model': 'GPT-3.5', 'memory_limit': 680,
             'ai_character': 'assistant', 'streaming': True},
@@ -25,7 +26,6 @@ response = requests.post(
         },
         "customerId": 1
     },
-    stream=True
 )
 
 for chunk in response.iter_content(chunk_size=12):

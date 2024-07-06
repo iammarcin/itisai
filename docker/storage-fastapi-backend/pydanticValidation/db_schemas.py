@@ -45,8 +45,8 @@ class User(Base):
 class SleepData(Base):
     __tablename__ = 'get_sleep_data'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    customer_id = Column(Integer, nullable=False)
-    calendar_date = Column(DateTime, nullable=False)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
     sleep_time_seconds = Column(Integer, nullable=True)
     nap_time_seconds = Column(Integer, nullable=True)
     deep_sleep_seconds = Column(Integer, nullable=True)

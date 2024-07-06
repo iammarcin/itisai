@@ -1,11 +1,9 @@
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from pydanticValidation.db_schemas import ChatMessage, ChatSession, User
 import config
 import uuid
 import os
-from datetime import datetime, date, time
-import json
 import bcrypt
 import traceback
 # from tenacity import retry, stop_after_attempt, wait_fixed
@@ -17,6 +15,7 @@ import logconfig
 import config as config
 
 from db.dbGarminHealth import *
+from db.dbHelper import to_dict
 
 logger = logconfig.logger
 
@@ -50,22 +49,6 @@ class dbProvider:
             if "aws_region" in user_settings:
                 self.aws_region = user_settings["aws_region"]
 
-    # this is needed to serialize the data from the database
-    # alchemy has its own structure and if we just put the object into JSON it will not work
-    def to_dict(self, instance):
-        if instance is None:
-            return None
-        result = {}
-        for column in instance.__table__.columns:
-            value = getattr(instance, column.name)
-            if isinstance(value, (datetime, date, time)):
-                value = value.isoformat()
-            elif isinstance(value, dict):
-                # Ensure nested dictionaries are serialized properly
-                value = json.dumps(value)
-            result[column.name] = value
-        return result
-
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS
         self.set_settings(userSettings)
@@ -92,6 +75,8 @@ class dbProvider:
             # GARMIN HEALTH DATA (separated file)
             elif action == "insert_sleep_data":
                 return await insert_sleep_data(AsyncSessionLocal, userInput, customerId)
+            elif action == "get_sleep_data":
+                return await get_sleep_data(AsyncSessionLocal, userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
@@ -322,7 +307,7 @@ class dbProvider:
                 )
 
                 sessions = result.scalars().all()
-                sessions_list = [self.to_dict(session) for session in sessions]
+                sessions_list = [to_dict(session) for session in sessions]
 
                 return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": sessions_list}}, status_code=200)
             except Exception as e:
@@ -343,7 +328,7 @@ class dbProvider:
                                                   session_id, ChatSession.customer_id == customerId)
                     )
                     chat_session = result.scalars().first()
-                    chat_session_content = self.to_dict(chat_session)
+                    chat_session_content = to_dict(chat_session)
                     logger.debug("Chat session %s: %s",
                                  session_id, chat_session_content)
                     if chat_session is None:
@@ -372,7 +357,7 @@ class dbProvider:
                     ).order_by(ChatSession.last_update.desc())
                     result = await session.execute(stmt)
                     messages = result.scalars().all()
-                    sessions_list = [self.to_dict(message)
+                    sessions_list = [to_dict(message)
                                      for message in messages]
 
                     # logger.debug("All sessions with search message for user %s: %s", customerId, sessions_list)
