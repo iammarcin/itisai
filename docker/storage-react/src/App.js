@@ -1,8 +1,9 @@
 // App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Main from './components/Main';
 import Login from './components/Login';
+import Sleep from './components/Sleep';
 
 const isTokenValid = (tokenData) => {
   if (!tokenData || !tokenData.expiration) {
@@ -36,6 +37,7 @@ function App() {
           <>
             <Route path="/" element={<Main />} />
             <Route path="session/:sessionId" element={<Main />} />
+            <Route path="/sleep" element={<Sleep />} />
           </>
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
