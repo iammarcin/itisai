@@ -42,6 +42,8 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
 
 
+#### GARMIN #######
+
 class SleepData(Base):
     __tablename__ = 'get_sleep_data'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -82,3 +84,35 @@ class SleepData(Base):
     resting_heart_rate = Column(Integer, nullable=True)
     body_battery_change = Column(Integer, nullable=True)
     restless_moments_count = Column(Integer, nullable=True)
+
+class UserSummary(Base):
+    __tablename__ = 'get_user_summary'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    total_kilocalories = Column(Float, nullable=True)
+    active_kilocalories = Column(Float, nullable=True)
+    bmr_kilocalories = Column(Float, nullable=True)
+    total_steps = Column(Integer, nullable=True)
+    total_distance_meters = Column(Integer, nullable=True)
+    min_heart_rate = Column(Integer, nullable=True)
+    max_heart_rate = Column(Integer, nullable=True)
+    resting_heart_rate = Column(Integer, nullable=True)
+    last_seven_days_avg_resting_heart_rate = Column(Integer, nullable=True)
+    vigorous_intensity_minutes = Column(Integer, nullable=True)
+    moderate_intensity_minutes = Column(Integer, nullable=True)
+    rest_stress_duration = Column(Integer, nullable=True)
+    low_stress_duration = Column(Integer, nullable=True)
+    activity_stress_duration = Column(Integer, nullable=True)
+    medium_stress_duration = Column(Integer, nullable=True)
+    high_stress_duration = Column(Integer, nullable=True)
+    stress_qualifier = Column(String(50), nullable=True)
+    body_battery_charged_value = Column(Integer, nullable=True)
+    body_battery_drained_value = Column(Integer, nullable=True)
+    body_battery_highest_value = Column(Integer, nullable=True)
+    body_battery_lowest_value = Column(Integer, nullable=True)
+    body_battery_most_recent_value = Column(Integer, nullable=True)
+    avg_waking_respiration_value = Column(Float, nullable=True)
+    highest_respiration_value = Column(Float, nullable=True)
+    lowest_respiration_value = Column(Float, nullable=True)
+    latest_respiration_value = Column(Float, nullable=True)

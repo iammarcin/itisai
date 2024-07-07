@@ -75,8 +75,10 @@ class dbProvider:
             # GARMIN HEALTH DATA (separated file)
             elif action == "insert_sleep_data":
                 return await insert_sleep_data(AsyncSessionLocal, userInput, customerId)
-            elif action == "get_sleep_data":
-                return await get_sleep_data(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_user_summary":
+                return await insert_user_summary(AsyncSessionLocal, userInput, customerId)
+            elif action == "get_garmin_data":
+                return await get_garmin_data(AsyncSessionLocal, userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
@@ -117,7 +119,7 @@ class dbProvider:
                     userMessage = userInput['userMessage']
                     aiResponse = userInput.get('aiResponse')
 
-                    logger.info("!*"*30)
+                    logger.info("!*" * 30)
                     logger.info("aiResponse: %s", aiResponse)
 
                     new_user_message = ChatMessage(

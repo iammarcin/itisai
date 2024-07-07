@@ -1,7 +1,10 @@
+import logging
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.dialects.mysql import insert
-from pydanticValidation.db_schemas import SleepData
+from pydanticValidation.db_schemas import SleepData, UserSummary
 
 from sqlalchemy import select
 
@@ -150,25 +153,132 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_sleep_data")
 
-async def get_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
+async def insert_user_summary(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                summaryData = userInput["result"]
+                stmt = insert(UserSummary).values(
+                    customer_id=customerId,
+                    calendar_date=summaryData.get("calendarDate"),
+                    total_kilocalories=summaryData.get("totalKilocalories"),
+                    active_kilocalories=summaryData.get("activeKilocalories"),
+                    bmr_kilocalories=summaryData.get("bmrKilocalories"),
+                    total_steps=summaryData.get("totalSteps"),
+                    total_distance_meters=summaryData.get(
+                        "totalDistanceMeters"),
+                    min_heart_rate=summaryData.get("minHeartRate"),
+                    max_heart_rate=summaryData.get("maxHeartRate"),
+                    resting_heart_rate=summaryData.get("restingHeartRate"),
+                    last_seven_days_avg_resting_heart_rate=summaryData.get(
+                        "lastSevenDaysAvgRestingHeartRate"),
+                    vigorous_intensity_minutes=summaryData.get(
+                        "vigorousIntensityMinutes"),
+                    moderate_intensity_minutes=summaryData.get(
+                        "moderateIntensityMinutes"),
+                    rest_stress_duration=summaryData.get("restStressDuration"),
+                    low_stress_duration=summaryData.get("lowStressDuration"),
+                    activity_stress_duration=summaryData.get(
+                        "activityStressDuration"),
+                    medium_stress_duration=summaryData.get(
+                        "mediumStressDuration"),
+                    high_stress_duration=summaryData.get("highStressDuration"),
+                    stress_qualifier=summaryData.get("stressQualifier"),
+                    body_battery_charged_value=summaryData.get(
+                        "bodyBatteryChargedValue"),
+                    body_battery_drained_value=summaryData.get(
+                        "bodyBatteryDrainedValue"),
+                    body_battery_highest_value=summaryData.get(
+                        "bodyBatteryHighestValue"),
+                    body_battery_lowest_value=summaryData.get(
+                        "bodyBatteryLowestValue"),
+                    body_battery_most_recent_value=summaryData.get(
+                        "bodyBatteryMostRecentValue"),
+                    avg_waking_respiration_value=summaryData.get(
+                        "avgWakingRespirationValue"),
+                    highest_respiration_value=summaryData.get(
+                        "highestRespirationValue"),
+                    lowest_respiration_value=summaryData.get(
+                        "lowestRespirationValue"),
+                    latest_respiration_value=summaryData.get(
+                        "latestRespirationValue")
+                ).on_duplicate_key_update(
+                    total_kilocalories=summaryData.get("totalKilocalories"),
+                    active_kilocalories=summaryData.get("activeKilocalories"),
+                    bmr_kilocalories=summaryData.get("bmrKilocalories"),
+                    total_steps=summaryData.get("totalSteps"),
+                    total_distance_meters=summaryData.get(
+                        "totalDistanceMeters"),
+                    min_heart_rate=summaryData.get("minHeartRate"),
+                    max_heart_rate=summaryData.get("maxHeartRate"),
+                    resting_heart_rate=summaryData.get("restingHeartRate"),
+                    last_seven_days_avg_resting_heart_rate=summaryData.get(
+                        "lastSevenDaysAvgRestingHeartRate"),
+                    vigorous_intensity_minutes=summaryData.get(
+                        "vigorousIntensityMinutes"),
+                    moderate_intensity_minutes=summaryData.get(
+                        "moderateIntensityMinutes"),
+                    rest_stress_duration=summaryData.get("restStressDuration"),
+                    low_stress_duration=summaryData.get("lowStressDuration"),
+                    activity_stress_duration=summaryData.get(
+                        "activityStressDuration"),
+                    medium_stress_duration=summaryData.get(
+                        "mediumStressDuration"),
+                    high_stress_duration=summaryData.get("highStressDuration"),
+                    stress_qualifier=summaryData.get("stressQualifier"),
+                    body_battery_charged_value=summaryData.get(
+                        "bodyBatteryChargedValue"),
+                    body_battery_drained_value=summaryData.get(
+                        "bodyBatteryDrainedValue"),
+                    body_battery_highest_value=summaryData.get(
+                        "bodyBatteryHighestValue"),
+                    body_battery_lowest_value=summaryData.get(
+                        "bodyBatteryLowestValue"),
+                    body_battery_most_recent_value=summaryData.get(
+                        "bodyBatteryMostRecentValue"),
+                    avg_waking_respiration_value=summaryData.get(
+                        "avgWakingRespirationValue"),
+                    highest_respiration_value=summaryData.get(
+                        "highestRespirationValue"),
+                    lowest_respiration_value=summaryData.get(
+                        "lowestRespirationValue"),
+                    latest_respiration_value=summaryData.get(
+                        "latestRespirationValue")
+                )
+
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "User summary data processed successfully for date: " + summaryData.get("calendarDate")})
+            except Exception as e:
+                logger.error("Error in DB! insert_user_summary: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_user_summary")
+
+async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     start_date = userInput.get("start_date", None)
     end_date = userInput.get("end_date", None)
     sort_type = userInput.get("sort_type", "asc")
     offset = userInput.get("offset", 0)
     limit = userInput.get("limit", None)
+    table = userInput.get("table", None)
 
-    sort_order = SleepData.calendar_date.asc(
-    ) if sort_type == "asc" else SleepData.calendar_date.desc()
+    if table == "get_sleep_data":
+        model = SleepData
+    elif table == "get_user_summary":
+        model = UserSummary
+    else:
+        raise HTTPException(status_code=400, detail="Invalid table name")
+
+    sort_order = model.calendar_date.asc(
+    ) if sort_type == "asc" else model.calendar_date.desc()
 
     async with AsyncSessionLocal() as session:
         try:
-            query = select(SleepData).where(
-                SleepData.customer_id == customerId)
+            query = select(model).where(model.customer_id == customerId)
 
             if start_date:
-                query = query.where(SleepData.calendar_date >= start_date)
+                query = query.where(model.calendar_date >= start_date)
             if end_date:
-                query = query.where(SleepData.calendar_date <= end_date)
+                query = query.where(model.calendar_date <= end_date)
 
             query = query.order_by(sort_order)
 
@@ -177,8 +287,6 @@ async def get_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
 
             query = query.offset(offset)
 
-            print(query)
-
             result = await session.execute(query)
 
             data = result.scalars().all()
@@ -186,8 +294,6 @@ async def get_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
 
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": data_list}}, status_code=200)
         except Exception as e:
-            logger.error(
-                "Error in DB! get_sleep_data: %s", str(e))
-            # return JSONResponse(content={"success": False, "code": 500, "message": {"status": "fail", "detail": str(e), "result": "Error in DB! get_all_chat_sessions_for_user"}}, status_code=500)
+            logger.error("Error in DB! get_garmin_data: %s", str(e))
             raise HTTPException(
-                status_code=500, detail="Error in DB! get_sleep_data")
+                status_code=500, detail="Error in DB! get_garmin_data")

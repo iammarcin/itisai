@@ -38,24 +38,22 @@ const Sleep = () => {
       const userInput = {
         "start_date": "2024-01-01",
         "end_date": "2024-07-01",
+        "table": "get_sleep_data"
       };
       const response = await apiMethods.triggerAPIRequest(
         "api/db",
         "provider.db",
-        "get_sleep_data",
+        "get_garmin_data",
         userInput
       );
 
       const data = response.message?.result;
-
-      console.log("Data received: ", data);
 
       if (!data) {
         throw new Error('No data received');
       }
 
       const dates = data.map(entry => entry.calendar_date);
-      console.log("dates: ", dates)
       const overallScores = data.map(entry => entry.overall_score_value);
       const sleepTimes = data.map(entry => entry.sleep_time_seconds / 3600);
       const deepSleepTimes = data.map(entry => entry.deep_sleep_seconds / 3600);
