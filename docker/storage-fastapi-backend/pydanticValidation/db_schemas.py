@@ -157,4 +157,4 @@ class TrainingReadiness(Base):
     hrv_weekly_average = Column(Integer, nullable=True)
     hrv_factor_feedback = Column(String(255), nullable=True)
     stress_history_factor_feedback = Column(String(255), nullable=True)
-    sleep_history_factor_feedback = Column(String(255), nullable True)
+    sleep_history_factor_feedback = Column(String(255), nullable=True)
