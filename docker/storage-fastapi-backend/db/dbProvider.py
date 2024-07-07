@@ -81,10 +81,12 @@ class dbProvider:
                 return await insert_body_composition(AsyncSessionLocal, userInput, customerId)
             elif action == "insert_hrv_data":
                 return await insert_hrv_data(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_training_readiness":
+                return await insert_training_readiness(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_endurance_score":
+                return await insert_endurance_score(AsyncSessionLocal, userInput, customerId)
             elif action == "get_garmin_data":
                 return await get_garmin_data(AsyncSessionLocal, userInput, customerId)
-            elif action == "get_training_readiness":
-                return await get_training_readiness(AsyncSessionLocal, userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:

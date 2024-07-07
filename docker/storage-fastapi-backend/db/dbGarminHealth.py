@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.dialects.mysql import insert
-from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness
+from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore
 
 from sqlalchemy import select
 
@@ -358,6 +358,43 @@ async def insert_training_readiness(AsyncSessionLocal, userInput: dict, customer
                 logger.error("Error in DB! insert_training_readiness: %s", str(e))
                 raise HTTPException(status_code=500, detail="Error in DB! insert_training_readiness")
 
+async def insert_endurance_score(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                scoreData = userInput["result"]
+                stmt = insert(EnduranceScore).values(
+                    customer_id=customerId,
+                    calendar_date=scoreData.get("calendarDate"),
+                    overall_score=scoreData.get("overallScore"),
+                    classification=scoreData.get("classification"),
+                    classification_lower_limit_intermediate=scoreData.get("classificationLowerLimitIntermediate"),
+                    classification_lower_limit_trained=scoreData.get("classificationLowerLimitTrained"),
+                    classification_lower_limit_well_trained=scoreData.get("classificationLowerLimitWellTrained"),
+                    classification_lower_limit_expert=scoreData.get("classificationLowerLimitExpert"),
+                    classification_lower_limit_superior=scoreData.get("classificationLowerLimitSuperior"),
+                    classification_lower_limit_elite=scoreData.get("classificationLowerLimitElite"),
+                    contributors=scoreData.get("contributors")
+                ).on_duplicate_key_update(
+                    overall_score=scoreData.get("overallScore"),
+                    classification=scoreData.get("classification"),
+                    classification_lower_limit_intermediate=scoreData.get("classificationLowerLimitIntermediate"),
+                    classification_lower_limit_trained=scoreData.get("classificationLowerLimitTrained"),
+                    classification_lower_limit_well_trained=scoreData.get("classificationLowerLimitWellTrained"),
+                    classification_lower_limit_expert=scoreData.get("classificationLowerLimitExpert"),
+                    classification_lower_limit_superior=scoreData.get("classificationLowerLimitSuperior"),
+                    classification_lower_limit_elite=scoreData.get("classificationLowerLimitElite"),
+                    contributors=scoreData.get("contributors")
+                )
+
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Endurance score data processed successfully for date: " + scoreData.get("calendarDate")})
+            except Exception as e:
+                logger.error("Error in DB! insert_endurance_score: %s", str(e))
+                raise HTTPException(status_code=500, detail="Error in DB! insert_endurance_score")
+
+
+
 async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     start_date = userInput.get("start_date", None)
     end_date = userInput.get("end_date", None)
@@ -376,6 +413,8 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
         model = HRVData
     elif table == "get_training_readiness":
         model = TrainingReadiness
+    elif table == "get_endurance_score":
+        model = EnduranceScore
     else:
         raise HTTPException(status_code=400, detail="Invalid table name")
 

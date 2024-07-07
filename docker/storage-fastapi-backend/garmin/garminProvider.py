@@ -65,7 +65,6 @@ class garminProvider:
             "get_sleep_data": "/wellness-service/wellness/dailySleepData/{self.display_name}",
             "get_user_summary": "/usersummary-service/usersummary/daily/{self.display_name}",
             "get_body_composition": "/weight-service/weight/dateRange",
-            "get_rhr_day": "/userstats-service/wellness/daily/{self.display_name}",
             "get_hrv_data": "/hrv-service/hrv/%s" % date,
             "get_training_readiness": "/metrics-service/metrics/trainingreadiness/%s" % date,
             "get_endurance_score": "/metrics-service/metrics/endurancescore/stats" if date_end is not None else "/metrics-service/metrics/endurancescore",
@@ -107,8 +106,6 @@ class garminProvider:
             return {"calendarDate": str(date)}
         elif action == "get_body_composition":
             return {"startDate": str(date), "endDate": str(date_end or date)}
-        elif action == "get_rhr_day":
-            return {"fromDate": str(date), "untilDate": str(date_end or date), "metricId": 60}
         elif action in ["get_hrv_data", "get_training_readiness", "get_training_status"]:
             return None
         elif action == "get_endurance_score":

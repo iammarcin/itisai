@@ -158,3 +158,18 @@ class TrainingReadiness(Base):
     hrv_factor_feedback = Column(String(255), nullable=True)
     stress_history_factor_feedback = Column(String(255), nullable=True)
     sleep_history_factor_feedback = Column(String(255), nullable=True)
+
+class EnduranceScore(Base):
+    __tablename__ = 'get_endurance_score'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    overall_score = Column(Integer, nullable=True)
+    classification = Column(Integer, nullable=True)
+    classification_lower_limit_intermediate = Column(Integer, nullable=True)
+    classification_lower_limit_trained = Column(Integer, nullable=True)
+    classification_lower_limit_well_trained = Column(Integer, nullable=True)
+    classification_lower_limit_expert = Column(Integer, nullable=True)
+    classification_lower_limit_superior = Column(Integer, nullable=True)
+    classification_lower_limit_elite = Column(Integer, nullable=True)
+    contributors = Column(JSON, nullable=True)

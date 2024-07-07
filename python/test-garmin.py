@@ -11,9 +11,10 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_training_readiness",
+        "action": "get_training_status",
         "category": "provider.garmin",
-        "userInput": {"date": "2024-07-07", "end_date": "2024-06-19"},
+        "userInput": {"date": "2024-07-07"},
+        #"userInput": {"date": "2024-07-07", "end_date": "2024-06-19"},
         # "userInput": {"sort_type": "desc", "offset": 0, "limit": 1},
         "userSettings": {'text': {
             'temperature': 0.05, 'model': 'GPT-3.5', 'memory_limit': 680,
