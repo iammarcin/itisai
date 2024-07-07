@@ -1,5 +1,5 @@
-import requests
-import os
+#!/home/nichu/.venvs/pythonenv/bin/python
+
 import sys
 
 from garminHelper import fetch_data, insert_data
