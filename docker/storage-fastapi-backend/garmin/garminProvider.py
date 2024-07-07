@@ -66,9 +66,10 @@ class garminProvider:
             "get_user_summary": "/usersummary-service/usersummary/daily/{self.display_name}",
             "get_body_composition": "/weight-service/weight/dateRange",
             "get_rhr_day": "/userstats-service/wellness/daily/{self.display_name}",
-            "get_training_readiness": "/metrics-service/metrics/trainingreadiness/{date}",
+            "get_hrv_data": "/hrv-service/hrv/%s" % date,
+            "get_training_readiness": "/metrics-service/metrics/trainingreadiness/%s" % date,
             "get_endurance_score": "/metrics-service/metrics/endurancescore/stats" if date_end is not None else "/metrics-service/metrics/endurancescore",
-            "get_training_status": "/metrics-service/metrics/trainingstatus/aggregated/{date}"
+            "get_training_status": "/metrics-service/metrics/trainingstatus/daily/%s" % date
         }
 
         if action not in actions_map:
@@ -79,6 +80,8 @@ class garminProvider:
                 response = TEST_DATA[action]
             else:
                 url = actions_map[action]
+
+                print("URL: ", url)
                 params = self.construct_params(action, userInput)
                 response = self.call_api(url, params=params)
 
@@ -106,7 +109,7 @@ class garminProvider:
             return {"startDate": str(date), "endDate": str(date_end or date)}
         elif action == "get_rhr_day":
             return {"fromDate": str(date), "untilDate": str(date_end or date), "metricId": 60}
-        elif action in ["get_training_readiness", "get_training_status"]:
+        elif action in ["get_hrv_data", "get_training_readiness", "get_training_status"]:
             return None
         elif action == "get_endurance_score":
             if date_end is None:

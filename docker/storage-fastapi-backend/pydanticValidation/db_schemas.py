@@ -43,7 +43,7 @@ class User(Base):
 
 
 #### GARMIN #######
-
+# SLEEP
 class SleepData(Base):
     __tablename__ = 'get_sleep_data'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -85,6 +85,7 @@ class SleepData(Base):
     body_battery_change = Column(Integer, nullable=True)
     restless_moments_count = Column(Integer, nullable=True)
 
+# USER SUMMARY
 class UserSummary(Base):
     __tablename__ = 'get_user_summary'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -116,3 +117,44 @@ class UserSummary(Base):
     highest_respiration_value = Column(Float, nullable=True)
     lowest_respiration_value = Column(Float, nullable=True)
     latest_respiration_value = Column(Float, nullable=True)
+
+class BodyComposition(Base):
+    __tablename__ = 'get_body_composition'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    weight = Column(Float, nullable=True)
+    bmi = Column(Float, nullable=True)
+    body_fat = Column(Float, nullable=True)
+    body_water = Column(Float, nullable=True)
+    bone_mass = Column(Float, nullable=True)
+    muscle_mass = Column(Float, nullable=True)
+    visceral_fat = Column(Float, nullable=True)
+
+class HRVData(Base):
+    __tablename__ = 'get_hrv_data'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    weekly_avg = Column(Integer, nullable=True)
+    last_night_avg = Column(Integer, nullable=True)
+    status = Column(String(50), nullable=True)
+    balanced_low = Column(Integer, nullable=True)
+    balanced_upper = Column(Integer, nullable=True)
+
+class TrainingReadiness(Base):
+    __tablename__ = 'get_training_readiness'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    level = Column(String(50), nullable=True)
+    score = Column(Integer, nullable=True)
+    sleep_score = Column(Integer, nullable=True)
+    sleep_score_factor_feedback = Column(String(255), nullable=True)
+    recovery_time_factor_feedback = Column(String(255), nullable=True)
+    recovery_time = Column(Integer, nullable=True)
+    acute_load = Column(Integer, nullable=True)
+    hrv_weekly_average = Column(Integer, nullable=True)
+    hrv_factor_feedback = Column(String(255), nullable=True)
+    stress_history_factor_feedback = Column(String(255), nullable=True)
+    sleep_history_factor_feedback = Column(String(255), nullable True)

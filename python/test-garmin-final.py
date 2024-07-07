@@ -11,11 +11,11 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_sleep_data",
+        "action": "get_training_status",
         "category": "provider.garmin",
-        "userInput": {"date": "2024-06-08"},
+        "userInput": {"date": "2024-07-07"},
         "userSettings": {
-            'general': {'returnTestData': True},
+            'general': {'returnTestData': False},
             'provider.garmin': {}
         },
         "customerId": 1

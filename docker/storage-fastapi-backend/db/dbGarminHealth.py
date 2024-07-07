@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.dialects.mysql import insert
-from pydanticValidation.db_schemas import SleepData, UserSummary
+from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness
 
 from sqlalchemy import select
 
@@ -253,6 +253,111 @@ async def insert_user_summary(AsyncSessionLocal, userInput: dict, customerId):
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_user_summary")
 
+async def insert_body_composition(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                compositionDataList = userInput["message"]["result"]["dateWeightList"]
+                for compositionData in compositionDataList:
+                    stmt = insert(BodyComposition).values(
+                        customer_id=customerId,
+                        calendar_date=compositionData.get("calendarDate"),
+                        weight=compositionData.get("weight"),
+                        bmi=compositionData.get("bmi"),
+                        body_fat=compositionData.get("bodyFat"),
+                        body_water=compositionData.get("bodyWater"),
+                        bone_mass=compositionData.get("boneMass"),
+                        muscle_mass=compositionData.get("muscleMass"),
+                        visceral_fat=compositionData.get("visceralFat")
+                    ).on_duplicate_key_update(
+                        weight=compositionData.get("weight"),
+                        bmi=compositionData.get("bmi"),
+                        body_fat=compositionData.get("bodyFat"),
+                        body_water=compositionData.get("bodyWater"),
+                        bone_mass=compositionData.get("boneMass"),
+                        muscle_mass=compositionData.get("muscleMass"),
+                        visceral_fat=compositionData.get("visceralFat")
+                    )
+                    await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Body composition data processed successfully for date range: " + userInput["message"]["result"]["startDate"] + " to " + userInput["message"]["result"]["endDate"]})
+            except Exception as e:
+                logger.error(
+                    "Error in DB! insert_body_composition: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_body_composition")
+
+
+async def insert_hrv_data(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                hrvSummary = userInput["message"]["result"]["hrvSummary"]
+                stmt = insert(HRVData).values(
+                    customer_id=customerId,
+                    calendar_date=hrvSummary.get("calendarDate"),
+                    weekly_avg=hrvSummary.get("weeklyAvg"),
+                    last_night_avg=hrvSummary.get("lastNightAvg"),
+                    status=hrvSummary.get("status"),
+                    baseline_balanced_low=hrvSummary.get(
+                        "baseline", {}).get("balancedLow"),
+                    baseline_balanced_upper=hrvSummary.get(
+                        "baseline", {}).get("balancedUpper")
+                ).on_duplicate_key_update(
+                    weekly_avg=hrvSummary.get("weeklyAvg"),
+                    last_night_avg=hrvSummary.get("lastNightAvg"),
+                    status=hrvSummary.get("status"),
+                    baseline_balanced_low=hrvSummary.get(
+                        "baseline", {}).get("balancedLow"),
+                    baseline_balanced_upper=hrvSummary.get(
+                        "baseline", {}).get("balancedUpper")
+                )
+
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "HRV data processed successfully for date: " + hrvSummary.get("calendarDate")})
+            except Exception as e:
+                logger.error("Error in DB! insert_hrv_data: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_hrv_data")
+
+async def insert_training_readiness(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                readinessData = userInput["result"][0]
+                stmt = insert(TrainingReadiness).values(
+                    customer_id=customerId,
+                    calendar_date=readinessData.get("calendarDate"),
+                    level=readinessData.get("level"),
+                    score=readinessData.get("score"),
+                    sleep_score=readinessData.get("sleepScore"),
+                    sleep_score_factor_feedback=readinessData.get("sleepScoreFactorFeedback"),
+                    recovery_time_factor_feedback=readinessData.get("recoveryTimeFactorFeedback"),
+                    recovery_time=readinessData.get("recoveryTime"),
+                    acute_load=readinessData.get("acuteLoad"),
+                    hrv_weekly_average=readinessData.get("hrvWeeklyAverage"),
+                    hrv_factor_feedback=readinessData.get("hrvFactorFeedback"),
+                    stress_history_factor_feedback=readinessData.get("stressHistoryFactorFeedback"),
+                    sleep_history_factor_feedback=readinessData.get("sleepHistoryFactorFeedback")
+                ).on_duplicate_key_update(
+                    level=readinessData.get("level"),
+                    score=readinessData.get("score"),
+                    sleep_score=readinessData.get("sleepScore"),
+                    sleep_score_factor_feedback=readinessData.get("sleepScoreFactorFeedback"),
+                    recovery_time_factor_feedback=readinessData.get("recoveryTimeFactorFeedback"),
+                    recovery_time=readinessData.get("recoveryTime"),
+                    acute_load=readinessData.get("acuteLoad"),
+                    hrv_weekly_average=readinessData.get("hrvWeeklyAverage"),
+                    hrv_factor_feedback=readinessData.get("hrvFactorFeedback"),
+                    stress_history_factor_feedback=readinessData.get("stressHistoryFactorFeedback"),
+                    sleep_history_factor_feedback=readinessData.get("sleepHistoryFactorFeedback")
+                )
+
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Training readiness data processed successfully for date: " + readinessData.get("calendarDate")})
+            except Exception as e:
+                logger.error("Error in DB! insert_training_readiness: %s", str(e))
+                raise HTTPException(status_code=500, detail="Error in DB! insert_training_readiness")
+
 async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     start_date = userInput.get("start_date", None)
     end_date = userInput.get("end_date", None)
@@ -265,6 +370,12 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
         model = SleepData
     elif table == "get_user_summary":
         model = UserSummary
+    elif table == "get_body_composition":
+        model = BodyComposition
+    elif table == "get_hrv_data":
+        model = HRVData
+    elif table == "get_training_readiness":
+        model = TrainingReadiness
     else:
         raise HTTPException(status_code=400, detail="Invalid table name")
 
