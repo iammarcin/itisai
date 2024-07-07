@@ -1,14 +1,15 @@
 import logging
 from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
+from datetime import datetime
 from fastapi.responses import JSONResponse
 from sqlalchemy.dialects.mysql import insert
-from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore
+from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore, TrainingStatus, FitnessAge
 
 from sqlalchemy import select
 
 from db.dbHelper import to_dict
+from db.garminHelper import getVO2MaxFeedback
 
 import logconfig
 import config as config
@@ -330,33 +331,43 @@ async def insert_training_readiness(AsyncSessionLocal, userInput: dict, customer
                     level=readinessData.get("level"),
                     score=readinessData.get("score"),
                     sleep_score=readinessData.get("sleepScore"),
-                    sleep_score_factor_feedback=readinessData.get("sleepScoreFactorFeedback"),
-                    recovery_time_factor_feedback=readinessData.get("recoveryTimeFactorFeedback"),
+                    sleep_score_factor_feedback=readinessData.get(
+                        "sleepScoreFactorFeedback"),
+                    recovery_time_factor_feedback=readinessData.get(
+                        "recoveryTimeFactorFeedback"),
                     recovery_time=readinessData.get("recoveryTime"),
                     acute_load=readinessData.get("acuteLoad"),
                     hrv_weekly_average=readinessData.get("hrvWeeklyAverage"),
                     hrv_factor_feedback=readinessData.get("hrvFactorFeedback"),
-                    stress_history_factor_feedback=readinessData.get("stressHistoryFactorFeedback"),
-                    sleep_history_factor_feedback=readinessData.get("sleepHistoryFactorFeedback")
+                    stress_history_factor_feedback=readinessData.get(
+                        "stressHistoryFactorFeedback"),
+                    sleep_history_factor_feedback=readinessData.get(
+                        "sleepHistoryFactorFeedback")
                 ).on_duplicate_key_update(
                     level=readinessData.get("level"),
                     score=readinessData.get("score"),
                     sleep_score=readinessData.get("sleepScore"),
-                    sleep_score_factor_feedback=readinessData.get("sleepScoreFactorFeedback"),
-                    recovery_time_factor_feedback=readinessData.get("recoveryTimeFactorFeedback"),
+                    sleep_score_factor_feedback=readinessData.get(
+                        "sleepScoreFactorFeedback"),
+                    recovery_time_factor_feedback=readinessData.get(
+                        "recoveryTimeFactorFeedback"),
                     recovery_time=readinessData.get("recoveryTime"),
                     acute_load=readinessData.get("acuteLoad"),
                     hrv_weekly_average=readinessData.get("hrvWeeklyAverage"),
                     hrv_factor_feedback=readinessData.get("hrvFactorFeedback"),
-                    stress_history_factor_feedback=readinessData.get("stressHistoryFactorFeedback"),
-                    sleep_history_factor_feedback=readinessData.get("sleepHistoryFactorFeedback")
+                    stress_history_factor_feedback=readinessData.get(
+                        "stressHistoryFactorFeedback"),
+                    sleep_history_factor_feedback=readinessData.get(
+                        "sleepHistoryFactorFeedback")
                 )
 
                 await session.execute(stmt)
                 return JSONResponse(status_code=200, content={"message": "Training readiness data processed successfully for date: " + readinessData.get("calendarDate")})
             except Exception as e:
-                logger.error("Error in DB! insert_training_readiness: %s", str(e))
-                raise HTTPException(status_code=500, detail="Error in DB! insert_training_readiness")
+                logger.error(
+                    "Error in DB! insert_training_readiness: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_training_readiness")
 
 async def insert_endurance_score(AsyncSessionLocal, userInput: dict, customerId):
     async with AsyncSessionLocal() as session:
@@ -368,22 +379,34 @@ async def insert_endurance_score(AsyncSessionLocal, userInput: dict, customerId)
                     calendar_date=scoreData.get("calendarDate"),
                     overall_score=scoreData.get("overallScore"),
                     classification=scoreData.get("classification"),
-                    classification_lower_limit_intermediate=scoreData.get("classificationLowerLimitIntermediate"),
-                    classification_lower_limit_trained=scoreData.get("classificationLowerLimitTrained"),
-                    classification_lower_limit_well_trained=scoreData.get("classificationLowerLimitWellTrained"),
-                    classification_lower_limit_expert=scoreData.get("classificationLowerLimitExpert"),
-                    classification_lower_limit_superior=scoreData.get("classificationLowerLimitSuperior"),
-                    classification_lower_limit_elite=scoreData.get("classificationLowerLimitElite"),
+                    classification_lower_limit_intermediate=scoreData.get(
+                        "classificationLowerLimitIntermediate"),
+                    classification_lower_limit_trained=scoreData.get(
+                        "classificationLowerLimitTrained"),
+                    classification_lower_limit_well_trained=scoreData.get(
+                        "classificationLowerLimitWellTrained"),
+                    classification_lower_limit_expert=scoreData.get(
+                        "classificationLowerLimitExpert"),
+                    classification_lower_limit_superior=scoreData.get(
+                        "classificationLowerLimitSuperior"),
+                    classification_lower_limit_elite=scoreData.get(
+                        "classificationLowerLimitElite"),
                     contributors=scoreData.get("contributors")
                 ).on_duplicate_key_update(
                     overall_score=scoreData.get("overallScore"),
                     classification=scoreData.get("classification"),
-                    classification_lower_limit_intermediate=scoreData.get("classificationLowerLimitIntermediate"),
-                    classification_lower_limit_trained=scoreData.get("classificationLowerLimitTrained"),
-                    classification_lower_limit_well_trained=scoreData.get("classificationLowerLimitWellTrained"),
-                    classification_lower_limit_expert=scoreData.get("classificationLowerLimitExpert"),
-                    classification_lower_limit_superior=scoreData.get("classificationLowerLimitSuperior"),
-                    classification_lower_limit_elite=scoreData.get("classificationLowerLimitElite"),
+                    classification_lower_limit_intermediate=scoreData.get(
+                        "classificationLowerLimitIntermediate"),
+                    classification_lower_limit_trained=scoreData.get(
+                        "classificationLowerLimitTrained"),
+                    classification_lower_limit_well_trained=scoreData.get(
+                        "classificationLowerLimitWellTrained"),
+                    classification_lower_limit_expert=scoreData.get(
+                        "classificationLowerLimitExpert"),
+                    classification_lower_limit_superior=scoreData.get(
+                        "classificationLowerLimitSuperior"),
+                    classification_lower_limit_elite=scoreData.get(
+                        "classificationLowerLimitElite"),
                     contributors=scoreData.get("contributors")
                 )
 
@@ -391,8 +414,190 @@ async def insert_endurance_score(AsyncSessionLocal, userInput: dict, customerId)
                 return JSONResponse(status_code=200, content={"message": "Endurance score data processed successfully for date: " + scoreData.get("calendarDate")})
             except Exception as e:
                 logger.error("Error in DB! insert_endurance_score: %s", str(e))
-                raise HTTPException(status_code=500, detail="Error in DB! insert_endurance_score")
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_endurance_score")
 
+async def insert_training_status(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                latest_training_status = userInput["result"]["latestTrainingStatusData"]
+                for device_id, data in latest_training_status.items():
+                    stmt = insert(TrainingStatus).values(
+                        customer_id=customerId,
+                        calendar_date=data.get("calendarDate"),
+                        daily_training_load_acute=data["acuteTrainingLoadDTO"].get(
+                            "dailyTrainingLoadAcute"),
+                        daily_training_load_acute_feedback=data["acuteTrainingLoadDTO"].get(
+                            "acwrStatus"),
+                        daily_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                            "dailyTrainingLoadChronic"),
+                        min_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                            "minTrainingLoadChronic"),
+                        max_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                            "maxTrainingLoadChronic")
+                    ).on_duplicate_key_update(
+                        daily_training_load_acute=data["acuteTrainingLoadDTO"].get(
+                            "dailyTrainingLoadAcute"),
+                        daily_training_load_acute_feedback=data["acuteTrainingLoadDTO"].get(
+                            "acwrStatus"),
+                        daily_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                            "dailyTrainingLoadChronic"),
+                        min_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                            "minTrainingLoadChronic"),
+                        max_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                            "maxTrainingLoadChronic")
+                    )
+                    await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Training status data processed successfully for customer_id: " + str(customerId)})
+            except Exception as e:
+                logger.error("Error in DB! insert_training_status: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_training_status")
+
+async def insert_max_metrics(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                data = userInput["result"]["generic"]
+                heat_data = userInput["result"]["heatAltitudeAcclimation"]
+
+                # calculating custom feedback based on garminHelper json with ranges
+                vo2_max_precise_value = data.get("vo2MaxPreciseValue")
+                # get data from userInput or provide default value
+                age = userInput.get("age", datetime.now().year - 1981)
+                sex = userInput.get("sex", "male").upper()
+                vo2_max_feedback = getVO2MaxFeedback(
+                    sex, age, vo2_max_precise_value)
+
+                stmt = insert(TrainingStatus).values(
+                    customer_id=customerId,
+                    calendar_date=data.get("calendarDate"),
+                    vo2_max_precise_value=vo2_max_precise_value,
+                    vo2_max_feedback=vo2_max_feedback,
+                    altitude_acclimation=heat_data.get("altitudeAcclimation"),
+                    altitude_trend=heat_data.get("altitudeTrend"),
+                    current_altitude=heat_data.get("currentAltitude"),
+                    altitude_acclimation_percentage=heat_data.get(
+                        "acclimationPercentage"),
+                    heat_acclimation_percentage=heat_data.get(
+                        "heatAcclimationPercentage"),
+                    heat_trend=heat_data.get("heatTrend")
+                ).on_duplicate_key_update(
+                    vo2_max_precise_value=vo2_max_precise_value,
+                    vo2_max_feedback=vo2_max_feedback,
+                    altitude_acclimation=heat_data.get("altitudeAcclimation"),
+                    altitude_trend=heat_data.get("altitudeTrend"),
+                    current_altitude=heat_data.get("currentAltitude"),
+                    altitude_acclimation_percentage=heat_data.get(
+                        "acclimationPercentage"),
+                    heat_acclimation_percentage=heat_data.get(
+                        "heatAcclimationPercentage"),
+                    heat_trend=heat_data.get("heatTrend")
+                )
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Max metrics data processed successfully for customer_id: " + str(customerId)})
+            except Exception as e:
+                logger.error("Error in DB! insert_max_metrics: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_max_metrics")
+
+async def insert_training_load_balance(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                metrics_data = userInput["result"]["metricsTrainingLoadBalanceDTOMap"]
+                for data in metrics_data.items():
+                    stmt = insert(TrainingStatus).values(
+                        customer_id=customerId,
+                        calendar_date=data.get("calendarDate"),
+                        monthly_load_anaerobic=data.get(
+                            "monthlyLoadAnaerobic"),
+                        monthly_load_aerobic_high=data.get(
+                            "monthlyLoadAerobicHigh"),
+                        monthly_load_aerobic_low=data.get(
+                            "monthlyLoadAerobicLow"),
+                        monthly_load_aerobic_low_target_min=data.get(
+                            "monthlyLoadAerobicLowTargetMin"),
+                        monthly_load_aerobic_low_target_max=data.get(
+                            "monthlyLoadAerobicLowTargetMax"),
+                        monthly_load_aerobic_high_target_min=data.get(
+                            "monthlyLoadAerobicHighTargetMin"),
+                        monthly_load_aerobic_high_target_max=data.get(
+                            "monthlyLoadAerobicHighTargetMax"),
+                        monthly_load_anaerobic_target_min=data.get(
+                            "monthlyLoadAnaerobicTargetMin"),
+                        monthly_load_anaerobic_target_max=data.get(
+                            "monthlyLoadAnaerobicTargetMax"),
+                        training_balance_feedback_phrase=data.get(
+                            "trainingBalanceFeedbackPhrase")
+                    ).on_duplicate_key_update(
+                        monthly_load_anaerobic=data.get(
+                            "monthlyLoadAnaerobic"),
+                        monthly_load_aerobic_high=data.get(
+                            "monthlyLoadAerobicHigh"),
+                        monthly_load_aerobic_low=data.get(
+                            "monthlyLoadAerobicLow"),
+                        monthly_load_aerobic_low_target_min=data.get(
+                            "monthlyLoadAerobicLowTargetMin"),
+                        monthly_load_aerobic_low_target_max=data.get(
+                            "monthlyLoadAerobicLowTargetMax"),
+                        monthly_load_aerobic_high_target_min=data.get(
+                            "monthlyLoadAerobicHighTargetMin"),
+                        monthly_load_aerobic_high_target_max=data.get(
+                            "monthlyLoadAerobicHighTargetMax"),
+                        monthly_load_anaerobic_target_min=data.get(
+                            "monthlyLoadAnaerobicTargetMin"),
+                        monthly_load_anaerobic_target_max=data.get(
+                            "monthlyLoadAnaerobicTargetMax"),
+                        training_balance_feedback_phrase=data.get(
+                            "trainingBalanceFeedbackPhrase")
+                    )
+                    await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Training load balance data processed successfully for customer_id: " + str(customerId)})
+            except Exception as e:
+                logger.error(
+                    "Error in DB! insert_training_load_balance: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_training_load_balance")
+
+async def insert_fitness_age(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                fitnessData = userInput["result"]
+                stmt = insert(FitnessAge).values(
+                    customer_id=customerId,
+                    calendar_date=fitnessData.get("lastUpdated"),
+                    chronological_age=fitnessData.get("chronologicalAge"),
+                    fitness_age=fitnessData.get("fitnessAge"),
+                    body_fat_value=fitnessData.get("components", {}).get(
+                        "bodyFat", {}).get("value"),
+                    vigorous_days_avg_value=fitnessData.get(
+                        "components", {}).get("vigorousDaysAvg", {}).get("value"),
+                    rhr_value=fitnessData.get("components", {}).get(
+                        "rhr", {}).get("value"),
+                    vigorous_minutes_avg_value=fitnessData.get(
+                        "components", {}).get("vigorousMinutesAvg", {}).get("value")
+                ).on_duplicate_key_update(
+                    chronological_age=fitnessData.get("chronologicalAge"),
+                    fitness_age=fitnessData.get("fitnessAge"),
+                    body_fat_value=fitnessData.get("components", {}).get(
+                        "bodyFat", {}).get("value"),
+                    vigorous_days_avg_value=fitnessData.get(
+                        "components", {}).get("vigorousDaysAvg", {}).get("value"),
+                    rhr_value=fitnessData.get("components", {}).get(
+                        "rhr", {}).get("value"),
+                    vigorous_minutes_avg_value=fitnessData.get(
+                        "components", {}).get("vigorousMinutesAvg", {}).get("value")
+                )
+
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Fitness age data processed successfully for date: " + fitnessData.get("lastUpdated")})
+            except Exception as e:
+                logger.error("Error in DB! insert_fitness_age: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_fitness_age")
 
 
 async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
@@ -415,6 +620,10 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
         model = TrainingReadiness
     elif table == "get_endurance_score":
         model = EnduranceScore
+    elif table == "get_training_status":
+        model = TrainingStatus
+    elif table == "get_fitness_age":
+        model = FitnessAge
     else:
         raise HTTPException(status_code=400, detail="Invalid table name")
 

@@ -1,3 +1,4 @@
+from sqlalchemy import Column, Integer, Float, String, DateTime
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from sqlalchemy import func, create_engine, DateTime, Column, Integer, String, Text, JSON, Float, Boolean, TIMESTAMP, ForeignKey, CHAR, VARCHAR, text
@@ -173,3 +174,44 @@ class EnduranceScore(Base):
     classification_lower_limit_superior = Column(Integer, nullable=True)
     classification_lower_limit_elite = Column(Integer, nullable=True)
     contributors = Column(JSON, nullable=True)
+
+class TrainingStatus(Base):
+    __tablename__ = 'get_training_status'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    daily_training_load_acute = Column(Integer, nullable=True)
+    daily_training_load_acute_feedback = Column(String(50), nullable=True)
+    daily_training_load_chronic = Column(Float, nullable=True)
+    min_training_load_chronic = Column(Float, nullable=True)
+    max_training_load_chronic = Column(Float, nullable=True)
+    vo2_max_precise_value = Column(Float, nullable=True)
+    vo2_max_feedback = Column(String(50), nullable=True)
+    altitude_acclimation = Column(Float, nullable=True)
+    altitude_trend = Column(String(50), nullable=True)
+    current_altitude = Column(Float, nullable=True)
+    altitude_acclimation_percentage = Column(Float, nullable=True)
+    heat_acclimation_percentage = Column(Float, nullable=True)
+    heat_trend = Column(String(50), nullable=True)
+    monthly_load_anaerobic = Column(Float, nullable=True)
+    monthly_load_aerobic_high = Column(Float, nullable=True)
+    monthly_load_aerobic_low = Column(Float, nullable=True)
+    monthly_load_aerobic_low_target_min = Column(Float, nullable=True)
+    monthly_load_aerobic_low_target_max = Column(Float, nullable=True)
+    monthly_load_aerobic_high_target_min = Column(Float, nullable=True)
+    monthly_load_aerobic_high_target_max = Column(Float, nullable=True)
+    monthly_load_anaerobic_target_min = Column(Float, nullable=True)
+    monthly_load_anaerobic_target_max = Column(Float, nullable=True)
+    training_balance_feedback_phrase = Column(String(50), nullable=True)
+
+class FitnessAge(Base):
+    __tablename__ = 'get_fitness_age'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, index=True)
+    chronological_age = Column(Integer, nullable=True)
+    fitness_age = Column(Float, nullable=True)
+    body_fat_value = Column(Float, nullable=True)
+    vigorous_days_avg_value = Column(Float, nullable=True)
+    rhr_value = Column(Integer, nullable=True)
+    vigorous_minutes_avg_value = Column(Float, nullable=True)

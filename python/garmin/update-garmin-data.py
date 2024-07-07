@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
         # action = "get_sleep_data"
         action = sys.argv[1]
+        print(action)
 
         latest_date_str = get_latest_data(action)
         latest_date = datetime.strptime(latest_date_str, "%Y-%m-%d")
@@ -28,15 +29,17 @@ if __name__ == "__main__":
 
         # Loop from the next day after the latest date until today
         current_date = latest_date + timedelta(days=1)
-
+        print("GO")
         while current_date <= end_date:
             date_str = current_date.strftime("%Y-%m-%d")
 
             response = fetch_data(date_str, action)
+            print(f"Date: {date_str}, Response: {response}")
 
             insert_data(response, action, date_str)
 
             current_date += timedelta(days=1)
+        print("DONE")
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

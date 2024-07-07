@@ -85,6 +85,14 @@ class dbProvider:
                 return await insert_training_readiness(AsyncSessionLocal, userInput, customerId)
             elif action == "insert_endurance_score":
                 return await insert_endurance_score(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_training_status":
+                return await insert_training_status(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_max_metrics":
+                return await insert_max_metrics(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_training_load_balance":
+                return await insert_training_load_balance(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_fitness_age":
+                return await insert_fitness_age(AsyncSessionLocal, userInput, customerId)
             elif action == "get_garmin_data":
                 return await get_garmin_data(AsyncSessionLocal, userInput, customerId)
             else:

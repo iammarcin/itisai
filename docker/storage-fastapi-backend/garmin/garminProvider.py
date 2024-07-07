@@ -57,6 +57,7 @@ class garminProvider:
         self.set_settings(userSettings)
         date = userInput.get('date', None)
         date_end = userInput.get('date_end', None)
+
         if not date:
             raise HTTPException(
                 status_code=400, detail="Date is required for Garmin provider")
@@ -68,7 +69,10 @@ class garminProvider:
             "get_hrv_data": "/hrv-service/hrv/%s" % date,
             "get_training_readiness": "/metrics-service/metrics/trainingreadiness/%s" % date,
             "get_endurance_score": "/metrics-service/metrics/endurancescore/stats" if date_end is not None else "/metrics-service/metrics/endurancescore",
-            "get_training_status": "/metrics-service/metrics/trainingstatus/daily/%s" % date
+            "get_training_status": "/metrics-service/metrics/trainingstatus/daily/%s" % date,
+            "get_training_load_balance": "metrics-service/metrics/trainingloadbalance/latest/%s" % date,
+            "get_max_metrics": "metrics-service/metrics/maxmet/latest/%s" % date,
+            "get_fitness_age": "fitnessage-service/fitnessage/%s" % date,
         }
 
         if action not in actions_map:
@@ -106,7 +110,7 @@ class garminProvider:
             return {"calendarDate": str(date)}
         elif action == "get_body_composition":
             return {"startDate": str(date), "endDate": str(date_end or date)}
-        elif action in ["get_hrv_data", "get_training_readiness", "get_training_status"]:
+        elif action in ["get_hrv_data", "get_max_metrics", "get_training_load_balance", "get_fitness_age", "get_training_readiness", "get_training_status"]:
             return None
         elif action == "get_endurance_score":
             if date_end is None:

@@ -32,6 +32,9 @@ def insert_data(response, fetch_data_action, date):
         if fetch_data_action == "get_sleep_data":
             action = "insert_sleep_data"
             data = response.json()["message"]["result"]
+        else:
+            print(f"Unknown action: {fetch_data_action}")
+            sys.exit(1)
 
         db_url = API_URL + "/db"
 
@@ -60,9 +63,11 @@ def insert_data(response, fetch_data_action, date):
 def get_latest_data(fetch_data_action):
 
     if fetch_data_action == "get_sleep_data":
-        action = "get_sleep_data"
-        userInput = {"sort_type": "desc", "offset": 0, "limit": 1}
-        latestEntryIndex = "calendar_date"
+        userInput = {"table": fetch_data_action,
+                     "sort_type": "desc", "offset": 0, "limit": 1}
+    else:
+        print(f"Unknown action: {fetch_data_action}")
+        sys.exit(1)
 
     url = API_URL + "/db"
     response = requests.post(
@@ -70,7 +75,7 @@ def get_latest_data(fetch_data_action):
         headers={"accept": "application/json",
                  "Authorization": "Bearer %s" % authToken},
         json={
-            "action": action,
+            "action": "get_garmin_data",
             "category": "provider.db",
             "userInput": userInput,
             "userSettings": {
@@ -83,7 +88,7 @@ def get_latest_data(fetch_data_action):
 
     if response.status_code == 200:
         latest_entry = response.json()["message"]["result"][0]
-        return latest_entry[latestEntryIndex]
+        return latest_entry["calendar_date"]
     else:
         print(f"Failed to get latest data: {response.status_code}")
         sys.exit(1)
