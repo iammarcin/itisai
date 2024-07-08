@@ -11,7 +11,7 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_fitness_age",
+        "action": "get_body_composition",
         "category": "provider.garmin",
         "userInput": {"date": "2024-07-07"},
         # "userInput": {"date": "2024-07-07", "end_date": "2024-06-19"},

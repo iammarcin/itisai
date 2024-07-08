@@ -64,7 +64,7 @@ class garminProvider:
 
         actions_map = {
             "get_sleep_data": "/wellness-service/wellness/dailySleepData/{self.display_name}",
-            "get_user_summary": "/usersummary-service/usersummary/daily/{self.display_name}",
+            "get_user_summary": "/usersummary-service/usersummary/daily/%s " % self.display_name,
             "get_body_composition": "/weight-service/weight/dateRange",
             "get_hrv_data": "/hrv-service/hrv/%s" % date,
             "get_training_readiness": "/metrics-service/metrics/trainingreadiness/%s" % date,

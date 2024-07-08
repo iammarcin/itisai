@@ -28,17 +28,22 @@ def fetch_data(date, action):
 # having data from garmin API, insert it in DB
 def insert_data(response, fetch_data_action, date):
     if response.status_code == 200:
-        data = None
+        data = response.json()["message"]["result"]
         if fetch_data_action == "get_sleep_data":
             action = "insert_sleep_data"
-            data = response.json()["message"]["result"]
+            if data["dailySleepDTO"]["id"] is None:
+                print("Empty data")
+                return
+        elif fetch_data_action == "get_user_summary":
+            action = "insert_user_summary"
+
         else:
             print(f"Unknown action: {fetch_data_action}")
             sys.exit(1)
 
         db_url = API_URL + "/db"
 
-        if data and data["dailySleepDTO"]["id"] is not None:
+        if data:  # and dataToCheck:
             db_response = requests.post(
                 db_url,
                 headers={"accept": "application/json",

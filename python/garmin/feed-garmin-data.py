@@ -4,6 +4,12 @@ import sys
 
 from garminHelper import fetch_data, insert_data
 
+########
+# this script gets data from Garmin and feeds into DB
+# for specific day
+########
+
+
 if __name__ == "__main__":
     try:
         if len(sys.argv) != 3:
