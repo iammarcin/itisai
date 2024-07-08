@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 import sys
+import time
 
 from garminHelper import fetch_data, insert_data, get_latest_data
 
@@ -35,6 +36,12 @@ if __name__ == "__main__":
             print(f"Date: {date_str}, Response: {response}")
 
             insert_data(response, action, date_str)
+
+            # for this endpoint - they check how often request is called
+            if action == "get_body_composition":
+                time.sleep(30)
+            else:
+                time.sleep(5)
 
             current_date += timedelta(days=1)
         print("Everything processed successfully!")

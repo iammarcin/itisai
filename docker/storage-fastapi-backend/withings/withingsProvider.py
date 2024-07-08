@@ -160,15 +160,13 @@ class WithingsProvider:
 
         req = requests.post(WithingsOAuth2.GETMEAS_URL, params=params)
         measurements = req.json()
-        logger.info("req: %s", req)
-        logger.info("measurements: %s", measurements)
 
         if measurements.get("status") != 0:
             logger.error("Error fetching measurements: %s", measurements)
             raise HTTPException(
                 status_code=500, detail="Failed to get body composition")
 
-        body_measures = []
+        body_measures = {}
         try:
             for group in measurements.get("body", {}).get("measuregrps", []):
                 measures = {m["type"]: m["value"] *
@@ -178,10 +176,10 @@ class WithingsProvider:
                     logger.info("Measures: %s", measures)
 
                 # Check if the group contains the desired measurement (weight)
-                if 1 in measures:
+                if 1 in measures and 8 in measures and 6 in measures and 77 in measures and 88 in measures and 76 in measures:
                     weight = measures.get(1)
                     # vascular_age (155) - doesn't work
-                    measure_group = {
+                    body_measures = {
                         "calendar_date": datetime.fromtimestamp(group["date"]).strftime('%Y-%m-%d'),
                         "weight": round(weight, 2),
                         "bmi": round(weight * 10000 / pow(height, 2), 1),
@@ -193,10 +191,9 @@ class WithingsProvider:
                         "bone_mass_percentage": round(measures.get(88) * 100 / weight, 2),
                         "muscle_mass": measures.get(76),
                         "muscle_mass_percentage": round(measures.get(76) * 100 / weight, 2),
-                        "visceral_fat": measures.get(170),
-                        "basal_metabolic_rate": measures.get(226)
+                        "visceral_fat": measures.get(170) if 170 in measures else None,
+                        "basal_metabolic_rate": measures.get(226) if 226 in measures else None,
                     }
-                    body_measures.append(measure_group)
         except Exception as e:
             logger.error("Error fetching measurements: %s", e)
             raise HTTPException(

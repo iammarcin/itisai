@@ -31,19 +31,20 @@ def insert_data(response, fetch_data_action, date):
         data = response.json()["message"]["result"]
         if fetch_data_action == "get_sleep_data":
             action = "insert_sleep_data"
-            if data["dailySleepDTO"]["id"] is None:
-                print("Empty data")
-                return
+            dataToCheck = data["dailySleepDTO"].get("id") is not None
         elif fetch_data_action == "get_user_summary":
             action = "insert_user_summary"
-
+            dataToCheck = data.get('totalKilocalories') is not None
+        elif fetch_data_action == "get_body_composition":
+            action = "insert_body_composition"
+            dataToCheck = data.get('weight') is not None
         else:
             print(f"Unknown action: {fetch_data_action}")
             sys.exit(1)
 
         db_url = API_URL + "/db"
 
-        if data:  # and dataToCheck:
+        if data and dataToCheck:
             db_response = requests.post(
                 db_url,
                 headers={"accept": "application/json",
@@ -67,12 +68,8 @@ def insert_data(response, fetch_data_action, date):
 # get one last entry of data from DB to understand when was the last entry
 def get_latest_data(fetch_data_action):
 
-    if fetch_data_action == "get_sleep_data":
-        userInput = {"table": fetch_data_action,
-                     "sort_type": "desc", "offset": 0, "limit": 1}
-    else:
-        print(f"Unknown action: {fetch_data_action}")
-        sys.exit(1)
+    userInput = {"table": fetch_data_action,
+                 "sort_type": "desc", "offset": 0, "limit": 1}
 
     url = API_URL + "/db"
     response = requests.post(

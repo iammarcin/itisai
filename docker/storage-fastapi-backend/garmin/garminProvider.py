@@ -68,10 +68,14 @@ class garminProvider:
         # from garmin there is also get_garmin_body_composition - but it doesn't work with some values (f.e. visceral fat)
         # so we're working with Withings here
         if action == "get_body_composition":
-            return self.get_body_composition(date)
+            if self.use_test_data:
+                response = TEST_DATA[action]
+            else:
+                response = self.get_body_composition(date)
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response}}, status_code=200)
 
         actions_map = {
-            "get_sleep_data": "/wellness-service/wellness/dailySleepData/{self.display_name}",
+            "get_sleep_data": "/wellness-service/wellness/dailySleepData/%s " % self.display_name,
             "get_user_summary": "/usersummary-service/usersummary/daily/%s " % self.display_name,
             "get_garmin_body_composition": "/weight-service/weight/dateRange",
             "get_hrv_data": "/hrv-service/hrv/%s" % date,
@@ -136,7 +140,7 @@ class garminProvider:
             provider = WithingsProvider(app_config_file, user_config_file)
             body_composition = provider.get_body_composition(date)
             logger.info("body_composition: %s", body_composition)
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": body_composition}}, status_code=200)
+            return body_composition
         except Exception as e:
             logger.error(
                 "Error in garmin / withings ! get_body_composition: %s", str(e))
