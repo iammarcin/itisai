@@ -262,22 +262,26 @@ async def insert_body_composition(AsyncSessionLocal, userInput: dict, customerId
                 for compositionData in compositionDataList:
                     stmt = insert(BodyComposition).values(
                         customer_id=customerId,
-                        calendar_date=compositionData.get("calendarDate"),
+                        calendar_date=compositionData.get("calendar_date"),
                         weight=compositionData.get("weight"),
                         bmi=compositionData.get("bmi"),
-                        body_fat=compositionData.get("bodyFat"),
-                        body_water=compositionData.get("bodyWater"),
-                        bone_mass=compositionData.get("boneMass"),
-                        muscle_mass=compositionData.get("muscleMass"),
-                        visceral_fat=compositionData.get("visceralFat")
+                        body_fat_percentage=compositionData.get(
+                            "body_fat_percentage"),
+                        body_water_percentage=compositionData.get(
+                            "body_water_percentage"),
+                        bone_mass=compositionData.get("bone_mass"),
+                        muscle_mass=compositionData.get("muscle_mass"),
+                        visceral_fat=compositionData.get("visceral_fat")
                     ).on_duplicate_key_update(
                         weight=compositionData.get("weight"),
                         bmi=compositionData.get("bmi"),
-                        body_fat=compositionData.get("bodyFat"),
-                        body_water=compositionData.get("bodyWater"),
-                        bone_mass=compositionData.get("boneMass"),
-                        muscle_mass=compositionData.get("muscleMass"),
-                        visceral_fat=compositionData.get("visceralFat")
+                        body_fat_percentage=compositionData.get(
+                            "body_fat_percentage"),
+                        body_water_percentage=compositionData.get(
+                            "body_water_percentage"),
+                        bone_mass=compositionData.get("bone_mass"),
+                        muscle_mass=compositionData.get("muscle_mass"),
+                        visceral_fat=compositionData.get("visceral_fat")
                     )
                     await session.execute(stmt)
                 return JSONResponse(status_code=200, content={"message": "Body composition data processed successfully for date range: " + userInput["message"]["result"]["startDate"] + " to " + userInput["message"]["result"]["endDate"]})

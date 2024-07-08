@@ -13,8 +13,6 @@ import logconfig
 logger = logconfig.logger
 
 # special function for garmin - to login on fastapi start
-
-
 def initialize_garmin_provider():
     provider = garminProvider()
     login_successful = provider.login()
@@ -25,8 +23,6 @@ def initialize_garmin_provider():
 
 # Define the helper classes as dependencies (suggested by chatgpt)
 # it's better to use dependency injection to avoid tight coupling between the classes.
-
-
 async def startup_event_generators(app: FastAPI):
     app.dependency_overrides[AITextGenerator] = get_text_generator
     app.dependency_overrides[OpenAISpeechRecognitionGenerator] = get_speech_generator
@@ -36,37 +32,28 @@ async def startup_event_generators(app: FastAPI):
     # Store the Garmin provider instance in the app state for later use
     app.state.garmin_provider = garmin_provider
 
-
 def get_speech_generator():
     return OpenAISpeechRecognitionGenerator()
-
 
 def get_tts_generator():
     return OpenAITTSGenerator()
 
-
 def get_text_generator():
     return AITextGenerator()
-
 
 def get_image_generator():
     return OpenAIImageGenerator()
 
-
 def get_s3_provider():
     return awsProvider()
 
-
 def get_db_provider():
     return dbProvider()
-
 
 def get_garmin_provider(app: FastAPI):
     return app.state.garmin_provider
 
 # method used in multiple API endpoints - to simplify choosing generator
-
-
 def get_generator(category: str, userSettings: dict):
     generators = {
         "text": {"function": get_text_generator},

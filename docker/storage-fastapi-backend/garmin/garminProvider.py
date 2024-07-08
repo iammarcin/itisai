@@ -9,6 +9,9 @@ import traceback
 import logconfig
 import config as config
 
+# even though it is Garmin - this is importing withings - because I can get body composition directly from there
+from withings.withingsProvider import WithingsProvider
+
 # import test data
 from garmin.garmin_test_data import TEST_DATA
 
@@ -62,10 +65,13 @@ class garminProvider:
             raise HTTPException(
                 status_code=400, detail="Date is required for Garmin provider")
 
+        if action == "get_body_composition":
+            return self.get_body_composition(date)
+
         actions_map = {
             "get_sleep_data": "/wellness-service/wellness/dailySleepData/{self.display_name}",
             "get_user_summary": "/usersummary-service/usersummary/daily/%s " % self.display_name,
-            "get_body_composition": "/weight-service/weight/dateRange",
+            "get_garmin_body_composition": "/weight-service/weight/dateRange",
             "get_hrv_data": "/hrv-service/hrv/%s" % date,
             "get_training_readiness": "/metrics-service/metrics/trainingreadiness/%s" % date,
             "get_endurance_score": "/metrics-service/metrics/endurancescore/stats" if date_end is not None else "/metrics-service/metrics/endurancescore",
@@ -119,3 +125,18 @@ class garminProvider:
                 return {"startDate": str(date), "endDate": str(date_end), "aggregation": "weekly"}
 
         return {}
+
+    # special function for withings - to login on fastapi start
+    def get_body_composition(self, date):
+        try:
+            app_config_file = "/root/withings_app.json"
+            user_config_file = "/root/.withings_user.json"
+            provider = WithingsProvider(app_config_file, user_config_file)
+            body_composition = provider.get_body_composition(date)
+            logger.info("body_composition: %s", body_composition)
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": body_composition}}, status_code=200)
+        except Exception as e:
+            logger.error(
+                "Error in garmin / withings ! get_body_composition: %s", str(e))
+            raise HTTPException(
+                status_code=500, detail="Error in garmin / withings ! get_body_composition")
