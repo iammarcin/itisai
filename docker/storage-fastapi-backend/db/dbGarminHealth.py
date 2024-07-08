@@ -265,23 +265,39 @@ async def insert_body_composition(AsyncSessionLocal, userInput: dict, customerId
                         calendar_date=compositionData.get("calendar_date"),
                         weight=compositionData.get("weight"),
                         bmi=compositionData.get("bmi"),
+                        body_fat_mass=compositionData.get("body_fat_mass"),
                         body_fat_percentage=compositionData.get(
                             "body_fat_percentage"),
+                        body_water_mass=compositionData.get("body_water_mass"),
                         body_water_percentage=compositionData.get(
                             "body_water_percentage"),
                         bone_mass=compositionData.get("bone_mass"),
+                        bone_mass_percentage=compositionData.get(
+                            "bone_mass_percentage"),
                         muscle_mass=compositionData.get("muscle_mass"),
-                        visceral_fat=compositionData.get("visceral_fat")
+                        muscle_mass_percentage=compositionData.get(
+                            "muscle_mass_percentage"),
+                        visceral_fat=compositionData.get("visceral_fat"),
+                        basal_metabolic_rate=compositionData.get(
+                            "basal_metabolic_rate")
                     ).on_duplicate_key_update(
                         weight=compositionData.get("weight"),
                         bmi=compositionData.get("bmi"),
+                        body_fat_mass=compositionData.get("body_fat_mass"),
                         body_fat_percentage=compositionData.get(
                             "body_fat_percentage"),
+                        body_water_mass=compositionData.get("body_water_mass"),
                         body_water_percentage=compositionData.get(
                             "body_water_percentage"),
                         bone_mass=compositionData.get("bone_mass"),
+                        bone_mass_percentage=compositionData.get(
+                            "bone_mass_percentage"),
                         muscle_mass=compositionData.get("muscle_mass"),
-                        visceral_fat=compositionData.get("visceral_fat")
+                        muscle_mass_percentage=compositionData.get(
+                            "muscle_mass_percentage"),
+                        visceral_fat=compositionData.get("visceral_fat"),
+                        basal_metabolic_rate=compositionData.get(
+                            "basal_metabolic_rate")
                     )
                     await session.execute(stmt)
                 return JSONResponse(status_code=200, content={"message": "Body composition data processed successfully for date range: " + userInput["message"]["result"]["startDate"] + " to " + userInput["message"]["result"]["endDate"]})

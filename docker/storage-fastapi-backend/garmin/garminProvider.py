@@ -65,6 +65,8 @@ class garminProvider:
             raise HTTPException(
                 status_code=400, detail="Date is required for Garmin provider")
 
+        # from garmin there is also get_garmin_body_composition - but it doesn't work with some values (f.e. visceral fat)
+        # so we're working with Withings here
         if action == "get_body_composition":
             return self.get_body_composition(date)
 

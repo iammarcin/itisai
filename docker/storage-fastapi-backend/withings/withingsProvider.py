@@ -2,9 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import requests
 import json
-import os
-import logging
-from datetime import datetime, date
+from datetime import datetime
 
 import logconfig
 import config as config
@@ -14,6 +12,7 @@ logger = logconfig.logger
 DEBUG = config.defaults["DEBUG"]
 VERBOSE_SUPERB = config.defaults["VERBOSE_SUPERB"]
 
+# IN GENERAL - i have sync between withings and garmin - but in garmin it's impossible(?) to get visceral fat and basal metabolic rate (so created this provider to get it directly from Withings)
 class WithingsConfig:
     """This class takes care of the Withings config file"""
 
@@ -163,6 +162,7 @@ class WithingsProvider:
         measurements = req.json()
         logger.info("req: %s", req)
         logger.info("measurements: %s", measurements)
+
         if measurements.get("status") != 0:
             logger.error("Error fetching measurements: %s", measurements)
             raise HTTPException(
@@ -170,34 +170,36 @@ class WithingsProvider:
 
         body_measures = []
         try:
-
             for group in measurements.get("body", {}).get("measuregrps", []):
                 measures = {m["type"]: m["value"] *
                             (10 ** m["unit"]) for m in group["measures"]}
-                print(group)
-                print(measures)
+                if VERBOSE_SUPERB:
+                    logger.info("Group: %s", group)
+                    logger.info("Measures: %s", measures)
 
-                measure_group = {
-                    "calendar_date": datetime.fromtimestamp(group["date"]).strftime('%Y-%m-%d'),
-                    "weight": measures.get(1),
-                    "bmi": 0,
-                    "body_fat_mass": measures.get(8),
-                    "body_fat_percentage": measures.get(6),
-                    "body_water_mass": measures.get(77),
-                    "body_water_percentage": 0,
-                    "bone_mass": measures.get(88),
-                    "bone_mass_percentage": 0,
-                    "muscle_mass": measures.get(76),
-                    "muscle_mass_percentage": 0,
-                    "visceral_fat": measures.get(170),
-                    "vascular_age": measures.get(155)
-                }
-
-                # Filter out entries with all null values
-                if any(value is not None for key, value in measure_group.items() if key != "calendar_date"):
+                # Check if the group contains the desired measurement (weight)
+                if 1 in measures:
+                    weight = measures.get(1)
+                    # vascular_age (155) - doesn't work
+                    measure_group = {
+                        "calendar_date": datetime.fromtimestamp(group["date"]).strftime('%Y-%m-%d'),
+                        "weight": round(weight, 2),
+                        "bmi": round(weight * 10000 / pow(height, 2), 1),
+                        "body_fat_mass": measures.get(8),
+                        "body_fat_percentage": measures.get(6),
+                        "body_water_mass": measures.get(77),
+                        "body_water_percentage": round(measures.get(77) * 100 / weight, 2),
+                        "bone_mass": measures.get(88),
+                        "bone_mass_percentage": round(measures.get(88) * 100 / weight, 2),
+                        "muscle_mass": measures.get(76),
+                        "muscle_mass_percentage": round(measures.get(76) * 100 / weight, 2),
+                        "visceral_fat": measures.get(170),
+                        "basal_metabolic_rate": measures.get(226)
+                    }
                     body_measures.append(measure_group)
         except Exception as e:
             logger.error("Error fetching measurements: %s", e)
             raise HTTPException(
                 status_code=500, detail="Failed to get body composition")
+
         return body_measures

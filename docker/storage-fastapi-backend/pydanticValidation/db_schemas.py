@@ -126,11 +126,16 @@ class BodyComposition(Base):
     calendar_date = Column(DateTime, index=True)
     weight = Column(Float, nullable=True)
     bmi = Column(Float, nullable=True)
+    body_fat_mass = Column(Float, nullable=True)
     body_fat_percentage = Column(Float, nullable=True)
+    body_water_mass = Column(Float, nullable=True)
     body_water_percentage = Column(Float, nullable=True)
     bone_mass = Column(Float, nullable=True)
+    bone_mass_percentage = Column(Float, nullable=True)
     muscle_mass = Column(Float, nullable=True)
+    muscle_mass_percentage = Column(Float, nullable=True)
     visceral_fat = Column(Float, nullable=True)
+    basal_metabolic_rate = Column(Integer, nullable=True)
 
 class HRVData(Base):
     __tablename__ = 'get_hrv_data'
