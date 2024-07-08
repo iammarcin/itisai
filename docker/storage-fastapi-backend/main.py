@@ -18,18 +18,14 @@ import config as config
 logger = logconfig.logger
 
 #################
-
 version = f"{sys.version_info.major}.{sys.version_info.minor}"
 
 # to set up generators on startup_event
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup event
     await startup_event_generators(app)
     yield
-    # You can add shutdown events after yield if needed
 
 app = FastAPI(lifespan=lifespan, debug=True)
 
@@ -44,8 +40,6 @@ if config.defaults['environment'] != 'production':
     )
 
 # middleware for catching problems with pydantic data validation
-
-
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.info("Error validating request data")
@@ -66,11 +60,9 @@ async def read_root():
 
 ##############################
 # GENERAL generate functions (that do not need file upload or streaming)
-
-
 @app.post("/generate")
 async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)):
-    logger.info("!"*100)
+    logger.info("!" * 100)
     logger.info("Job request: " + str(job_request))
     try:
         if job_request.category in ["tts", "image"]:
@@ -125,8 +117,6 @@ async def chat(job_request: MediaModel, token=Depends(auth_user_token)):
 ##############################
 # this will be used when recording is done in chat mode... and we need to send blob with audio to be processed
 # we cannot use generate_asset - as we are not sending json, but we're sending form-data, so unfortunately different code is needed
-
-
 @app.post("/chat_audio2text")
 async def chat_audio2text(
     action: str = Form(...),
@@ -215,14 +205,12 @@ async def aws_methods(
 
 ########### DB ###########################
 # Endpoint to handle DB stuff (getting, inserting, etc data to mysql)
-
-
 @app.post("/api/db")
 async def db_methods(job_request: MediaModel, request: Request):  # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
     if job_request.action not in ['db_auth_user']:
         token = await auth_user_token(request)
-    logger.debug("!"*100)
+    logger.debug("!" * 100)
     logger.debug("Job request: " + str(job_request))
 
     try:
@@ -257,7 +245,7 @@ async def db_methods(job_request: MediaModel, request: Request):  # token below
 ########### GARMIN ###########################
 @app.post("/api/garmin")
 async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)):
-    logger.info("!"*100)
+    logger.info("!" * 100)
     logger.info("Job request: " + str(job_request))
     try:
         garmin_provider = get_garmin_provider(app)

@@ -145,8 +145,8 @@ class HRVData(Base):
     weekly_avg = Column(Integer, nullable=True)
     last_night_avg = Column(Integer, nullable=True)
     status = Column(String(50), nullable=True)
-    balanced_low = Column(Integer, nullable=True)
-    balanced_upper = Column(Integer, nullable=True)
+    baseline_balanced_low = Column(Integer, nullable=True)
+    baseline_balanced_upper = Column(Integer, nullable=True)
 
 class TrainingReadiness(Base):
     __tablename__ = 'get_training_readiness'

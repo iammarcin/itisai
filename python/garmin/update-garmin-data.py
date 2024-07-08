@@ -41,7 +41,7 @@ if __name__ == "__main__":
             if action == "get_body_composition":
                 time.sleep(30)
             else:
-                time.sleep(5)
+                time.sleep(3)
 
             current_date += timedelta(days=1)
         print("Everything processed successfully!")

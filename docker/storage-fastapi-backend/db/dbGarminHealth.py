@@ -259,7 +259,6 @@ async def insert_body_composition(AsyncSessionLocal, userInput: dict, customerId
         async with session.begin():
             try:
                 compositionData = userInput
-                print("INSERT !! compositionData", compositionData)
                 stmt = insert(BodyComposition).values(
                     customer_id=customerId,
                     calendar_date=compositionData.get("calendar_date"),
@@ -312,7 +311,7 @@ async def insert_hrv_data(AsyncSessionLocal, userInput: dict, customerId):
     async with AsyncSessionLocal() as session:
         async with session.begin():
             try:
-                hrvSummary = userInput["message"]["result"]["hrvSummary"]
+                hrvSummary = userInput["hrvSummary"]
                 stmt = insert(HRVData).values(
                     customer_id=customerId,
                     calendar_date=hrvSummary.get("calendarDate"),
@@ -344,7 +343,7 @@ async def insert_training_readiness(AsyncSessionLocal, userInput: dict, customer
     async with AsyncSessionLocal() as session:
         async with session.begin():
             try:
-                readinessData = userInput["result"][0]
+                readinessData = userInput
                 stmt = insert(TrainingReadiness).values(
                     customer_id=customerId,
                     calendar_date=readinessData.get("calendarDate"),
@@ -441,35 +440,37 @@ async def insert_training_status(AsyncSessionLocal, userInput: dict, customerId)
     async with AsyncSessionLocal() as session:
         async with session.begin():
             try:
-                latest_training_status = userInput["result"]["latestTrainingStatusData"]
-                for device_id, data in latest_training_status.items():
-                    stmt = insert(TrainingStatus).values(
-                        customer_id=customerId,
-                        calendar_date=data.get("calendarDate"),
-                        daily_training_load_acute=data["acuteTrainingLoadDTO"].get(
-                            "dailyTrainingLoadAcute"),
-                        daily_training_load_acute_feedback=data["acuteTrainingLoadDTO"].get(
-                            "acwrStatus"),
-                        daily_training_load_chronic=data["acuteTrainingLoadDTO"].get(
-                            "dailyTrainingLoadChronic"),
-                        min_training_load_chronic=data["acuteTrainingLoadDTO"].get(
-                            "minTrainingLoadChronic"),
-                        max_training_load_chronic=data["acuteTrainingLoadDTO"].get(
-                            "maxTrainingLoadChronic")
-                    ).on_duplicate_key_update(
-                        daily_training_load_acute=data["acuteTrainingLoadDTO"].get(
-                            "dailyTrainingLoadAcute"),
-                        daily_training_load_acute_feedback=data["acuteTrainingLoadDTO"].get(
-                            "acwrStatus"),
-                        daily_training_load_chronic=data["acuteTrainingLoadDTO"].get(
-                            "dailyTrainingLoadChronic"),
-                        min_training_load_chronic=data["acuteTrainingLoadDTO"].get(
-                            "minTrainingLoadChronic"),
-                        max_training_load_chronic=data["acuteTrainingLoadDTO"].get(
-                            "maxTrainingLoadChronic")
-                    )
-                    await session.execute(stmt)
-                return JSONResponse(status_code=200, content={"message": "Training status data processed successfully for customer_id: " + str(customerId)})
+                latest_training_status_data = userInput["latestTrainingStatusData"]
+                # on next level (key?) under latestTrainingStatusData - there is number (id) - which can vary
+                data = next(iter(latest_training_status_data.values()))
+
+                stmt = insert(TrainingStatus).values(
+                    customer_id=customerId,
+                    calendar_date=data.get("calendarDate"),
+                    daily_training_load_acute=data["acuteTrainingLoadDTO"].get(
+                        "dailyTrainingLoadAcute"),
+                    daily_training_load_acute_feedback=data["acuteTrainingLoadDTO"].get(
+                        "acwrStatus"),
+                    daily_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                        "dailyTrainingLoadChronic"),
+                    min_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                        "minTrainingLoadChronic"),
+                    max_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                        "maxTrainingLoadChronic")
+                ).on_duplicate_key_update(
+                    daily_training_load_acute=data["acuteTrainingLoadDTO"].get(
+                        "dailyTrainingLoadAcute"),
+                    daily_training_load_acute_feedback=data["acuteTrainingLoadDTO"].get(
+                        "acwrStatus"),
+                    daily_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                        "dailyTrainingLoadChronic"),
+                    min_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                        "minTrainingLoadChronic"),
+                    max_training_load_chronic=data["acuteTrainingLoadDTO"].get(
+                        "maxTrainingLoadChronic")
+                )
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Training status data processed successfully for day: " + data.get("calendarDate")})
             except Exception as e:
                 logger.error("Error in DB! insert_training_status: %s", str(e))
                 raise HTTPException(
@@ -479,8 +480,8 @@ async def insert_max_metrics(AsyncSessionLocal, userInput: dict, customerId):
     async with AsyncSessionLocal() as session:
         async with session.begin():
             try:
-                data = userInput["result"]["generic"]
-                heat_data = userInput["result"]["heatAltitudeAcclimation"]
+                data = userInput["generic"]
+                heat_data = userInput["heatAltitudeAcclimation"]
 
                 # calculating custom feedback based on garminHelper json with ranges
                 vo2_max_precise_value = data.get("vo2MaxPreciseValue")
@@ -516,7 +517,7 @@ async def insert_max_metrics(AsyncSessionLocal, userInput: dict, customerId):
                     heat_trend=heat_data.get("heatTrend")
                 )
                 await session.execute(stmt)
-                return JSONResponse(status_code=200, content={"message": "Max metrics data processed successfully for customer_id: " + str(customerId)})
+                return JSONResponse(status_code=200, content={"message": "Max metrics data processed successfully for day: " + data.get("calendarDate")})
             except Exception as e:
                 logger.error("Error in DB! insert_max_metrics: %s", str(e))
                 raise HTTPException(
@@ -526,55 +527,58 @@ async def insert_training_load_balance(AsyncSessionLocal, userInput: dict, custo
     async with AsyncSessionLocal() as session:
         async with session.begin():
             try:
-                metrics_data = userInput["result"]["metricsTrainingLoadBalanceDTOMap"]
-                for data in metrics_data.items():
-                    stmt = insert(TrainingStatus).values(
-                        customer_id=customerId,
-                        calendar_date=data.get("calendarDate"),
-                        monthly_load_anaerobic=data.get(
-                            "monthlyLoadAnaerobic"),
-                        monthly_load_aerobic_high=data.get(
-                            "monthlyLoadAerobicHigh"),
-                        monthly_load_aerobic_low=data.get(
-                            "monthlyLoadAerobicLow"),
-                        monthly_load_aerobic_low_target_min=data.get(
-                            "monthlyLoadAerobicLowTargetMin"),
-                        monthly_load_aerobic_low_target_max=data.get(
-                            "monthlyLoadAerobicLowTargetMax"),
-                        monthly_load_aerobic_high_target_min=data.get(
-                            "monthlyLoadAerobicHighTargetMin"),
-                        monthly_load_aerobic_high_target_max=data.get(
-                            "monthlyLoadAerobicHighTargetMax"),
-                        monthly_load_anaerobic_target_min=data.get(
-                            "monthlyLoadAnaerobicTargetMin"),
-                        monthly_load_anaerobic_target_max=data.get(
-                            "monthlyLoadAnaerobicTargetMax"),
-                        training_balance_feedback_phrase=data.get(
-                            "trainingBalanceFeedbackPhrase")
-                    ).on_duplicate_key_update(
-                        monthly_load_anaerobic=data.get(
-                            "monthlyLoadAnaerobic"),
-                        monthly_load_aerobic_high=data.get(
-                            "monthlyLoadAerobicHigh"),
-                        monthly_load_aerobic_low=data.get(
-                            "monthlyLoadAerobicLow"),
-                        monthly_load_aerobic_low_target_min=data.get(
-                            "monthlyLoadAerobicLowTargetMin"),
-                        monthly_load_aerobic_low_target_max=data.get(
-                            "monthlyLoadAerobicLowTargetMax"),
-                        monthly_load_aerobic_high_target_min=data.get(
-                            "monthlyLoadAerobicHighTargetMin"),
-                        monthly_load_aerobic_high_target_max=data.get(
-                            "monthlyLoadAerobicHighTargetMax"),
-                        monthly_load_anaerobic_target_min=data.get(
-                            "monthlyLoadAnaerobicTargetMin"),
-                        monthly_load_anaerobic_target_max=data.get(
-                            "monthlyLoadAnaerobicTargetMax"),
-                        training_balance_feedback_phrase=data.get(
-                            "trainingBalanceFeedbackPhrase")
-                    )
-                    await session.execute(stmt)
-                return JSONResponse(status_code=200, content={"message": "Training load balance data processed successfully for customer_id: " + str(customerId)})
+                metrics_data = userInput["metricsTrainingLoadBalanceDTOMap"]
+
+                # on next level (key?) under metricsTrainingLoadBalanceDTOMap - there is number (id) - which can vary
+                data = next(iter(metrics_data.values()))
+
+                stmt = insert(TrainingStatus).values(
+                    customer_id=customerId,
+                    calendar_date=data.get("calendarDate"),
+                    monthly_load_anaerobic=data.get(
+                        "monthlyLoadAnaerobic"),
+                    monthly_load_aerobic_high=data.get(
+                        "monthlyLoadAerobicHigh"),
+                    monthly_load_aerobic_low=data.get(
+                        "monthlyLoadAerobicLow"),
+                    monthly_load_aerobic_low_target_min=data.get(
+                        "monthlyLoadAerobicLowTargetMin"),
+                    monthly_load_aerobic_low_target_max=data.get(
+                        "monthlyLoadAerobicLowTargetMax"),
+                    monthly_load_aerobic_high_target_min=data.get(
+                        "monthlyLoadAerobicHighTargetMin"),
+                    monthly_load_aerobic_high_target_max=data.get(
+                        "monthlyLoadAerobicHighTargetMax"),
+                    monthly_load_anaerobic_target_min=data.get(
+                        "monthlyLoadAnaerobicTargetMin"),
+                    monthly_load_anaerobic_target_max=data.get(
+                        "monthlyLoadAnaerobicTargetMax"),
+                    training_balance_feedback_phrase=data.get(
+                        "trainingBalanceFeedbackPhrase")
+                ).on_duplicate_key_update(
+                    monthly_load_anaerobic=data.get(
+                        "monthlyLoadAnaerobic"),
+                    monthly_load_aerobic_high=data.get(
+                        "monthlyLoadAerobicHigh"),
+                    monthly_load_aerobic_low=data.get(
+                        "monthlyLoadAerobicLow"),
+                    monthly_load_aerobic_low_target_min=data.get(
+                        "monthlyLoadAerobicLowTargetMin"),
+                    monthly_load_aerobic_low_target_max=data.get(
+                        "monthlyLoadAerobicLowTargetMax"),
+                    monthly_load_aerobic_high_target_min=data.get(
+                        "monthlyLoadAerobicHighTargetMin"),
+                    monthly_load_aerobic_high_target_max=data.get(
+                        "monthlyLoadAerobicHighTargetMax"),
+                    monthly_load_anaerobic_target_min=data.get(
+                        "monthlyLoadAnaerobicTargetMin"),
+                    monthly_load_anaerobic_target_max=data.get(
+                        "monthlyLoadAnaerobicTargetMax"),
+                    training_balance_feedback_phrase=data.get(
+                        "trainingBalanceFeedbackPhrase")
+                )
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Training load balance data processed successfully for day: " + data.get("calendarDate")})
             except Exception as e:
                 logger.error(
                     "Error in DB! insert_training_load_balance: %s", str(e))
