@@ -1,4 +1,20 @@
 # garminHelper.py
+from datetime import datetime
+
+# as VO2max is set rarely (around monthly) we have to take proper data to save as today's value for my training
+async def get_latest_vo2max_before_date(data, target_date):
+    latest_entry = None
+    target_date_dt = datetime.strptime(target_date, "%Y-%m-%d")
+    for key, entry in data.items():
+        if key == 'date':
+            continue
+        entry_date = datetime.strptime(
+            entry["generic"]["calendarDate"], "%Y-%m-%d")
+        if entry_date < target_date_dt:
+            if latest_entry is None or entry_date > datetime.strptime(latest_entry["generic"]["calendarDate"], "%Y-%m-%d"):
+                latest_entry = entry
+    return latest_entry
+
 # data to calculate feedback on VO2 Max value - based on age and sex
 vo2MaxRanges = {
     "MALE": {

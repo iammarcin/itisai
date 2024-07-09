@@ -9,7 +9,7 @@ from pydanticValidation.db_schemas import SleepData, UserSummary, BodyCompositio
 from sqlalchemy import select
 
 from db.dbHelper import to_dict
-from db.garminHelper import getVO2MaxFeedback
+from db.garminHelper import getVO2MaxFeedback, get_latest_vo2max_before_date
 
 import logconfig
 import config as config
@@ -476,30 +476,48 @@ async def insert_training_status(AsyncSessionLocal, userInput: dict, customerId)
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_training_status")
 
+# here we really get vo2max value only (and get the feedback per age)
+# it's little bit more complex then other functions because the data is set around monthly
+# so we get this data and save every day the same value - based on monthly value from garmin
 async def insert_max_metrics(AsyncSessionLocal, userInput: dict, customerId):
     async with AsyncSessionLocal() as session:
         async with session.begin():
             try:
-                data = userInput["generic"]
-                # calculating custom feedback based on garminHelper json with ranges
+                target_date_str = userInput.get("date")
+                if not target_date_str:
+                    return JSONResponse(status_code=400, content={"message": "Target date is required"})
+
+                target_date = datetime.strptime(target_date_str, "%Y-%m-%d")
+
+                # Get the latest vo2MaxPreciseValue before the target_date
+                latest_entry = await get_latest_vo2max_before_date(userInput, target_date_str)
+                if not latest_entry:
+                    return JSONResponse(status_code=404, content={"message": "No valid VO2 max data found before the target date"})
+
+                data = latest_entry["generic"]
                 vo2_max_precise_value = data.get("vo2MaxPreciseValue")
-                # get data from userInput or provide default value
+
+                # Calculate custom feedback based on garminHelper json with ranges
                 age = userInput.get("age", datetime.now().year - 1981)
                 sex = userInput.get("sex", "male").upper()
                 vo2_max_feedback = getVO2MaxFeedback(
                     sex, age, vo2_max_precise_value)
 
+                # Prepare the statement for insertion or update
                 stmt = insert(TrainingStatus).values(
                     customer_id=customerId,
-                    calendar_date=data.get("calendarDate"),
+                    calendar_date=target_date.strftime("%Y-%m-%d"),
                     vo2_max_precise_value=vo2_max_precise_value,
                     vo2_max_feedback=vo2_max_feedback,
                 ).on_duplicate_key_update(
                     vo2_max_precise_value=vo2_max_precise_value,
                     vo2_max_feedback=vo2_max_feedback,
                 )
+
+                # Execute the statement
                 await session.execute(stmt)
-                return JSONResponse(status_code=200, content={"message": "Max metrics data processed successfully for day: " + data.get("calendarDate")})
+                return JSONResponse(status_code=200, content={"message": "Max metrics data processed successfully for day: " + target_date.strftime("%Y-%m-%d")})
+
             except Exception as e:
                 logger.error("Error in DB! insert_max_metrics: %s", str(e))
                 raise HTTPException(
@@ -613,6 +631,10 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     offset = userInput.get("offset", 0)
     limit = userInput.get("limit", None)
     table = userInput.get("table", None)
+    # these flags (by default False) - will filter out null values for vo2max and training load (explained in garminHelper get_latest_data)
+    ignore_null_vo2max = userInput.get("ignore_null_vo2max", False)
+    ignore_null_training_load_data = userInput.get(
+        "ignore_null_training_load_data", False)
 
     if table == "get_sleep_data":
         model = SleepData
@@ -649,6 +671,12 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
 
             if limit is not None:
                 query = query.limit(limit)
+
+            if ignore_null_vo2max:
+                query = query.where(model.vo2_max_precise_value != None)
+
+            if ignore_null_training_load_data:
+                query = query.where(model.monthly_load_anaerobic != None)
 
             query = query.offset(offset)
 

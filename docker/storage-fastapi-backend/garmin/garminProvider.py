@@ -83,7 +83,7 @@ class garminProvider:
             "get_endurance_score": "/metrics-service/metrics/endurancescore/stats" if date_end is not None else "/metrics-service/metrics/endurancescore",
             "get_training_status": "/metrics-service/metrics/trainingstatus/daily/%s" % date,
             "get_training_load_balance": "metrics-service/metrics/trainingloadbalance/latest/%s" % date,
-            "get_max_metrics": "metrics-service/metrics/maxmet/latest/%s" % date if date_end is None else "/metrics-service/metrics/maxmet/daily/%s/%s" % (date, date_end),
+            "get_max_metrics": "/metrics-service/metrics/maxmet/monthly/%s/%s" % (date, date_end) if date_end is not None else "/metrics-service/metrics/maxmet/latest/%s" % date,
             "get_fitness_age": "fitnessage-service/fitnessage/%s" % date,
         }
 
