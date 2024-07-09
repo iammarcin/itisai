@@ -481,8 +481,6 @@ async def insert_max_metrics(AsyncSessionLocal, userInput: dict, customerId):
         async with session.begin():
             try:
                 data = userInput["generic"]
-                heat_data = userInput["heatAltitudeAcclimation"]
-
                 # calculating custom feedback based on garminHelper json with ranges
                 vo2_max_precise_value = data.get("vo2MaxPreciseValue")
                 # get data from userInput or provide default value
@@ -496,25 +494,9 @@ async def insert_max_metrics(AsyncSessionLocal, userInput: dict, customerId):
                     calendar_date=data.get("calendarDate"),
                     vo2_max_precise_value=vo2_max_precise_value,
                     vo2_max_feedback=vo2_max_feedback,
-                    altitude_acclimation=heat_data.get("altitudeAcclimation"),
-                    altitude_trend=heat_data.get("altitudeTrend"),
-                    current_altitude=heat_data.get("currentAltitude"),
-                    altitude_acclimation_percentage=heat_data.get(
-                        "acclimationPercentage"),
-                    heat_acclimation_percentage=heat_data.get(
-                        "heatAcclimationPercentage"),
-                    heat_trend=heat_data.get("heatTrend")
                 ).on_duplicate_key_update(
                     vo2_max_precise_value=vo2_max_precise_value,
                     vo2_max_feedback=vo2_max_feedback,
-                    altitude_acclimation=heat_data.get("altitudeAcclimation"),
-                    altitude_trend=heat_data.get("altitudeTrend"),
-                    current_altitude=heat_data.get("currentAltitude"),
-                    altitude_acclimation_percentage=heat_data.get(
-                        "acclimationPercentage"),
-                    heat_acclimation_percentage=heat_data.get(
-                        "heatAcclimationPercentage"),
-                    heat_trend=heat_data.get("heatTrend")
                 )
                 await session.execute(stmt)
                 return JSONResponse(status_code=200, content={"message": "Max metrics data processed successfully for day: " + data.get("calendarDate")})

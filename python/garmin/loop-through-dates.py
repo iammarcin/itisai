@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import sys
+import time
 
 from garminHelper import fetch_data, insert_data
 
@@ -15,9 +16,11 @@ if len(sys.argv) < 2:
 # action = "get_sleep_data"
 action = sys.argv[1]
 
-start_date = datetime.strptime("2024-01-02", "%Y-%m-%d") if len(
-    sys.argv) < 3 else datetime.strptime(sys.argv[2], "%Y-%m-%d")
-end_date = datetime.strptime("2024-01-03", "%Y-%m-%d") if len(
+# Set start_date to yesterday and end_date to today if not provided
+start_date = datetime.now() - \
+    timedelta(days=1) if len(sys.argv) < 3 else datetime.strptime(
+        sys.argv[2], "%Y-%m-%d")
+end_date = datetime.now() if len(
     sys.argv) < 4 else datetime.strptime(sys.argv[3], "%Y-%m-%d")
 
 current_date = start_date
@@ -31,5 +34,11 @@ while current_date <= end_date:
     else:
         print(
             f"Failed to get data for {date_str}: {response.status_code}")
+
+    # for this endpoint - they check how often request is called
+    if action == "get_body_composition":
+        time.sleep(30)
+    else:
+        time.sleep(1)
 
     current_date += timedelta(days=1)

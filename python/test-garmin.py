@@ -11,10 +11,10 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_body_composition",
+        "action": "get_max_metrics",
         "category": "provider.garmin",
-        "userInput": {"date": "2024-01-13"},
-        # "userInput": {"date": "2024-07-07", "date_end": "2024-07-09"},
+        # "userInput": {"date": "2024-01-13"},
+        "userInput": {"date": "2024-01-07", "date_end": "2024-07-08"},
         # "userInput": {"date": "2024-07-07", "end_date": "2024-06-19"},
         # "userInput": {"sort_type": "desc", "offset": 0, "limit": 1},
         "userSettings": {'text': {
