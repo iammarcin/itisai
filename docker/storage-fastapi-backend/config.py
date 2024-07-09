@@ -20,21 +20,21 @@ defaults = dict(
 
 if defaults['environment'] == 'production':
     defaults['LOCAL_MAIN_STORAGE'] = "/storage/testApi/"
-    defaults['AWS_REGION']="eu-south-2"
-    defaults['AWS_S3_BUCKET']="myaiappess3bucket"
-    defaults['MYSQL_HOST']="db.atamai.biz"
-    defaults['MYSQL_DB']="aiapp"
+    defaults['AWS_REGION'] = "eu-south-2"
+    defaults['AWS_S3_BUCKET'] = "myaiappess3bucket"
+    defaults['MYSQL_HOST'] = "db.goodtogreat.life"
+    defaults['MYSQL_DB'] = "aiapp"
 elif defaults['environment'] == 'sherlock':
     defaults['LOCAL_MAIN_STORAGE'] = "/storage/testApi/"
-    defaults['AWS_REGION']="eu-south-2"
-    defaults['AWS_S3_BUCKET']="myaiappess3bucketnonprod"
-    defaults['MYSQL_HOST']="db.atamai.biz"
-    defaults['MYSQL_DB']="aiapp_nonprod"
+    defaults['AWS_REGION'] = "eu-south-2"
+    defaults['AWS_S3_BUCKET'] = "myaiappess3bucketnonprod"
+    defaults['MYSQL_HOST'] = "db.goodtogreat.life"
+    defaults['MYSQL_DB'] = "aiapp_nonprod"
 else:  # local non docker
     home_dir = os.path.expanduser("~")
     # defaults['LOCAL_MAIN_STORAGE']          = f"{home_dir}/storage/testApi/"
     defaults['LOCAL_MAIN_STORAGE'] = "/storage/testApi/"
-    defaults['AWS_REGION']="eu-south-2"
-    defaults['AWS_S3_BUCKET']="myaiappess3bucketnonprod"
-    defaults['MYSQL_HOST']="db.atamai.biz"
-    defaults['MYSQL_DB']="aiapp_nonprod"
+    defaults['AWS_REGION'] = "eu-south-2"
+    defaults['AWS_S3_BUCKET'] = "myaiappess3bucketnonprod"
+    defaults['MYSQL_HOST'] = "db.goodtogreat.life"
+    defaults['MYSQL_DB'] = "aiapp_nonprod"

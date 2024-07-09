@@ -9,8 +9,26 @@ authToken = os.getenv("MY_AUTH_BEARER_TOKEN")
 
 DEBUG = 0
 
+def api_call(url, action, category, userInput):
+    response = requests.post(
+        url,
+        headers={"accept": "application/json",
+                 "Authorization": "Bearer %s" % authToken},
+        json={
+            "action": action,
+            "category": category,
+            "userInput": userInput,
+            "userSettings": {
+                'general': {'returnTestData': False},
+                'provider.garmin': {}
+            },
+            "customerId": 1
+        },
+    )
+    return response
+
 # get data for specific date (from garmin API)
-def fetch_data(date, action):
+def fetch_garmin_data(date, action, additionalParams={}):
 
     # for metrics we need to set date_end too (and it has to be specific for Garmin API requirements)
     if action == "get_max_metrics":
@@ -34,29 +52,18 @@ def fetch_data(date, action):
             "date": first_day_last_year_month.strftime("%Y-%m-%d"),
             "date_end": last_day_current_month.strftime("%Y-%m-%d")
         }
+    elif action == "get_activity_hr_in_timezones":
+        # merge additionalParams into userInput
+        userInput = {**{"date": date}, **additionalParams}
     else:
-        userInput = {"date": date},
+        userInput = {"date": date}
 
     url = API_URL + "/garmin"
-    response = requests.post(
-        url,
-        headers={"accept": "application/json",
-                 "Authorization": "Bearer %s" % authToken},
-        json={
-            "action": action,
-            "category": "provider.garmin",
-            "userInput": userInput,
-            "userSettings": {
-                'general': {'returnTestData': False},
-                'provider.garmin': {}
-            },
-            "customerId": 1
-        },
-    )
+    response = api_call(url, action, "provider.garmin", userInput)
     return response
 
 # having data from garmin API, insert it in DB
-def insert_data(response, fetch_data_action, date):
+def insert_db_data(response, fetch_data_action, date):
     if DEBUG:
         print("RESPONSE : ", response.json())
     if response.status_code == 200:
@@ -104,6 +111,9 @@ def insert_data(response, fetch_data_action, date):
                 action = "insert_training_load_balance"
                 dataToCheck = data.get(
                     'metricsTrainingLoadBalanceDTOMap') is not None
+            elif fetch_data_action == "get_activities":
+                action = "insert_activity_data"
+                dataToCheck = data.get('activityId') is not None
             else:
                 print(f"Unknown action: {fetch_data_action}")
                 sys.exit(1)
@@ -111,22 +121,9 @@ def insert_data(response, fetch_data_action, date):
             db_url = API_URL + "/db"
 
             if data and dataToCheck:
-                db_response = requests.post(
-                    db_url,
-                    headers={"accept": "application/json",
-                             "Authorization": "Bearer %s" % authToken},
-                    json={
-                        "action": action,
-                        "category": "provider.db",
-                        "userInput": data,
-                        "userSettings": {
-                            'general': {'returnTestData': False},
-                            'provider.garmin': {}
-                        },
-                        "customerId": 1
-                    }
-                )
-                print(db_response.json())
+                db_response = api_call(db_url, action, "provider.db", data)
+                if DEBUG:
+                    print(db_response.json())
             else:
                 print(f"No data for {date}")
         except Exception as e:
@@ -138,7 +135,7 @@ def insert_data(response, fetch_data_action, date):
 
 
 # get one last entry of data from DB to understand when was the last entry
-def get_latest_data(fetch_data_action):
+def get_latest_db_data(fetch_data_action):
     # for these 2 methods - different useInput - because we don't check when was last entry in DB - but we check existing entries
     # (because get_training_status was executed already and added data - (not) simply we use single table but filling data from 3 different garmin endpoints)
     # so these 2 methods - need to check if data is there - but it's NULL
@@ -155,25 +152,14 @@ def get_latest_data(fetch_data_action):
                      "sort_type": "desc", "offset": 0, "limit": 1}
 
     url = API_URL + "/db"
-    response = requests.post(
-        url,
-        headers={"accept": "application/json",
-                 "Authorization": "Bearer %s" % authToken},
-        json={
-            "action": "get_garmin_data",
-            "category": "provider.db",
-            "userInput": userInput,
-            "userSettings": {
-                'general': {'returnTestData': False},
-                'provider.garmin': {}
-            },
-            "customerId": 1
-        },
-    )
+    response = api_call(url, "get_garmin_data", "provider.db", userInput)
 
     if response.status_code == 200:
-        latest_entry = response.json()["message"]["result"][0]
-        return latest_entry["calendar_date"]
+        if response.json()["message"]["result"] == []:
+            return None
+        else:
+            latest_entry = response.json()["message"]["result"][0]
+            return latest_entry["calendar_date"]
     else:
         print(f"Failed to get latest data: {response.status_code}")
         sys.exit(1)

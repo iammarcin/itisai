@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from sqlalchemy.dialects.mysql import insert
-from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore, TrainingStatus, FitnessAge
+from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore, TrainingStatus, FitnessAge, TrainingData
 
 from sqlalchemy import select
 
@@ -623,6 +623,98 @@ async def insert_fitness_age(AsyncSessionLocal, userInput: dict, customerId):
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_fitness_age")
 
+async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                activity = userInput
+
+                # Extracting secsInZone data
+                secs_in_zone = {
+                    f"secs_in_zone{zone['zoneNumber']}": zone["secsInZone"] for zone in activity.get("zones", [])}
+
+                stmt = insert(TrainingData).values(
+                    customer_id=customerId,
+                    calendar_date=activity.get("startTimeLocal").split(" ")[0],
+                    activity_id=activity.get("activityId"),
+                    activity_type=activity.get(
+                        "activityType", {}).get("typeKey"),
+                    distance=activity.get("distance"),
+                    duration=activity.get("duration"),
+                    elevation_gain=activity.get("elevationGain"),
+                    elevation_loss=activity.get("elevationLoss"),
+                    min_elevation=activity.get("minElevation"),
+                    max_elevation=activity.get("maxElevation"),
+                    calories=activity.get("calories"),
+                    bmr_calories=activity.get("bmrCalories"),
+                    steps=activity.get("steps"),
+                    aerobic_training_effect=activity.get(
+                        "aerobicTrainingEffect"),
+                    anaerobic_training_effect=activity.get(
+                        "anaerobicTrainingEffect"),
+                    activity_training_load=activity.get(
+                        "activityTrainingLoad"),
+                    training_effect_label=activity.get("trainingEffectLabel"),
+                    aerobic_training_effect_message=activity.get(
+                        "aerobicTrainingEffectMessage"),
+                    anaerobic_training_effect_message=activity.get(
+                        "anaerobicTrainingEffectMessage"),
+                    moderate_intensity_minutes=activity.get(
+                        "moderateIntensityMinutes"),
+                    vigorous_intensity_minutes=activity.get(
+                        "vigorousIntensityMinutes"),
+                    difference_body_battery=activity.get(
+                        "differenceBodyBattery"),
+                    secs_in_zone1=secs_in_zone.get("secs_in_zone1"),
+                    secs_in_zone2=secs_in_zone.get("secs_in_zone2"),
+                    secs_in_zone3=secs_in_zone.get("secs_in_zone3"),
+                    secs_in_zone4=secs_in_zone.get("secs_in_zone4"),
+                    secs_in_zone5=secs_in_zone.get("secs_in_zone5")
+                ).on_duplicate_key_update(
+                    activity_type=activity.get(
+                        "activityType", {}).get("typeKey"),
+                    distance=activity.get("distance"),
+                    duration=activity.get("duration"),
+                    elevation_gain=activity.get("elevationGain"),
+                    elevation_loss=activity.get("elevationLoss"),
+                    min_elevation=activity.get("minElevation"),
+                    max_elevation=activity.get("maxElevation"),
+                    calories=activity.get("calories"),
+                    bmr_calories=activity.get("bmrCalories"),
+                    steps=activity.get("steps"),
+                    aerobic_training_effect=activity.get(
+                        "aerobicTrainingEffect"),
+                    anaerobic_training_effect=activity.get(
+                        "anaerobicTrainingEffect"),
+                    activity_training_load=activity.get(
+                        "activityTrainingLoad"),
+                    training_effect_label=activity.get("trainingEffectLabel"),
+                    aerobic_training_effect_message=activity.get(
+                        "aerobicTrainingEffectMessage"),
+                    anaerobic_training_effect_message=activity.get(
+                        "anaerobicTrainingEffectMessage"),
+                    moderate_intensity_minutes=activity.get(
+                        "moderateIntensityMinutes"),
+                    vigorous_intensity_minutes=activity.get(
+                        "vigorousIntensityMinutes"),
+                    difference_body_battery=activity.get(
+                        "differenceBodyBattery"),
+                    secs_in_zone1=secs_in_zone.get("secs_in_zone1"),
+                    secs_in_zone2=secs_in_zone.get("secs_in_zone2"),
+                    secs_in_zone3=secs_in_zone.get("secs_in_zone3"),
+                    secs_in_zone4=secs_in_zone.get("secs_in_zone4"),
+                    secs_in_zone5=secs_in_zone.get("secs_in_zone5")
+                )
+
+                await session.execute(stmt)
+                await session.commit()
+
+                return JSONResponse(status_code=200, content={"message": "Activity processed. Date: %s , activity_id: %s" % (activity.get("startTimeLocal").split(" ")[0], activity.get("activityId"))})
+            except Exception as e:
+                logger.error("Error in DB! insert_activity_data: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_activity_data")
+
 
 async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     start_date = userInput.get("start_date", None)
@@ -652,6 +744,8 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
         model = TrainingStatus
     elif table == "get_fitness_age":
         model = FitnessAge
+    elif table == "get_activities":
+        model = TrainingData
     else:
         raise HTTPException(status_code=400, detail="Invalid table name")
 

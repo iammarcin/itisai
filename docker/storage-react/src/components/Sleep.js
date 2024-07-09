@@ -35,6 +35,7 @@ const Sleep = () => {
 
   const fetchData = useCallback(async () => {
     try {
+      console.log("EXEC")
       const userInput = {
         "start_date": "2024-01-01",
         "end_date": "2024-07-01",
@@ -46,6 +47,8 @@ const Sleep = () => {
         "get_garmin_data",
         userInput
       );
+
+      console.log('response: ', response);
 
       const data = response.message?.result;
 
@@ -121,6 +124,8 @@ const Sleep = () => {
   }, []);
 
   useEffect(() => {
+    console.log('useEffect');
+    console.log("hasFetchedData.current: ", hasFetchedData.current)
     if (!hasFetchedData.current) {
       fetchData();
       hasFetchedData.current = true;

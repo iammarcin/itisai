@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import sys
 import time
 
-from garminHelper import fetch_data, insert_data
+from garminHelper import fetch_garmin_data, insert_db_data
 
 ########
 # this script loops through manually provided dates
@@ -27,10 +27,10 @@ current_date = start_date
 while current_date <= end_date:
     date_str = current_date.strftime("%Y-%m-%d")
 
-    response = fetch_data(date_str, action)
+    response = fetch_garmin_data(date_str, action)
 
     if response.status_code == 200:
-        insert_data(response, action, date_str)
+        insert_db_data(response, action, date_str)
     else:
         print(
             f"Failed to get data for {date_str}: {response.status_code}")

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import sys
 import time
 
-from garminHelper import fetch_data, insert_data, get_latest_data
+from garminHelper import fetch_garmin_data, insert_db_data, get_latest_db_data
 
 ########
 # this script gets latest data from DB, gets latest date
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         # action = "get_sleep_data"
         action = sys.argv[1]
 
-        latest_date_str = get_latest_data(action)
+        latest_date_str = get_latest_db_data(action)
         latest_date = datetime.strptime(latest_date_str, "%Y-%m-%d")
 
         # Define the end date as today's date
@@ -32,10 +32,10 @@ if __name__ == "__main__":
         while current_date <= end_date:
             date_str = current_date.strftime("%Y-%m-%d")
 
-            response = fetch_data(date_str, action)
+            response = fetch_garmin_data(date_str, action)
             print(f"Date: {date_str}, Response: {response}")
 
-            insert_data(response, action, date_str)
+            insert_db_data(response, action, date_str)
 
             # for this endpoint - they check how often request is called
             if action == "get_body_composition":
