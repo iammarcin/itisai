@@ -98,12 +98,8 @@ class ClaudeTextGenerator:
             chat_history = prepare_chat_history(
                 chat_history, self.memory_token_limit, self.model_name, self.support_image_input)
 
-            # Add system prompt and latest user message to chat history
-
             chat_history.append(
                 {"role": "user", "content": latest_user_message})
-            # chat_history.append(
-            #    {"role": "assistant", "content": self.system_prompt})
 
             logger.debug("Chat history: %s", chat_history)
 
