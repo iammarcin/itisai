@@ -155,7 +155,7 @@ class AITextGenerator:
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"
                 return
-
+            print("Chat history: ", chat_history)
             response = self.llm.chat.completions.create(
                 model=self.model_name,
                 messages=chat_history,

@@ -40,7 +40,7 @@ def get_tts_generator():
     return OpenAITTSGenerator()
 
 def get_text_generator(model: str):
-    if model == "claude-3-5-sonnet":
+    if model == "Claude-3.5":
         return ClaudeTextGenerator()
     else:
         return AITextGenerator()

@@ -28,7 +28,7 @@ class ClaudeTextGenerator:
         self.temperature = 0
         self.system_prompt = "You are an expert!"
         self.use_test_data = False
-        self.llm = anthropic.Anthropic()
+        self.client = anthropic.Anthropic()
 
     def set_settings(self, user_settings={}):
         if user_settings:
@@ -66,6 +66,8 @@ class ClaudeTextGenerator:
     def set_system_prompt(self, ai_character: str):
         template = getTextPromptTemplate(ai_character)['template']
         self.system_prompt = template
+        # add ai_character text at the end
+        self.system_prompt = self.system_prompt + " " + ai_character + ":"
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS
@@ -84,7 +86,7 @@ class ClaudeTextGenerator:
     def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
 
         try:
-            '''
+
             chat_history = userInput.get('chat_history') if userInput.get(
                 'chat_history') is not None else []
             latest_user_message = userInput.get('prompt')
@@ -96,26 +98,31 @@ class ClaudeTextGenerator:
                 chat_history, self.memory_token_limit, self.model_name, self.support_image_input)
 
             # Add system prompt and latest user message to chat history
-            chat_history.append(
-                {"role": "system", "content": self.system_prompt})
+
             chat_history.append(
                 {"role": "user", "content": latest_user_message})
+            chat_history.append(
+                {"role": "assistant", "content": self.system_prompt})
 
             logger.debug("Chat history: %s", chat_history)
 
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"
                 return
-            '''
-            response = self.llm.messages.create(
-                model=self.model_name,
-                messages={"role": "user", "content": "Hello, Claude"},
-                max_tokens=1024,
-                # temperature=self.temperature,
-                # stream=self.streaming,
-            )
-            print("RESPONSE: ", response)
+
+            print("STREAMING: ", self.streaming)
+
             if self.streaming:
+                with self.client.messages.stream(
+                    max_tokens=1024,
+                    messages=chat_history,
+                    model=self.model_name
+                ) as stream:
+                    for text in stream.text_stream:
+                        print(text, end="", flush=True)
+                        yield f"{text}"
+
+                '''
                 for chunk in response:
                     current_content = chunk.choices[0].delta.content
                     if current_content is not None:
@@ -123,9 +130,18 @@ class ClaudeTextGenerator:
 
                         # Format the output as a proper SSE message
                         yield f"{current_content}"
+                '''
             else:
+                response = self.client.messages.create(
+                    model=self.model_name,
+                    messages=chat_history,
+                    max_tokens=1024,
+                    # temperature=self.temperature,
+                    # stream=self.streaming,
+                )
+                print("RESPONSE: ", response)
                 # if no streaming - just throw whole response
-                yield f"{response.choices[0].message.content}"
+                yield f"{response.content}"
         except Exception as e:
             logger.error("Error in streaming from Text generator:", str(e))
             # Error message in SSE format

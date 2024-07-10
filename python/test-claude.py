@@ -18,7 +18,7 @@ response = requests.post(
         "userInput": {"prompt": "List 1 interesting thing to do"},
         "userSettings": {
             'text': {
-                'temperature': 0.05, 'model': 'claude-3-5-sonnet', 'memory_limit': 680,
+                'temperature': 0.05, 'model': 'Claude-3.5', 'memory_limit': 680,
                 'ai_character': 'assistant', 'streaming': True},
             'tts': {'stability': 0, 'similarity_boost': 0, 'voice': 'alloy', 'streaming':
                     True, 'speed': 1, 'model': 'tts-1'}, 'speech': {'language': 'en', 'temperature': 0},
