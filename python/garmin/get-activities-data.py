@@ -3,7 +3,6 @@
 from datetime import datetime, timedelta
 from requests.models import Response
 import sys
-import json
 import time
 
 from garminHelper import fetch_garmin_data, insert_db_data, get_latest_db_data
@@ -79,14 +78,26 @@ if __name__ == "__main__":
                     f"Failed to get data for {date}: {response.status_code}")
                 sys.exit(1)
 
-            # insert_db_data(response, "get_activities", date)
-        '''
         if loop_through_dates:
             # Define the end date as today's date
             end_date = datetime.today()
+            # end_date = "2024-01-07"
             # we start from latest day - because there might be more trainings uploaded same day (and if something we will just overwrite it)
             current_date = latest_date
-        '''
+
+            print("latest_date: ", latest_date)
+
+            while current_date <= end_date:
+                date_str = current_date.strftime("%Y-%m-%d")
+                response = fetch_garmin_data(date_str, "get_activities")
+                print(f"Date: {date_str}, Response: {response}")
+                activities_data = response.json()["message"]["result"]
+                loop_through_trainings(activities_data, date)
+                time.sleep(1)
+                current_date += timedelta(days=1)
+
+            print("Everything processed successfully!")
+
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

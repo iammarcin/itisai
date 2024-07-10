@@ -623,6 +623,7 @@ async def insert_fitness_age(AsyncSessionLocal, userInput: dict, customerId):
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_fitness_age")
 
+
 async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
     async with AsyncSessionLocal() as session:
         async with session.begin():
@@ -635,7 +636,8 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
 
                 stmt = insert(TrainingData).values(
                     customer_id=customerId,
-                    calendar_date=activity.get("startTimeLocal").split(" ")[0],
+                    calendar_date=activity.get(
+                        "startTimeLocal").split(" ")[0],
                     activity_id=activity.get("activityId"),
                     activity_type=activity.get(
                         "activityType", {}).get("typeKey"),
@@ -654,7 +656,8 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                         "anaerobicTrainingEffect"),
                     activity_training_load=activity.get(
                         "activityTrainingLoad"),
-                    training_effect_label=activity.get("trainingEffectLabel"),
+                    training_effect_label=activity.get(
+                        "trainingEffectLabel"),
                     aerobic_training_effect_message=activity.get(
                         "aerobicTrainingEffectMessage"),
                     anaerobic_training_effect_message=activity.get(
@@ -688,7 +691,8 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                         "anaerobicTrainingEffect"),
                     activity_training_load=activity.get(
                         "activityTrainingLoad"),
-                    training_effect_label=activity.get("trainingEffectLabel"),
+                    training_effect_label=activity.get(
+                        "trainingEffectLabel"),
                     aerobic_training_effect_message=activity.get(
                         "aerobicTrainingEffectMessage"),
                     anaerobic_training_effect_message=activity.get(
@@ -705,16 +709,13 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     secs_in_zone4=secs_in_zone.get("secs_in_zone4"),
                     secs_in_zone5=secs_in_zone.get("secs_in_zone5")
                 )
-
                 await session.execute(stmt)
-                await session.commit()
 
                 return JSONResponse(status_code=200, content={"message": "Activity processed. Date: %s , activity_id: %s" % (activity.get("startTimeLocal").split(" ")[0], activity.get("activityId"))})
             except Exception as e:
                 logger.error("Error in DB! insert_activity_data: %s", str(e))
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_activity_data")
-
 
 async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     start_date = userInput.get("start_date", None)
