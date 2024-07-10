@@ -641,6 +641,8 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     activity_id=activity.get("activityId"),
                     activity_type=activity.get(
                         "activityType", {}).get("typeKey"),
+                    activity_name=activity.get("activityName"),
+                    description=activity.get("description"),
                     distance=activity.get("distance"),
                     duration=activity.get("duration"),
                     elevation_gain=activity.get("elevationGain"),
@@ -676,6 +678,8 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                 ).on_duplicate_key_update(
                     activity_type=activity.get(
                         "activityType", {}).get("typeKey"),
+                    activity_name=activity.get("activityName"),
+                    description=activity.get("description"),
                     distance=activity.get("distance"),
                     duration=activity.get("duration"),
                     elevation_gain=activity.get("elevationGain"),

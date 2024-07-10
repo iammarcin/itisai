@@ -61,7 +61,20 @@ if __name__ == "__main__":
             latest_date = datetime.strptime(latest_date_str, "%Y-%m-%d")
             loop_through_dates = True
 
-        if not loop_through_dates:
+        if loop_through_dates:
+            # Define the end date as today's date
+            end_date = datetime.today()
+            # we start from latest day, not latest + 1 - because there might be more trainings uploaded same day (and if something we will just overwrite it)
+            current_date = latest_date
+
+            while current_date <= end_date:
+                date_str = current_date.strftime("%Y-%m-%d")
+                response = fetch_garmin_data(date_str, "get_activities")
+                activities_data = response.json()["message"]["result"]
+                loop_through_trainings(activities_data, date_str)
+                time.sleep(1)
+                current_date += timedelta(days=1)
+        else:
             # get data for specific date from garmin provider
             response = fetch_garmin_data(
                 date, "get_activities")
@@ -87,16 +100,7 @@ if __name__ == "__main__":
 
             print("latest_date: ", latest_date)
 
-            while current_date <= end_date:
-                date_str = current_date.strftime("%Y-%m-%d")
-                response = fetch_garmin_data(date_str, "get_activities")
-                print(f"Date: {date_str}, Response: {response}")
-                activities_data = response.json()["message"]["result"]
-                loop_through_trainings(activities_data, date)
-                time.sleep(1)
-                current_date += timedelta(days=1)
-
-            print("Everything processed successfully!")
+        print("Everything processed successfully!")
 
     except Exception as e:
         print(f"Error: {e}")

@@ -222,6 +222,8 @@ class TrainingData(Base):
     calendar_date = Column(DateTime, index=True)
     activity_id = Column(Integer, nullable=False, unique=True)
     activity_type = Column(String(50), nullable=True)
+    activity_name = Column(String(150), nullable=True)
+    description = Column(String(255), nullable=True)
     distance = Column(Float, nullable=True)
     duration = Column(Float, nullable=True)
     elevation_gain = Column(Float, nullable=True)
