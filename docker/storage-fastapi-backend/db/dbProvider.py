@@ -7,6 +7,7 @@ import os
 import bcrypt
 import traceback
 # from tenacity import retry, stop_after_attempt, wait_fixed
+from datetime import datetime
 
 from sqlalchemy import create_engine, MetaData, func, select, and_, or_, distinct, insert
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -110,9 +111,12 @@ class dbProvider:
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
-                    session_name = userInput.get('session_name', "New chat")
+                    date_now = datetime.now().strftime("%Y-%m-%d")
+                    session_name = userInput.get(
+                        'session_name', "New chat %s" % date_now)
                     ai_character_name = userInput.get(
                         'ai_character_name', "assistant")
+
                     chat_history = userInput.get('chat_history', [])
 
                     new_session_id = await self._db_new_session_internal(session, customerId, session_name, ai_character_name, chat_history)
@@ -130,9 +134,13 @@ class dbProvider:
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
+                    logger.info("!*" * 30)
+                    logger.info("userInput : " + str(userInput))
                     # Check if session_id is set, if not create a new session
                     if not userInput.get('session_id'):
-                        userInput['session_id'] = await self._db_new_session_internal(session, customerId)
+                        # date now in format YYYY-MM-DD
+                        date_now = datetime.now().strftime("%Y-%m-%d")
+                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat %s" % date_now)
 
                     userMessage = userInput['userMessage']
                     aiResponse = userInput.get('aiResponse')
@@ -170,6 +178,9 @@ class dbProvider:
                     if chat_session:
                         chat_history = userInput['chat_history']
 
+                        print("T!" * 30)
+                        print("chat_history: ", chat_history)
+
                         userMessageIndex = -2
                         if not aiResponse:
                             userMessageIndex = -1
@@ -184,6 +195,12 @@ class dbProvider:
                         # verify first few AI messages
                         if len(chat_history) < 3:
                             for message in chat_history:
+                                print("----")
+                                print("message: ", message)
+                                print("isUserMessage: ",
+                                      message.get('isUserMessage'))
+                                print("aiCharacterName: ",
+                                      message.get('aiCharacterName'))
                                 if not message.get('isUserMessage'):
                                     ai_character_name = message.get(
                                         'aiCharacterName')
@@ -192,8 +209,8 @@ class dbProvider:
                                         break
 
                         # but if it's set already - let's leave it as is (important! because we don't want to overwrite if we have one time message to different character - using @)
-                        if chat_session.ai_character_name != "":
-                            chat_session_ai_character = chat_session.ai_character_name
+                        # if chat_session.ai_character_name != "":
+                        #    chat_session_ai_character = chat_session.ai_character_name
 
                         if chat_session_ai_character == "":
                             if userSettings['text'].get('ai_character'):

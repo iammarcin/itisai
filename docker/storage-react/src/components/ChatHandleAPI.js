@@ -18,7 +18,10 @@ const ChatHandleAPI = async ({
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
-  if (!updatedChatContent[sessionIndexForAPI].ai_character_name)
+  console.log("chatContent: ", chatContent)
+  console.log("chatContent messages length: ", chatContent[sessionIndexForAPI].messages.length)
+  // if it's not first message and ai_character is set - don't overwrite it (at the beginning we set it as assistant)
+  if (!updatedChatContent[sessionIndexForAPI].ai_character_name || chatContent[sessionIndexForAPI].messages.length < 2)
     updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
 
   // get current character (later we will check if auto response is set)
