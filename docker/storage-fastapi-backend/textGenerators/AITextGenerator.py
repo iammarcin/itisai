@@ -27,6 +27,7 @@ class AITextGenerator:
         # text generation timeout - can it be set?!
         self.request_timeout = 180
         self.temperature = 0
+        self.max_tokens = 3072
         self.system_prompt = "You are an expert!"
         self.use_test_data = False
         self.llm = OpenAI()
@@ -155,11 +156,12 @@ class AITextGenerator:
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"
                 return
-            print("Chat history: ", chat_history)
+
             response = self.llm.chat.completions.create(
                 model=self.model_name,
                 messages=chat_history,
                 temperature=self.temperature,
+                max_tokens=self.max_tokens,
                 stream=self.streaming,
             )
 

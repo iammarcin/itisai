@@ -26,6 +26,7 @@ class ClaudeTextGenerator:
         # text generation timeout - can it be set?!
         self.request_timeout = 180
         self.temperature = 0
+        self.max_tokens = 3072
         self.system_prompt = "You are an expert!"
         self.use_test_data = False
         self.client = anthropic.Anthropic()
@@ -101,8 +102,8 @@ class ClaudeTextGenerator:
 
             chat_history.append(
                 {"role": "user", "content": latest_user_message})
-            chat_history.append(
-                {"role": "assistant", "content": self.system_prompt})
+            # chat_history.append(
+            #    {"role": "assistant", "content": self.system_prompt})
 
             logger.debug("Chat history: %s", chat_history)
 
@@ -114,28 +115,22 @@ class ClaudeTextGenerator:
 
             if self.streaming:
                 with self.client.messages.stream(
-                    max_tokens=1024,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    system=self.system_prompt,
                     messages=chat_history,
                     model=self.model_name
                 ) as stream:
                     for text in stream.text_stream:
                         print(text, end="", flush=True)
                         yield f"{text}"
-
-                '''
-                for chunk in response:
-                    current_content = chunk.choices[0].delta.content
-                    if current_content is not None:
-                        # logger.debug(str(current_content))
-
-                        # Format the output as a proper SSE message
-                        yield f"{current_content}"
-                '''
             else:
                 response = self.client.messages.create(
                     model=self.model_name,
+                    system=self.system_prompt,
                     messages=chat_history,
-                    max_tokens=1024,
+                    temperature=self.temperature,
+                    max_tokens=self.max_tokens,
                     # temperature=self.temperature,
                     # stream=self.streaming,
                 )
