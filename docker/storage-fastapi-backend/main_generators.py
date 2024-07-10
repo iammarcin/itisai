@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from textGenerators.AITextGenerator import AITextGenerator
+from textGenerators.ClaudeAITextGenerator import ClaudeTextGenerator
 from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
 from imageGenerators.OpenAIImageGenerator import OpenAIImageGenerator
 from tts.OpenAITTS import OpenAITTSGenerator
@@ -38,8 +39,11 @@ def get_speech_generator():
 def get_tts_generator():
     return OpenAITTSGenerator()
 
-def get_text_generator():
-    return AITextGenerator()
+def get_text_generator(model: str):
+    if model == "claude-3-5-sonnet":
+        return ClaudeTextGenerator()
+    else:
+        return AITextGenerator()
 
 def get_image_generator():
     return OpenAIImageGenerator()
@@ -65,7 +69,11 @@ def get_generator(category: str, userSettings: dict):
     }
 
     if category in generators:
-        generator = generators[category]["function"]()
+        if category == "text":
+            model = userSettings.get("model")
+            generator = generators[category]["function"](model)
+        else:
+            generator = generators[category]["function"]()
         return generator
     else:
         return None

@@ -24,3 +24,4 @@ tenacity # to retry on failed DB operations
 bcrypt # password from DB
 google-api-python-client
 garth # garmin
+anthropic
