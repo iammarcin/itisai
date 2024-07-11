@@ -13,13 +13,15 @@ from garminHelper import fetch_garmin_data, insert_db_data
 if __name__ == "__main__":
     try:
         if len(sys.argv) != 3:
-            print("Usage: python feed-garmin-data.py <action> <date>")
+            print("Usage: python garmin-data-specific-day.py <action> <date>")
             sys.exit(1)
         action = sys.argv[1]
         date = sys.argv[2]
 
         response = fetch_garmin_data(date, action)
         insert_db_data(response, action, date)
+
+        print("%s data for day: %s successfully processed" % (action, date))
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

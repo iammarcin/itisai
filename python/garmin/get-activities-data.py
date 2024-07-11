@@ -74,6 +74,7 @@ if __name__ == "__main__":
                 loop_through_trainings(activities_data, date_str)
                 time.sleep(1)
                 current_date += timedelta(days=1)
+                print("Activities data for day: %s successfully processed" % date_str)
         else:
             # get data for specific date from garmin provider
             response = fetch_garmin_data(
@@ -86,19 +87,11 @@ if __name__ == "__main__":
                 else:
                     activities_data = response.json()["message"]["result"]
                     loop_through_trainings(activities_data, date)
+                    print("Activities data for day: %s successfully processed" % date)
             else:
                 print(
                     f"Failed to get data for {date}: {response.status_code}")
                 sys.exit(1)
-
-        if loop_through_dates:
-            # Define the end date as today's date
-            end_date = datetime.today()
-            # end_date = "2024-01-07"
-            # we start from latest day - because there might be more trainings uploaded same day (and if something we will just overwrite it)
-            current_date = latest_date
-
-            print("latest_date: ", latest_date)
 
         print("Everything processed successfully!")
 

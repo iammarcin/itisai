@@ -39,6 +39,9 @@ while current_date <= end_date:
     if action == "get_body_composition":
         time.sleep(30)
     else:
-        time.sleep(1)
+        time.sleep(5)
 
     current_date += timedelta(days=1)
+    print("%s data for day: %s successfully processed" % (action, date_str))
+
+print("Everything processed successfully!")

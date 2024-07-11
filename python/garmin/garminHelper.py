@@ -38,16 +38,10 @@ def fetch_garmin_data(date, action, additionalParams={}):
         if provided_date > datetime.today():
             print("Date is in the future")
             sys.exit(1)
-        # unfortunately quite complex calculations for a date
-        first_day_last_year_month = (
-            provided_date - timedelta(days=365)).replace(day=1) + timedelta(days=31)
-        first_day_last_year_month = first_day_last_year_month.replace(day=1)
+        # unfortunately quite complex calculations for a date - so i put into another function
+        first_day_last_year_month, last_day_current_month = transform_date(
+            provided_date)
 
-        # Calculate the last day of the current month
-        last_day_current_month = provided_date.replace(
-            day=1) + timedelta(days=31)
-        last_day_current_month = last_day_current_month.replace(
-            day=1) - timedelta(days=1)
         userInput = {
             "date": first_day_last_year_month.strftime("%Y-%m-%d"),
             "date_end": last_day_current_month.strftime("%Y-%m-%d")
@@ -163,3 +157,18 @@ def get_latest_db_data(fetch_data_action):
     else:
         print(f"Failed to get latest data: {response.status_code}")
         sys.exit(1)
+
+# for get_max_metrics - based on provided date - we need to get last day of month (from this date)
+# and first day of (month + 1) (from last year)
+# this is to have full year range for API call to garmin
+def transform_date(provided_date):
+    first_day_last_year_month = (
+        provided_date - timedelta(days=365)).replace(day=1) + timedelta(days=31)
+    first_day_last_year_month = first_day_last_year_month.replace(day=1)
+
+    # Calculate the last day of the current month
+    last_day_current_month = provided_date.replace(
+        day=1) + timedelta(days=31)
+    last_day_current_month = last_day_current_month.replace(
+        day=1) - timedelta(days=1)
+    return first_day_last_year_month, last_day_current_month

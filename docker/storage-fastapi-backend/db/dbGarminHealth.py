@@ -9,7 +9,7 @@ from pydanticValidation.db_schemas import SleepData, UserSummary, BodyCompositio
 from sqlalchemy import select
 
 from db.dbHelper import to_dict
-from db.garminHelper import getVO2MaxFeedback, get_latest_vo2max_before_date
+from db.garminHelper import getVO2MaxFeedback, get_latest_vo2max_before_date, convert_timestamp_to_hhmm
 
 import logconfig
 import config as config
@@ -24,11 +24,26 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
         async with session.begin():
             try:
                 mainSleepData = userInput["dailySleepDTO"]
+                nap_data = [
+                    {
+                        "napTimeSec": nap.get("napTimeSec"),
+                        "napFeedback": nap.get("napFeedback"),
+                        "napStart": datetime.fromisoformat(nap.get("napStartTimestampGMT")).strftime('%H:%M'),
+                        "napEnd": datetime.fromisoformat(nap.get("napEndTimestampGMT")).strftime('%H:%M')
+                    }
+                    for nap in mainSleepData.get("dailyNapDTOS", [])
+                ] if mainSleepData.get("napTimeSeconds", 0) > 0 else None
+
                 stmt = insert(SleepData).values(
                     customer_id=customerId,
                     calendar_date=mainSleepData.get("calendarDate"),
                     sleep_time_seconds=mainSleepData.get("sleepTimeSeconds"),
+                    sleep_start=convert_timestamp_to_hhmm(
+                        mainSleepData.get("sleepStartTimestampLocal")),
+                    sleep_end=convert_timestamp_to_hhmm(
+                        mainSleepData.get("sleepEndTimestampLocal")),
                     nap_time_seconds=mainSleepData.get("napTimeSeconds"),
+                    nap_data=nap_data,
                     deep_sleep_seconds=mainSleepData.get("deepSleepSeconds"),
                     light_sleep_seconds=mainSleepData.get("lightSleepSeconds"),
                     rem_sleep_seconds=mainSleepData.get("remSleepSeconds"),
@@ -48,10 +63,16 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                         "sleepScorePersonalizedInsight"),
                     overall_score_value=mainSleepData.get(
                         'sleepScores', {}).get("overall", {}).get("value"),
-                    overall_score_qualifier=mainSleepData.get('sleepScores', {}).get(
-                        "overall", {}).get("qualifierKey"),
-                    rem_percentage_value=mainSleepData.get('sleepScores', {}).get(
-                        "remPercentage", {}).get("value"),
+                    overall_score_qualifier=mainSleepData.get(
+                        'sleepScores', {}).get("overall", {}).get("qualifierKey"),
+                    total_duration_qualifier=mainSleepData.get('sleepScores', {}).get(
+                        "totalDuration", {}).get("qualifierKey"),
+                    stress_qualifier=mainSleepData.get('sleepScores', {}).get(
+                        "stress", {}).get("qualifierKey"),
+                    awake_count_qualifier=mainSleepData.get('sleepScores', {}).get(
+                        "awakeCount", {}).get("qualifierKey"),
+                    rem_percentage_value=mainSleepData.get(
+                        'sleepScores', {}).get("remPercentage", {}).get("value"),
                     rem_percentage_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "remPercentage", {}).get("qualifierKey"),
                     rem_optimal_start=mainSleepData.get('sleepScores', {}).get(
@@ -60,20 +81,20 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                         "remPercentage", {}).get("optimalEnd"),
                     restlessness_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "restlessness", {}).get("qualifierKey"),
-                    restlessness_optimal_start=mainSleepData.get('sleepScores', {}).get(
-                        "restlessness", {}).get("optimalStart"),
-                    restlessness_optimal_end=mainSleepData.get('sleepScores', {}).get(
-                        "restlessness", {}).get("optimalEnd"),
-                    light_percentage_value=mainSleepData.get('sleepScores', {}).get(
-                        "lightPercentage", {}).get("value"),
+                    restlessness_optimal_start=mainSleepData.get(
+                        'sleepScores', {}).get("restlessness", {}).get("optimalStart"),
+                    restlessness_optimal_end=mainSleepData.get(
+                        'sleepScores', {}).get("restlessness", {}).get("optimalEnd"),
+                    light_percentage_value=mainSleepData.get(
+                        'sleepScores', {}).get("lightPercentage", {}).get("value"),
                     light_percentage_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "lightPercentage", {}).get("qualifierKey"),
                     light_optimal_start=mainSleepData.get('sleepScores', {}).get(
                         "lightPercentage", {}).get("optimalStart"),
                     light_optimal_end=mainSleepData.get('sleepScores', {}).get(
                         "lightPercentage", {}).get("optimalEnd"),
-                    deep_percentage_value=mainSleepData.get('sleepScores', {}).get(
-                        "deepPercentage", {}).get("value"),
+                    deep_percentage_value=mainSleepData.get(
+                        'sleepScores', {}).get("deepPercentage", {}).get("value"),
                     deep_percentage_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "deepPercentage", {}).get("qualifierKey"),
                     deep_optimal_start=mainSleepData.get('sleepScores', {}).get(
@@ -84,10 +105,15 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                     resting_heart_rate=userInput.get("restingHeartRate"),
                     body_battery_change=userInput.get("bodyBatteryChange"),
                     restless_moments_count=userInput.get(
-                        "restlessMomentsCount")
+                        "restlessMomentsCount"),
                 ).on_duplicate_key_update(
                     sleep_time_seconds=mainSleepData.get("sleepTimeSeconds"),
+                    sleep_start=convert_timestamp_to_hhmm(
+                        mainSleepData.get("sleepStartTimestampLocal")),
+                    sleep_end=convert_timestamp_to_hhmm(
+                        mainSleepData.get("sleepEndTimestampLocal")),
                     nap_time_seconds=mainSleepData.get("napTimeSeconds"),
+                    nap_data=nap_data,
                     deep_sleep_seconds=mainSleepData.get("deepSleepSeconds"),
                     light_sleep_seconds=mainSleepData.get("lightSleepSeconds"),
                     rem_sleep_seconds=mainSleepData.get("remSleepSeconds"),
@@ -107,10 +133,16 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                         "sleepScorePersonalizedInsight"),
                     overall_score_value=mainSleepData.get(
                         'sleepScores', {}).get("overall", {}).get("value"),
-                    overall_score_qualifier=mainSleepData.get('sleepScores', {}).get(
-                        "overall", {}).get("qualifierKey"),
-                    rem_percentage_value=mainSleepData.get('sleepScores', {}).get(
-                        "remPercentage", {}).get("value"),
+                    overall_score_qualifier=mainSleepData.get(
+                        'sleepScores', {}).get("overall", {}).get("qualifierKey"),
+                    total_duration_qualifier=mainSleepData.get('sleepScores', {}).get(
+                        "totalDuration", {}).get("qualifierKey"),
+                    stress_qualifier=mainSleepData.get('sleepScores', {}).get(
+                        "stress", {}).get("qualifierKey"),
+                    awake_count_qualifier=mainSleepData.get('sleepScores', {}).get(
+                        "awakeCount", {}).get("qualifierKey"),
+                    rem_percentage_value=mainSleepData.get(
+                        'sleepScores', {}).get("remPercentage", {}).get("value"),
                     rem_percentage_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "remPercentage", {}).get("qualifierKey"),
                     rem_optimal_start=mainSleepData.get('sleepScores', {}).get(
@@ -119,20 +151,20 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                         "remPercentage", {}).get("optimalEnd"),
                     restlessness_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "restlessness", {}).get("qualifierKey"),
-                    restlessness_optimal_start=mainSleepData.get('sleepScores', {}).get(
-                        "restlessness", {}).get("optimalStart"),
-                    restlessness_optimal_end=mainSleepData.get('sleepScores', {}).get(
-                        "restlessness", {}).get("optimalEnd"),
-                    light_percentage_value=mainSleepData.get('sleepScores', {}).get(
-                        "lightPercentage", {}).get("value"),
+                    restlessness_optimal_start=mainSleepData.get(
+                        'sleepScores', {}).get("restlessness", {}).get("optimalStart"),
+                    restlessness_optimal_end=mainSleepData.get(
+                        'sleepScores', {}).get("restlessness", {}).get("optimalEnd"),
+                    light_percentage_value=mainSleepData.get(
+                        'sleepScores', {}).get("lightPercentage", {}).get("value"),
                     light_percentage_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "lightPercentage", {}).get("qualifierKey"),
                     light_optimal_start=mainSleepData.get('sleepScores', {}).get(
                         "lightPercentage", {}).get("optimalStart"),
                     light_optimal_end=mainSleepData.get('sleepScores', {}).get(
                         "lightPercentage", {}).get("optimalEnd"),
-                    deep_percentage_value=mainSleepData.get('sleepScores', {}).get(
-                        "deepPercentage", {}).get("value"),
+                    deep_percentage_value=mainSleepData.get(
+                        'sleepScores', {}).get("deepPercentage", {}).get("value"),
                     deep_percentage_qualifier=mainSleepData.get('sleepScores', {}).get(
                         "deepPercentage", {}).get("qualifierKey"),
                     deep_optimal_start=mainSleepData.get('sleepScores', {}).get(
@@ -143,7 +175,7 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                     resting_heart_rate=userInput.get("restingHeartRate"),
                     body_battery_change=userInput.get("bodyBatteryChange"),
                     restless_moments_count=userInput.get(
-                        "restlessMomentsCount")
+                        "restlessMomentsCount"),
                 )
 
                 await session.execute(stmt)

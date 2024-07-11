@@ -1,6 +1,11 @@
 # garminHelper.py
 from datetime import datetime
 
+def convert_timestamp_to_hhmm(timestamp):
+    if timestamp:
+        return datetime.fromtimestamp(timestamp / 1000).strftime('%H:%M')
+    return None
+
 # as VO2max is set rarely (around monthly) we have to take proper data to save as today's value for my training
 async def get_latest_vo2max_before_date(data, target_date):
     latest_entry = None

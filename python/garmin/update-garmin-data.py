@@ -37,6 +37,9 @@ if __name__ == "__main__":
 
             insert_db_data(response, action, date_str)
 
+            print("%s data for day: %s successfully processed" %
+                  (action, date_str))
+
             # for this endpoint - they check how often request is called
             if action == "get_body_composition":
                 time.sleep(30)

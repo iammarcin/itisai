@@ -14,3 +14,4 @@ docker/storage-fastapi-backend/itisai_brain/*
 .*.swp
 __pycache__
 .DS_Store
+docker.log
