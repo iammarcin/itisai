@@ -210,8 +210,8 @@ async def db_methods(job_request: MediaModel, request: Request):  # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
     if job_request.action not in ['db_auth_user']:
         token = await auth_user_token(request)
-    logger.debug("!" * 100)
-    logger.debug("Job request: " + str(job_request))
+    logger.info("*" * 100)
+    logger.info(job_request)
 
     try:
         my_generator = get_generator(job_request.category, "doesntmatter")
@@ -245,8 +245,8 @@ async def db_methods(job_request: MediaModel, request: Request):  # token below
 ########### GARMIN ###########################
 @app.post("/api/garmin")
 async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)):
-    logger.info("!" * 100)
-    logger.info("Job request: " + str(job_request))
+    logger.info("*" * 100)
+    logger.info(job_request)
     try:
         garmin_provider = get_garmin_provider(app)
         response = await garmin_provider.process_job_request(job_request.action, job_request.userInput, job_request.assetInput, job_request.customerId, userSettings=job_request.userSettings)

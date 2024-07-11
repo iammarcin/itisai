@@ -1,7 +1,7 @@
 // ChatHandleAPI.js
 import config from '../config';
 import apiMethods from '../services/api.methods';
-import { getTextAICharacter, setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
+import { setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 import { characters } from './ChatCharacters';
 
 // to clarify some of params:
@@ -10,7 +10,7 @@ import { characters } from './ChatCharacters';
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 // currentSessionIndex - also needed - as we're checking if currently generating in active session
 const ChatHandleAPI = async ({
-  userInput, editMessagePosition, attachedImages, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+  userInput, editMessagePosition, attachedImages, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -22,10 +22,10 @@ const ChatHandleAPI = async ({
   console.log("chatContent messages length: ", chatContent[sessionIndexForAPI].messages.length)
   // if it's not first message and ai_character is set - don't overwrite it (at the beginning we set it as assistant)
   if (!updatedChatContent[sessionIndexForAPI].ai_character_name || chatContent[sessionIndexForAPI].messages.length < 2)
-    updatedChatContent[sessionIndexForAPI].ai_character_name = getTextAICharacter()
+    updatedChatContent[sessionIndexForAPI].ai_character_name = currentAICharacter
 
   // get current character (later we will check if auto response is set)
-  const currentCharacter = characters.find(character => character.nameForAPI === getTextAICharacter());
+  const currentCharacter = characters.find(character => character.nameForAPI === currentAICharacter);
 
   // collect chat history (needed to send it API to get whole context of chat)
   // (excluding the latest message - as this will be sent via userPrompt), including images if any
@@ -67,6 +67,8 @@ const ChatHandleAPI = async ({
     if (config.VERBOSE_SUPERB === 1) {
       console.log("API call. Final User Input", finalUserInput);
     }
+
+    // most characters will have autoResponse - set to true - because we want them to respond (but there are exceptions)
     if (currentCharacter.autoResponse) {
       if (editMessagePosition === null) {
         // Add a placeholder for the AI message
@@ -74,7 +76,7 @@ const ChatHandleAPI = async ({
           message: '',
           isUserMessage: false,
           imageLocations: [],
-          aiCharacterName: getTextAICharacter()
+          aiCharacterName: currentAICharacter
         };
         updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
         aiMessageIndex = updatedChatContent[sessionIndexForAPI].messages.length - 1;
@@ -87,7 +89,7 @@ const ChatHandleAPI = async ({
             message: '',
             isUserMessage: false,
             imageLocations: [],
-            aiCharacterName: getTextAICharacter()
+            aiCharacterName: currentAICharacter
           };
           updatedChatContent[sessionIndexForAPI].messages.push(aiMessagePlaceholder);
         } else {
@@ -101,7 +103,7 @@ const ChatHandleAPI = async ({
       await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
         onChunkReceived: (chunk) => {
           // if it's artgen and user disabled show prompt - don't show it
-          if (getTextAICharacter() === "tools_artgen" && getImageArtgenShowPrompt() === false) {
+          if (currentAICharacter === "tools_artgen" && getImageArtgenShowPrompt() === false) {
             return
           }
           chunkBuffer += chunk;
@@ -160,8 +162,6 @@ const ChatHandleAPI = async ({
             }
           });
 
-          console.log("current AI char: ", getTextAICharacter())
-          console.log("currentAIResponse.aiCharacterName", currentAIResponse.aiCharacterName)
           // for artgen mode - if image is enabled and no images attached - generate image
           if (currentAIResponse.aiCharacterName === "tools_artgen" && getImageAutoGenerateImage() && attachedImages.length === 0) {
             manageProgressText("show", "Image");

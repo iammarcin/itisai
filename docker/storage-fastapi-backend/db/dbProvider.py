@@ -138,11 +138,15 @@ class dbProvider:
                 try:
                     logger.info("!*" * 30)
                     logger.info("userInput : " + str(userInput))
+                    logger.info("userSettings : " + str(userSettings))
+
                     # Check if session_id is set, if not create a new session
                     if not userInput.get('session_id'):
+                        ai_character = userSettings.get(
+                            'text', {}).get('ai_character', 'assistant')
                         # date now in format YYYY-MM-DD
                         date_now = datetime.now().strftime("%Y-%m-%d")
-                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat %s" % date_now)
+                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat %s" % date_now, ai_character_name=ai_character)
 
                     userMessage = userInput['userMessage']
                     aiResponse = userInput.get('aiResponse')
@@ -193,6 +197,8 @@ class dbProvider:
 
                         chat_session.chat_history = chat_history
 
+                        # this is to set AI character for session. I think it will not be used at all (there are only few small cases)
+                        # because it should be set when new db session is set
                         chat_session_ai_character = ""
                         # verify first few AI messages
                         if len(chat_history) < 3:
@@ -211,8 +217,8 @@ class dbProvider:
                                         break
 
                         # but if it's set already - let's leave it as is (important! because we don't want to overwrite if we have one time message to different character - using @)
-                        # if chat_session.ai_character_name != "":
-                        #    chat_session_ai_character = chat_session.ai_character_name
+                        if chat_session.ai_character_name != "":
+                            chat_session_ai_character = chat_session.ai_character_name
 
                         if chat_session_ai_character == "":
                             if userSettings['text'].get('ai_character'):
@@ -488,7 +494,9 @@ class dbProvider:
             ai_character_name=ai_character_name,
             chat_history=chat_history
         )
+        logger.info("ai character: %s", ai_character_name)
         session.add(new_session)
+
         await session.flush()
         logger.debug("New session ID: %s", new_session.session_id)
         return new_session.session_id
