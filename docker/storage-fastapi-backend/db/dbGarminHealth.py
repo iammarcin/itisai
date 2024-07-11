@@ -668,15 +668,23 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
 
                 stmt = insert(TrainingData).values(
                     customer_id=customerId,
-                    calendar_date=activity.get(
-                        "startTimeLocal").split(" ")[0],
+                    calendar_date=activity.get("startTimeLocal").split(" ")[0],
                     activity_id=activity.get("activityId"),
                     activity_type=activity.get(
                         "activityType", {}).get("typeKey"),
                     activity_name=activity.get("activityName"),
                     description=activity.get("description"),
+                    start_time=convert_timestamp_to_hhmm(
+                        activity.get("beginTimestamp")),
+                    start_latitude=activity.get("startLatitude"),
+                    start_longitude=activity.get("startLongitude"),
+                    end_latitude=activity.get("endLatitude"),
+                    end_longitude=activity.get("endLongitude"),
+                    location_name=activity.get("locationName"),
                     distance=activity.get("distance"),
                     duration=activity.get("duration"),
+                    elapsed_duration=activity.get("elapsedDuration"),
+                    moving_duration=activity.get("movingDuration"),
                     elevation_gain=activity.get("elevationGain"),
                     elevation_loss=activity.get("elevationLoss"),
                     min_elevation=activity.get("minElevation"),
@@ -684,14 +692,19 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     calories=activity.get("calories"),
                     bmr_calories=activity.get("bmrCalories"),
                     steps=activity.get("steps"),
+                    average_speed=activity.get("averageSpeed"),
+                    average_hr=activity.get("averageHR"),
+                    max_hr=activity.get("maxHR"),
+                    min_temperature=activity.get("minTemperature"),
+                    max_temperature=activity.get("maxTemperature"),
+                    water_estimated=activity.get("waterEstimated"),
                     aerobic_training_effect=activity.get(
                         "aerobicTrainingEffect"),
                     anaerobic_training_effect=activity.get(
                         "anaerobicTrainingEffect"),
                     activity_training_load=activity.get(
                         "activityTrainingLoad"),
-                    training_effect_label=activity.get(
-                        "trainingEffectLabel"),
+                    training_effect_label=activity.get("trainingEffectLabel"),
                     aerobic_training_effect_message=activity.get(
                         "aerobicTrainingEffectMessage"),
                     anaerobic_training_effect_message=activity.get(
@@ -712,8 +725,17 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                         "activityType", {}).get("typeKey"),
                     activity_name=activity.get("activityName"),
                     description=activity.get("description"),
+                    start_time=convert_timestamp_to_hhmm(
+                        activity.get("beginTimestamp")),
+                    start_latitude=activity.get("startLatitude"),
+                    start_longitude=activity.get("startLongitude"),
+                    end_latitude=activity.get("endLatitude"),
+                    end_longitude=activity.get("endLongitude"),
+                    location_name=activity.get("locationName"),
                     distance=activity.get("distance"),
                     duration=activity.get("duration"),
+                    elapsed_duration=activity.get("elapsedDuration"),
+                    moving_duration=activity.get("movingDuration"),
                     elevation_gain=activity.get("elevationGain"),
                     elevation_loss=activity.get("elevationLoss"),
                     min_elevation=activity.get("minElevation"),
@@ -721,14 +743,19 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     calories=activity.get("calories"),
                     bmr_calories=activity.get("bmrCalories"),
                     steps=activity.get("steps"),
+                    average_speed=activity.get("averageSpeed"),
+                    average_hr=activity.get("averageHR"),
+                    max_hr=activity.get("maxHR"),
+                    min_temperature=activity.get("minTemperature"),
+                    max_temperature=activity.get("maxTemperature"),
+                    water_estimated=activity.get("waterEstimated"),
                     aerobic_training_effect=activity.get(
                         "aerobicTrainingEffect"),
                     anaerobic_training_effect=activity.get(
                         "anaerobicTrainingEffect"),
                     activity_training_load=activity.get(
                         "activityTrainingLoad"),
-                    training_effect_label=activity.get(
-                        "trainingEffectLabel"),
+                    training_effect_label=activity.get("trainingEffectLabel"),
                     aerobic_training_effect_message=activity.get(
                         "aerobicTrainingEffectMessage"),
                     anaerobic_training_effect_message=activity.get(
