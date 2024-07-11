@@ -19,7 +19,7 @@ const Garmin = () => {
     try {
       console.log("EXEC");
       const userInput = {
-        activity_id: "15367619474",
+        activity_id: "16342894456",
         table: "get_activity_gps_data"
       };
       const response = await apiMethods.triggerAPIRequest(

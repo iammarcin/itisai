@@ -37,12 +37,22 @@ def loop_through_trainings(data, date):
                 zones_data = response.json().get("message", {}).get("result", [])
                 activity["zones"] = zones_data
 
+            # now weather
+            response = fetch_garmin_data(
+                date, "get_activity_weather", additionalParams={"activity_id": activity_id})
+
+            if response.status_code == 200:
+                weather_data = response.json().get("message", {}).get("result", [])
+                if weather_data['issueDate']:
+                    activity["weather_data"] = weather_data
+
             response_data = CustomResponse(
                 activity, status_code=response.status_code)
 
             insert_db_data(response_data, "get_activities", date)
 
             # and now GPS data
+
             response = fetch_garmin_data(
                 date, "get_activity", additionalParams={"activity_id": activity_id})
 

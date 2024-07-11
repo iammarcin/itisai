@@ -46,7 +46,7 @@ def fetch_garmin_data(date, action, additionalParams={}):
             "date": first_day_last_year_month.strftime("%Y-%m-%d"),
             "date_end": last_day_current_month.strftime("%Y-%m-%d")
         }
-    elif action == "get_activity_hr_in_timezones" or action == "get_activity":
+    elif action == "get_activity_hr_in_timezones" or action == "get_activity" or action == "get_activity_weather":
         # merge additionalParams into userInput
         userInput = {**{"date": date}, **additionalParams}
     else:

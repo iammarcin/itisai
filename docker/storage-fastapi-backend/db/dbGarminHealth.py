@@ -666,6 +666,15 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                 secs_in_zone = {
                     f"secs_in_zone{zone['zoneNumber']}": zone["secsInZone"] for zone in activity.get("zones", [])}
 
+                weather_data = activity.get('weather_data', {})
+
+                if weather_data.get("temp"):
+                    temperature_fahrenheit = weather_data.get("temp")
+                    temperature_celsius = round((
+                        temperature_fahrenheit - 32) * 5.0 / 9.0, 2)
+                else:
+                    temperature_celsius = None
+
                 stmt = insert(ActivityData).values(
                     customer_id=customerId,
                     calendar_date=activity.get("startTimeLocal").split(" ")[0],
@@ -696,8 +705,19 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     average_speed=activity.get("averageSpeed"),
                     average_hr=activity.get("averageHR"),
                     max_hr=activity.get("maxHR"),
-                    min_temperature=activity.get("minTemperature"),
-                    max_temperature=activity.get("maxTemperature"),
+                    watch_min_temperature=activity.get("minTemperature"),
+                    watch_max_temperature=activity.get("maxTemperature"),
+                    weather_temperature_on_start=temperature_celsius,
+                    weather_relative_humidity_on_start=weather_data.get(
+                        "relativeHumidity"),
+                    weather_wind_direction_on_start=weather_data.get(
+                        "windDirectionCompassPoint"),
+                    weather_wind_speed_on_start=round(weather_data.get(
+                        "windSpeed") * 1.60934, 1) if weather_data.get("windSpeed") else None,  # to transform from mph to kph
+                    weather_wind_gust_on_start=round(weather_data.get(
+                        "windGust") * 1.60934, 1) if weather_data.get("windGust") else None,
+                    weather_type_desc=weather_data.get(
+                        "weatherTypeDTO", {}).get("desc"),
                     water_estimated=activity.get("waterEstimated"),
                     aerobic_training_effect=activity.get(
                         "aerobicTrainingEffect"),
@@ -748,8 +768,19 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     average_speed=activity.get("averageSpeed"),
                     average_hr=activity.get("averageHR"),
                     max_hr=activity.get("maxHR"),
-                    min_temperature=activity.get("minTemperature"),
-                    max_temperature=activity.get("maxTemperature"),
+                    watch_min_temperature=activity.get("minTemperature"),
+                    watch_max_temperature=activity.get("maxTemperature"),
+                    weather_temperature_on_start=temperature_celsius,
+                    weather_relative_humidity_on_start=weather_data.get(
+                        "relativeHumidity"),
+                    weather_wind_direction_on_start=weather_data.get(
+                        "windDirectionCompassPoint"),
+                    weather_wind_speed_on_start=round(weather_data.get(
+                        "windSpeed") * 1.60934, 1) if weather_data.get("windSpeed") else None,  # to transform from mph to kph
+                    weather_wind_gust_on_start=round(weather_data.get(
+                        "windGust") * 1.60934, 1) if weather_data.get("windGust") else None,
+                    weather_type_desc=weather_data.get(
+                        "weatherTypeDTO", {}).get("desc"),
                     water_estimated=activity.get("waterEstimated"),
                     aerobic_training_effect=activity.get(
                         "aerobicTrainingEffect"),
