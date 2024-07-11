@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from sqlalchemy.dialects.mysql import insert
-from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore, TrainingStatus, FitnessAge, TrainingData
+from pydanticValidation.db_schemas import SleepData, UserSummary, BodyComposition, HRVData, TrainingReadiness, EnduranceScore, TrainingStatus, FitnessAge, ActivityData, ActivityGPSData
 
 from sqlalchemy import select
 
@@ -666,7 +666,7 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                 secs_in_zone = {
                     f"secs_in_zone{zone['zoneNumber']}": zone["secsInZone"] for zone in activity.get("zones", [])}
 
-                stmt = insert(TrainingData).values(
+                stmt = insert(ActivityData).values(
                     customer_id=customerId,
                     calendar_date=activity.get("startTimeLocal").split(" ")[0],
                     activity_id=activity.get("activityId"),
@@ -692,6 +692,7 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     calories=activity.get("calories"),
                     bmr_calories=activity.get("bmrCalories"),
                     steps=activity.get("steps"),
+                    avgStrideLength=activity.get("avgStrideLength"),
                     average_speed=activity.get("averageSpeed"),
                     average_hr=activity.get("averageHR"),
                     max_hr=activity.get("maxHR"),
@@ -743,6 +744,7 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                     calories=activity.get("calories"),
                     bmr_calories=activity.get("bmrCalories"),
                     steps=activity.get("steps"),
+                    avgStrideLength=activity.get("avgStrideLength"),
                     average_speed=activity.get("averageSpeed"),
                     average_hr=activity.get("averageHR"),
                     max_hr=activity.get("maxHR"),
@@ -780,6 +782,59 @@ async def insert_activity_data(AsyncSessionLocal, userInput: dict, customerId):
                 raise HTTPException(
                     status_code=500, detail="Error in DB! insert_activity_data")
 
+async def insert_activity_gps_data(AsyncSessionLocal, userInput: dict, customerId):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            try:
+                activityData = userInput
+                activity_id = activityData.get("activityId")
+                activity_date = userInput.get("activity_date")
+                activity_name = userInput.get("activity_name")
+                metric_descriptors = activityData.get("metricDescriptors", [])
+                activity_detail_metrics = activityData.get(
+                    "activityDetailMetrics", [])
+
+                # Find indices for relevant metrics
+                metrics_indices = {desc["key"]: desc["metricsIndex"]
+                                   for desc in metric_descriptors}
+                relevant_keys = ["directLongitude", "directLatitude",
+                                 "directElevation", "directTimestamp"]
+                indices = {key: metrics_indices.get(
+                    key) for key in relevant_keys}
+
+                # Prepare GPS data
+                coordinates = []
+                for detail in activity_detail_metrics:
+                    metrics = detail["metrics"]
+                    coordinate = {
+                        "lat": metrics[indices["directLatitude"]],
+                        "lon": metrics[indices["directLongitude"]],
+                        "elevation": metrics[indices["directElevation"]],
+                        "timestamp": metrics[indices["directTimestamp"]]
+                    }
+                    coordinates.append(coordinate)
+
+                gps_data = {"coordinates": coordinates}
+
+                stmt = insert(ActivityGPSData).values(
+                    activity_id=activity_id,
+                    customer_id=customerId,
+                    calendar_date=activity_date,
+                    activity_name=activity_name,
+                    gps_data=gps_data
+                ).on_duplicate_key_update(
+                    activity_name=activity_name,
+                    gps_data=gps_data
+                )
+
+                await session.execute(stmt)
+                return JSONResponse(status_code=200, content={"message": "Activity GPS data processed successfully for activity: " + str(activity_id)})
+            except Exception as e:
+                logger.error(
+                    "Error in DB! insert_activity_gps_data: %s", str(e))
+                raise HTTPException(
+                    status_code=500, detail="Error in DB! insert_activity_gps_data")
+
 async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     start_date = userInput.get("start_date", None)
     end_date = userInput.get("end_date", None)
@@ -791,6 +846,8 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     ignore_null_vo2max = userInput.get("ignore_null_vo2max", False)
     ignore_null_training_load_data = userInput.get(
         "ignore_null_training_load_data", False)
+    # if we filter activities by activityId
+    activity_id = userInput.get("activity_id", None)
 
     if table == "get_sleep_data":
         model = SleepData
@@ -809,7 +866,9 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
     elif table == "get_fitness_age":
         model = FitnessAge
     elif table == "get_activities":
-        model = TrainingData
+        model = ActivityData
+    elif table == "get_activity_gps_data":
+        model = ActivityGPSData
     else:
         raise HTTPException(status_code=400, detail="Invalid table name")
 
@@ -835,6 +894,9 @@ async def get_garmin_data(AsyncSessionLocal, userInput: dict, customerId):
 
             if ignore_null_training_load_data:
                 query = query.where(model.monthly_load_anaerobic != None)
+
+            if activity_id:
+                query = query.where(model.activity_id == activity_id)
 
             query = query.offset(offset)
 

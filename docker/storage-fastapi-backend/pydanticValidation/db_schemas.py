@@ -221,7 +221,7 @@ class FitnessAge(Base):
     rhr_value = Column(Integer, nullable=True)
     vigorous_minutes_avg_value = Column(Float, nullable=True)
 
-class TrainingData(Base):
+class ActivityData(Base):
     __tablename__ = 'get_activities'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     customer_id = Column(Integer, index=True)
@@ -247,6 +247,7 @@ class TrainingData(Base):
     calories = Column(Float, nullable=True)
     bmr_calories = Column(Float, nullable=True)
     steps = Column(Integer, nullable=True)
+    avgStrideLength = Column(Float, nullable=True)
     average_speed = Column(Float, nullable=True)
     average_hr = Column(Float, nullable=True)
     max_hr = Column(Float, nullable=True)
@@ -267,3 +268,12 @@ class TrainingData(Base):
     secs_in_zone3 = Column(Float, nullable=True)
     secs_in_zone4 = Column(Float, nullable=True)
     secs_in_zone5 = Column(Float, nullable=True)
+
+class ActivityGPSData(Base):
+    __tablename__ = 'get_activity_gps_data'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    activity_id = Column(String, unique=True, index=True)
+    customer_id = Column(Integer, index=True)
+    calendar_date = Column(DateTime, nullable=True)
+    activity_name = Column(String, nullable=True)
+    gps_data = Column(JSON, nullable=True)

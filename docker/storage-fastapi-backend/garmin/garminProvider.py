@@ -86,6 +86,7 @@ class garminProvider:
             "get_max_metrics": "/metrics-service/metrics/maxmet/monthly/%s/%s" % (date, date_end) if date_end is not None else "/metrics-service/metrics/maxmet/latest/%s" % date,
             "get_fitness_age": "fitnessage-service/fitnessage/%s" % date,
             "get_activities": "/activitylist-service/activities/search/activities",
+            "get_activity": "/activity-service/activity/%s/details" % userInput.get('activity_id'),
             "get_activity_hr_in_timezones": "/activity-service/activity/%s/hrTimeInZones" % userInput.get('activity_id'),
         }
 
@@ -124,7 +125,7 @@ class garminProvider:
             return {"calendarDate": str(date)}
         elif action == "get_body_composition":
             return {"startDate": str(date), "endDate": str(date_end or date)}
-        elif action in ["get_hrv_data", "get_max_metrics", "get_training_load_balance", "get_fitness_age", "get_training_readiness", "get_training_status", "get_activity_hr_in_timezones"]:
+        elif action in ["get_hrv_data", "get_max_metrics", "get_training_load_balance", "get_fitness_age", "get_training_readiness", "get_training_status", "get_activity", "get_activity_hr_in_timezones"]:
             return None
         elif action == "get_endurance_score":
             if date_end is None:

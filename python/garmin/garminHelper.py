@@ -46,7 +46,7 @@ def fetch_garmin_data(date, action, additionalParams={}):
             "date": first_day_last_year_month.strftime("%Y-%m-%d"),
             "date_end": last_day_current_month.strftime("%Y-%m-%d")
         }
-    elif action == "get_activity_hr_in_timezones":
+    elif action == "get_activity_hr_in_timezones" or action == "get_activity":
         # merge additionalParams into userInput
         userInput = {**{"date": date}, **additionalParams}
     else:
@@ -107,6 +107,9 @@ def insert_db_data(response, fetch_data_action, date):
                     'metricsTrainingLoadBalanceDTOMap') is not None
             elif fetch_data_action == "get_activities":
                 action = "insert_activity_data"
+                dataToCheck = data.get('activityId') is not None
+            elif fetch_data_action == "get_activity_gps_data":
+                action = "insert_activity_gps_data"
                 dataToCheck = data.get('activityId') is not None
             else:
                 print(f"Unknown action: {fetch_data_action}")

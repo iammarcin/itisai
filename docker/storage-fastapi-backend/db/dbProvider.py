@@ -96,6 +96,8 @@ class dbProvider:
                 return await insert_fitness_age(AsyncSessionLocal, userInput, customerId)
             elif action == "insert_activity_data":
                 return await insert_activity_data(AsyncSessionLocal, userInput, customerId)
+            elif action == "insert_activity_gps_data":
+                return await insert_activity_gps_data(AsyncSessionLocal, userInput, customerId)
             elif action == "get_garmin_data":
                 return await get_garmin_data(AsyncSessionLocal, userInput, customerId)
             else:

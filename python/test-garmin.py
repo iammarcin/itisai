@@ -11,9 +11,9 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "get_activity_hr_in_timezones",
+        "action": "get_activity",
         "category": "provider.garmin",
-        "userInput": {"date": "2024-07-05", "activity_id": "16256333245"},
+        "userInput": {"date": "2024-07-05", "activity_id": "15367619474"},
         # "userInput": {"date": "2024-01-07", "date_end": "2024-07-08"},
         # "userInput": {"date": "2024-07-07", "end_date": "2024-06-19"},
         # "userInput": {"sort_type": "desc", "offset": 0, "limit": 1},

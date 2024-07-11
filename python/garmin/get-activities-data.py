@@ -7,6 +7,8 @@ import time
 
 from garminHelper import fetch_garmin_data, insert_db_data, get_latest_db_data
 
+# wait between API calls
+TIME_SLEEP = 5
 
 # in insert_db_data we need to provide requests.models.Response type of data, not dict
 # so we need to create this custom class to pass proper data
@@ -39,7 +41,38 @@ def loop_through_trainings(data, date):
                 activity, status_code=response.status_code)
 
             insert_db_data(response_data, "get_activities", date)
-            print("Activity_id: %s" % activity_id)
+
+            # and now GPS data
+            response = fetch_garmin_data(
+                date, "get_activity", additionalParams={"activity_id": activity_id})
+
+            # there will be activities with no GPS data (like pilates), so we don't want to save them to DB
+            saveToDB = False
+
+            if response.status_code == 200:
+                gps_data = response.json().get("message", {}).get("result", [])
+                gps_data["activity_date"] = activity.get(
+                    "startTimeLocal").split(" ")[0]
+                gps_data["activity_name"] = activity["activityName"]
+                # Check if both directLongitude and directLatitude are present
+                if gps_data.get("metricDescriptors"):
+                    metrics_indices = {desc["key"]: desc["metricsIndex"]
+                                       for desc in gps_data.get("metricDescriptors", [])}
+                    if "directLongitude" in metrics_indices or "directLatitude" in metrics_indices:
+                        saveToDB = True
+
+            if saveToDB:
+                print("Processing GPS data")
+                response_gps_data = CustomResponse(
+                    gps_data, status_code=response.status_code)
+                insert_db_data(response_gps_data,
+                               "get_activity_gps_data", date)
+            else:
+                print("Skipping GPS data")
+
+            print("Activity_id: %s processed! \n" % activity_id)
+
+            time.sleep(TIME_SLEEP)
 
     except Exception as e:
         print(f"Error while processing activities: {e}")
@@ -77,7 +110,7 @@ if __name__ == "__main__":
                 response = fetch_garmin_data(date_str, "get_activities")
                 activities_data = response.json()["message"]["result"]
                 loop_through_trainings(activities_data, date_str)
-                time.sleep(5)
+                time.sleep(TIME_SLEEP)
                 current_date += timedelta(days=1)
                 print("Activities for day: %s successfully processed" % date_str)
         else:
@@ -92,7 +125,8 @@ if __name__ == "__main__":
                 else:
                     activities_data = response.json()["message"]["result"]
                     loop_through_trainings(activities_data, date)
-                    print("Activities for day: %s successfully processed" % date)
+                    print(
+                        "Activities for day: %s successfully processed \n\n" % date)
             else:
                 print(
                     f"Failed to get data for {date}: {response.status_code}")
