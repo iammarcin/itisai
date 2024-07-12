@@ -8,106 +8,6 @@ import config as config
 import logconfig
 logger = logconfig.logger
 
-# image_message_limit - how many user messages can be sent after an image message before we start trimming image URLs
-# goal is to feed openai API with image URLs only when necessary (for few messages, later for sure topic will change)
-# support_image_input some model support images as input, some not
-def prepare_chat_historyOLD(chat_history, memory_token_limit, model_name, support_image_input, use_base64=True, image_message_limit=3):
-    total_tokens = 0
-    trimmed_messages = []
-    user_message_count_after_last_image = 0
-
-    for message in reversed(chat_history):
-        # Check if the message has a content list
-        # this should be user message - with text and potentially additional images etc
-        if isinstance(message["content"], list):
-            # sometimes message can empty and then it looks like :
-            # {'role': 'user', 'content': [{'type': 'text', 'text': ''}]}
-            # or there is error message from text generation
-            # in this case we should skip it
-            if message.get('content')[0].get('text') == "" or message.get('content')[0].get('text') == config.ERROR_MESSAGE_FOR_TEXT_GEN:
-                continue
-
-            message_tokens = 0
-            text_content_index = None
-            include_image_urls = support_image_input
-
-            # Calculate the number of tokens for the text part of the message
-            for i, content_item in enumerate(message["content"]):
-                if content_item["type"] == "text":
-                    message_tokens = num_tokens_from_string(
-                        content_item["text"], model=model_name)
-                    text_content_index = i
-                    break
-
-            # Check if we should include image URLs based on the limit
-            if any(content_item["type"] == "image_url" for content_item in message["content"]):
-                if user_message_count_after_last_image >= image_message_limit:
-                    include_image_urls = False
-                else:
-                    user_message_count_after_last_image = 0
-
-            # Increment the count of user messages after the last image URL
-            user_message_count_after_last_image += 1
-
-            # Check if adding this message exceeds the limit
-            if total_tokens + message_tokens > memory_token_limit:
-                remaining_tokens = memory_token_limit - total_tokens
-
-                # Approximate trimming by percentage
-                # this is bit dirty trick - but idea was that i want to trim first part of the message (to have continuity in chat)
-                # and we would need to encode and decode exactly message to get it precisely
-                # so i decided that more or less is enough - and i will just cut % of the message (knowing how many tokens i have to trim to fit into limit)
-                if message_tokens > 0:  # Avoid division by zero
-                    trim_percentage = (
-                        message_tokens - remaining_tokens) / message_tokens
-                    trim_index = int(
-                        len(message["content"][text_content_index]["text"]) * trim_percentage)
-                    message["content"][text_content_index]["text"] = message["content"][text_content_index]["text"][trim_index:]
-
-                if include_image_urls:
-                    trimmed_messages.insert(0, message)
-                else:
-                    message["content"] = [
-                        content_item for content_item in message["content"] if content_item["type"] != "image_url"]
-                    trimmed_messages.insert(0, message)
-                break
-            else:
-                total_tokens += message_tokens
-                if include_image_urls:
-                    trimmed_messages.insert(0, message)
-                else:
-                    message["content"] = [
-                        content_item for content_item in message["content"] if content_item["type"] != "image_url"]
-                    trimmed_messages.insert(0, message)
-        else:
-            # For assistant messages which are not lists
-            message_tokens = num_tokens_from_string(
-                message["content"], model=model_name)
-
-            if total_tokens + message_tokens > memory_token_limit:
-                remaining_tokens = memory_token_limit - total_tokens
-
-                # trick with percentage - described above
-                if message_tokens > 0:  # Avoid division by zero
-                    trim_percentage = (
-                        message_tokens - remaining_tokens) / message_tokens
-                    trim_index = int(len(message["content"]) * trim_percentage)
-                    message["content"] = message["content"][trim_index:]
-
-                trimmed_messages.insert(0, message)
-                break
-            else:
-                total_tokens += message_tokens
-                trimmed_messages.insert(0, message)
-
-    # Ensure the conversation starts with a user message for Anthropic models
-    if isItAnthropicModel(model_name):
-        if trimmed_messages and trimmed_messages[0]["role"] != "user":
-            # cannot be empty
-            trimmed_messages.insert(0, {"role": "user", "content": "."})
-
-    return trimmed_messages
-
 # image_message_limit - how many user messages can be sent before we start trimming image URLs / base64
 # goal is to feed openai API with image URLs only when necessary (for few messages, later for sure topic will change)
 # support_image_input some model support images as input, some not
@@ -116,16 +16,9 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
     trimmed_messages = []
     user_message_count = 0
 
-    logger.info("_" * 100)
-    logger.info("Chat history: ")
-    logger.info(chat_history)
-
     for message in reversed(chat_history):
         message_tokens = 0
         message_content = ""
-
-        logger.info("-------")
-        logger.info(message)
 
         # Check if the message has a content list
         # this should be message - with text and potentially additional images etc - this should be standard
@@ -146,7 +39,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             message_tokens = num_tokens_from_string(text_content, model=model_name)
 
             # check if we should use images in API request
-            if support_image_input and image_urls and image_message_limit >= user_message_count:
+            if support_image_input and image_urls and image_message_limit > user_message_count:
                 message_content = prepare_message_content(message['content'], model_name, use_base64).get('content')
             else:
                 message_content = text_content

@@ -1,8 +1,8 @@
 from fastapi import HTTPException
-from pydanticValidation.general_schemas import MediaModel
-from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history
+from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history, isItAnthropicModel
 from openai import OpenAI
 from groq import Groq
+import anthropic
 from itisai_brain.text import getTextPromptTemplate
 
 import config as config
@@ -68,6 +68,10 @@ class AITextGenerator:
                     self.model_name = "gemma-7b-it"
                     self.support_image_input = False
                     self.llm = Groq()
+                elif user_settings["model"] == "Claude-3.5":
+                    self.model_name = "claude-3-5-sonnet-20240620"
+                    self.support_image_input = True
+                    self.llm = anthropic.Anthropic()
                 else:
                     # if not specified, use GPT-3.5
                     self.model_name = "gpt-3.5-turbo"
@@ -148,7 +152,9 @@ class AITextGenerator:
             chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
 
             # Add system prompt and latest user message to chat history
-            chat_history.append({"role": "system", "content": self.system_prompt})
+            if not isItAnthropicModel(self.model_name):
+                chat_history.append({"role": "system", "content": self.system_prompt})
+
             chat_history.append(latest_user_message)
 
             logger.info("Chat history: %s", truncate_image_urls_from_history(chat_history))
@@ -157,25 +163,49 @@ class AITextGenerator:
                 yield f"Test response from Text generator (streaming)"
                 return
 
-            response = self.llm.chat.completions.create(
-                model=self.model_name,
-                messages=chat_history,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-                stream=self.streaming,
-            )
-
-            if self.streaming:
-                for chunk in response:
-                    current_content = chunk.choices[0].delta.content
-                    if current_content is not None:
-                        # logger.debug(str(current_content))
-
-                        # Format the output as a proper SSE message
-                        yield f"{current_content}"
+            if isItAnthropicModel(self.model_name):
+                if self.streaming:
+                    with self.llm.messages.stream(
+                        max_tokens=self.max_tokens,
+                        temperature=self.temperature,
+                        system=self.system_prompt,
+                        messages=chat_history,
+                        model=self.model_name
+                    ) as stream:
+                        for text in stream.text_stream:
+                            # print(text, end="", flush=True)
+                            yield f"{text}"
+                else:
+                    response = self.llm.messages.create(
+                        max_tokens=self.max_tokens,
+                        temperature=self.temperature,
+                        system=self.system_prompt,
+                        messages=chat_history,
+                        model=self.model_name
+                    )
+                    print("RESPONSE: ", response)
+                    # if no streaming - just throw whole response
+                    yield f"{response.content}"
             else:
-                # if no streaming - just throw whole response
-                yield f"{response.choices[0].message.content}"
+                response = self.llm.chat.completions.create(
+                    model=self.model_name,
+                    messages=chat_history,
+                    temperature=self.temperature,
+                    max_tokens=self.max_tokens,
+                    stream=self.streaming,
+                )
+
+                if self.streaming:
+                    for chunk in response:
+                        current_content = chunk.choices[0].delta.content
+                        if current_content is not None:
+                            # logger.debug(str(current_content))
+
+                            # Format the output as a proper SSE message
+                            yield f"{current_content}"
+                else:
+                    # if no streaming - just throw whole response
+                    yield f"{response.choices[0].message.content}"
         except Exception as e:
             logger.error("Error in streaming from Text generator:", str(e))
             # Error message in SSE format
