@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from pydanticValidation.general_schemas import MediaModel
-from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls
+from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history
 from openai import OpenAI
 from groq import Groq
 from itisai_brain.text import getTextPromptTemplate
@@ -145,18 +145,13 @@ class AITextGenerator:
             # fail on purpose
             # test = userInput['test']
             # Trim messages to fit within the memory token limit
-            # chat_history = prepare_chat_history(
-            #    chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
+            chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
 
             # Add system prompt and latest user message to chat history
-            chat_history.append(
-                {"role": "system", "content": self.system_prompt})
+            chat_history.append({"role": "system", "content": self.system_prompt})
             chat_history.append(latest_user_message)
-            #    {"role": "user", "content": latest_user_message})
 
-            logger.info("Chat history: %s", truncate_image_urls(chat_history))
-
-            # chat_history = latest_user_message
+            logger.info("Chat history: %s", truncate_image_urls_from_history(chat_history))
 
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"

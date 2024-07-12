@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content
+from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history
 import anthropic
 from itisai_brain.text import getTextPromptTemplate
 
@@ -93,17 +93,13 @@ class ClaudeTextGenerator:
                 latest_user_message = prepare_message_content(
                     latest_user_message, self.model_name, self.use_base64)
 
-            logger.info("," * 20)
-            logger.info(latest_user_message)
-
             # fail on purpose
             # test = userInput['test']
             # Trim messages to fit within the memory token limit
-            # chat_history = prepare_chat_history(
-            #    chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
-            chat_history = latest_user_message
+            chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
+            chat_history.append(latest_user_message)
 
-            # logger.info("Chat history: %s", chat_history)
+            logger.info("Chat history: %s", truncate_image_urls_from_history(chat_history))
 
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"

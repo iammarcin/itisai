@@ -140,14 +140,14 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             if message["role"] == "user":
                 user_message_count += 1
 
-            text_content = next((item["text"] for item in message if item["type"] == "text"), "")
-            image_urls = [item["image_url"]['url'] for item in message if item["type"] == "image_url"]
+            text_content = next((item["text"] for item in message['content'] if item["type"] == "text"), "")
+            image_urls = [item["image_url"]['url'] for item in message['content'] if item["type"] == "image_url"]
 
             message_tokens = num_tokens_from_string(text_content, model=model_name)
 
             # check if we should use images in API request
             if support_image_input and image_urls and image_message_limit >= user_message_count:
-                message_content = prepare_message_content(message, model_name, use_base64)
+                message_content = prepare_message_content(message['content'], model_name, use_base64).get('content')
             else:
                 message_content = text_content
 
@@ -155,9 +155,6 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             # Handle simple text messages
             message_content = message["content"]
             message_tokens = num_tokens_from_string(message_content, model=model_name)
-
-        logger.info("." * 20)
-        logger.info(message_content)
 
         # Check if adding this message exceeds the limit
         if total_tokens + message_tokens > memory_token_limit:
@@ -169,15 +166,14 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             # so i decided that more or less is enough - and i will just cut % of the message (knowing how many tokens i have to trim to fit into limit)
             if message_tokens > 0:  # Avoid division by zero
                 trim_percentage = (message_tokens - remaining_tokens) / message_tokens
-                logger.info("Trim percentage: " + str(trim_percentage))
                 # for simple messages
                 if isinstance(message_content, str):
-                    trim_index = int(len(message_content) * (1 - trim_percentage))
+                    trim_index = int(len(message_content) * (trim_percentage))
                     message_content = message_content[trim_index:]
                 # for those more complex with content
                 elif isinstance(message_content, list):
                     text_item = next(item for item in message_content if item["type"] == "text")
-                    trim_index = int(len(text_item["text"]) * (1 - trim_percentage))
+                    trim_index = int(len(text_item["text"]) * (trim_percentage))
                     text_item["text"] = text_item["text"][trim_index:]
 
         trimmed_messages.insert(0, {"role": message["role"], "content": message_content})
@@ -191,10 +187,6 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
         if trimmed_messages and trimmed_messages[0]["role"] != "user":
             # cannot be totally empty
             trimmed_messages.insert(0, {"role": "user", "content": "."})
-
-    logger.info("Total tokens: " + str(total_tokens))
-    logger.info("Trimmed messages:")
-    logger.info(trimmed_messages)
 
     return trimmed_messages
 
@@ -297,7 +289,7 @@ def prepare_message_content(message, model, use_base64):
 # when displaying history and when base64 is in use
 # debugging is impossible - because it logs all those loooooong strings for base64
 # so this is to avoid it
-def truncate_image_urls(chat_history, max_length=50):
+def truncate_image_urls_from_history(chat_history, max_length=50):
     truncated_history = []
 
     for entry in chat_history:
@@ -310,6 +302,9 @@ def truncate_image_urls(chat_history, max_length=50):
                         new_content_item = content_item.copy()
                         if content_item['type'] == 'image_url' and len(content_item['image_url']['url']) > max_length:
                             new_content_item['image_url']['url'] = content_item['image_url']['url'][:max_length] + '...'
+                        # for claude
+                        if content_item['type'] == 'image' and len(content_item['source']['data']) > max_length:
+                            new_content_item['source']['data'] = content_item['source']['data'][:max_length] + '...'
                         new_content.append(new_content_item)
                     else:
                         new_content.append(content_item)
