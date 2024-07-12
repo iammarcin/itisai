@@ -10,7 +10,7 @@ import { characters } from './ChatCharacters';
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 // currentSessionIndex - also needed - as we're checking if currently generating in active session
 const ChatHandleAPI = async ({
-  userInput, editMessagePosition, attachedImages, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+  userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -39,7 +39,8 @@ const ChatHandleAPI = async ({
   const finalUserInput = {
     "prompt": [
       { "type": "text", "text": userInput },
-      ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } }))
+      ...attachedImages.map(image => ({ "type": "image_url", "image_url": { "url": image.url } })),
+      ...attachedFiles.map(file => ({ "type": "file_url", "file_url": { "url": file.url } })),
     ],
     "chat_history": (chatHistory.map((message) => ({
       "role": message.isUserMessage ? "user" : "assistant",

@@ -8,7 +8,7 @@ import { getTextAICharacter, setTextAICharacter, setOriginalAICharacter } from '
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, attachedFiles, setAttachedFiles, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
   const userInputRef = useRef(null);
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
@@ -31,10 +31,15 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     setErrorMsg("");
     const files = Array.from(e.target.files);
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const pdfFiles = files.filter(file => file.type === 'application/pdf');
 
     // Display placeholders
     const placeholders = imageFiles.map(file => ({ file, url: '', placeholder: true }));
     setAttachedImages(prevImages => [...prevImages, ...placeholders]);
+
+    // Display placeholders for PDFs
+    const pdfPlaceholders = pdfFiles.map(file => ({ file, url: '', name: file.name, placeholder: true }));
+    setAttachedFiles(prevPdfs => [...prevPdfs, ...pdfPlaceholders]);
 
     setUploading(true);
     for (const imageFile of imageFiles) {
@@ -55,11 +60,38 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
         setAttachedImages(prevImages => prevImages.filter(img => img.file !== imageFile));
       }
     }
+
+    // Upload PDFs
+    for (const pdfFile of pdfFiles) {
+      console.log("pdfFile: ", pdfFile)
+      try {
+        const response = await apiMethods.uploadFileToS3("api/aws", "provider.s3", "s3_upload", pdfFile);
+
+        if (response.success) {
+          const newUrl = response.message.result;
+          console.log("New url: ", newUrl)
+          setAttachedFiles(prevPdfs => prevPdfs.map(pdf => pdf.file === pdfFile ? { ...pdf, url: newUrl, placeholder: false } : pdf));
+
+        } else {
+          setErrorMsg("Problem with file upload. Try again.")
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setErrorMsg("Problem with file upload. Try again.")
+        setAttachedFiles(prevPdfs => prevPdfs.filter(pdf => pdf.file !== pdfFile));
+      }
+    }
+
     setUploading(false);
   };
 
   const handleRemoveImage = (index) => {
     setAttachedImages(prevImages => prevImages.filter((_, i) => i !== index));
+  };
+
+  const handleRemovePdf = (index) => {
+    setAttachedFiles(prevPdfs => prevPdfs.filter((_, i) => i !== index));
   };
 
   const handleInputChange = async (e) => {
@@ -163,6 +195,10 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   }, [focusInput, setFocusInput]);
 
+  useEffect(() => {
+    console.log("attachedFiles: ", attachedFiles)
+  }, [attachedFiles]);
+
   return (
     <div className="bottom-tools-menu">
       <div className="bottom-tools-menu-characters">
@@ -177,6 +213,14 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
               <img src={image.url} alt="preview" />
             )}
             <button className="remove-button" onClick={() => handleRemoveImage(index)}>X</button>
+          </div>
+        ))}
+        {attachedFiles.map((pdf, index) => (
+          <div key={index} className="image-preview">
+            <div className="placeholder">
+              <span className="pdfName">{pdf.name}</span>
+            </div>
+            <button className="remove-button" onClick={() => handleRemovePdf(index)}>X</button>
           </div>
         ))}
       </div>
@@ -206,7 +250,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
         id="file-input"
         style={{ display: 'none' }}
         onChange={handleFileChange}
-        accept="image/*"
+        accept="image/*,application/pdf"
         multiple
       />
     </div>

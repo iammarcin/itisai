@@ -3,10 +3,24 @@ import requests
 import mimetypes
 import base64
 import copy
+import json
+import pypdfium2 as pdfium
+from PIL import Image
+from aws.awsProvider import awsProvider
+
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import config as config
 import logconfig
 logger = logconfig.logger
+
+# little helper class - s3 upload in aws provider was already set and used by other functions
+# and it needs file and filename to process the file
+class FileWithFilename:
+    def __init__(self, file, filename):
+        self.file = file
+        self.filename = filename
 
 # image_message_limit - how many user messages can be sent before we start trimming image URLs / base64
 # goal is to feed openai API with image URLs only when necessary (for few messages, later for sure topic will change)
@@ -109,10 +123,10 @@ def isItAnthropicModel(model_name: str) -> bool:
         return False
 
 # IMAGE PART
-def download_image(url):
+def download_file(url):
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for bad status codes
-    return response.content
+    return response
 
 def get_mime_type(image_content):
     mime_type, _ = mimetypes.guess_type(image_content)
@@ -122,11 +136,11 @@ def calculate_base64(image_content):
     return base64.b64encode(image_content).decode('utf-8')
 
 def get_base64_for_image(url):
-    image_content = download_image(url)
+    image_content = download_file(url)
 
     mime_type = get_mime_type(url)
     print(f"MIME type: {mime_type}")
-    base64_encoding = calculate_base64(image_content)
+    base64_encoding = calculate_base64(image_content.content)
 
     return mime_type, base64_encoding
 
@@ -168,6 +182,12 @@ def prepare_message_content(message, model, use_base64):
     # Handle messages with multiple content types (text and images)
     text_content = next((item["text"] for item in message if item["type"] == "text"), "")
     image_urls = [item["image_url"]['url'] for item in message if item["type"] == "image_url"]
+    file_urls = [item["file_url"]['url'] for item in message if item["type"] == "file_url"]
+
+    if len(file_urls) > 0:
+        response_files = process_attached_files(file_urls)
+        print("!!!!")
+        print(response_files)
 
     image_content = prepare_image_content(image_urls, model, use_base64)
 
@@ -177,6 +197,43 @@ def prepare_message_content(message, model, use_base64):
     }
 
     return message_content
+
+def process_attached_files(file_urls):
+    logger.info("File urls: %s", file_urls)
+    final_urls = []
+    for file in file_urls:
+        response = download_file(file)
+        pdf = pdfium.PdfDocument(response.content)
+        n_pages = len(pdf)
+        for i, page in enumerate(pdf):
+            bitmap = page.render(scale=1, rotation=0)
+            pil_image = bitmap.to_pil()
+            with NamedTemporaryFile(delete=False) as tmp:
+                tmp_file_path = tmp.name
+                pil_image.save(tmp, format='PNG')
+                logger.info("Saved temporary image file: %s", tmp_file_path)
+
+            with open(tmp_file_path, "rb") as tmp_file:
+                file_with_filename = FileWithFilename(
+                    tmp_file, Path(tmp_file_path).name)
+                logger.info("Uploading to S3")
+                logger.info(file_with_filename)
+                '''
+                s3_response = awsProvider.s3_upload(
+                    awsProvider,
+                    action="s3_upload",
+                    userInput={"file": file_with_filename},
+                    assetInput={},
+                    customerId=1
+                )
+
+                s3_response_content = json.loads(s3_response.body.decode("utf-8"))
+                logger.info("s3_response_content %s", s3_response_content)
+                s3_url = s3_response_content["message"]["result"]
+                final_urls.append(s3_url)
+                '''
+    return final_urls
+
 
 # it's bit dumb - but i don't see any other option
 # when displaying history and when base64 is in use

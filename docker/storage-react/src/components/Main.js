@@ -43,6 +43,7 @@ const Main = () => {
   // user input (text + images) from bottom menu
   const [userInput, setUserInput] = useState('');
   const [attachedImages, setAttachedImages] = useState([]);
+  const [attachedFiles, setAttachedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [progressBarMessage, setProgressBarMessage] = useState('');
@@ -139,7 +140,7 @@ const Main = () => {
       const currentAICharacter = getTextAICharacter();
 
       await ChatHandleAPI({
-        userInput, editMessagePosition, attachedImages,
+        userInput, editMessagePosition, attachedImages, attachedFiles,
         currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
         chatContent, setChatContent, currentAICharacter, setFocusInput, setRefreshChatSessions,
         setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
@@ -236,6 +237,8 @@ const Main = () => {
             setUserInput={setUserInput}
             attachedImages={attachedImages}
             setAttachedImages={setAttachedImages}
+            attachedFiles={attachedFiles}
+            setAttachedFiles={setAttachedFiles}
             handleSendClick={handleSendClick}
             focusInput={focusInput}
             setFocusInput={setFocusInput}

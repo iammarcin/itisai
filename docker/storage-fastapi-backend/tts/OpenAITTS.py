@@ -14,8 +14,6 @@ logger = logconfig.logger
 
 # little helper class - s3 upload in aws provider was already set and used by other functions
 # and it needs file and filename to process the file
-
-
 class FileWithFilename:
     def __init__(self, file, filename):
         self.file = file
