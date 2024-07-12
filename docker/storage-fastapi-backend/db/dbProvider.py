@@ -151,9 +151,6 @@ class dbProvider:
                     userMessage = userInput['userMessage']
                     aiResponse = userInput.get('aiResponse')
 
-                    logger.info("!*" * 30)
-                    logger.info("aiResponse: %s", aiResponse)
-
                     new_user_message = ChatMessage(
                         session_id=userInput['session_id'],
                         customer_id=customerId,
@@ -184,9 +181,6 @@ class dbProvider:
                     if chat_session:
                         chat_history = userInput['chat_history']
 
-                        print("T!" * 30)
-                        print("chat_history: ", chat_history)
-
                         userMessageIndex = -2
                         if not aiResponse:
                             userMessageIndex = -1
@@ -203,12 +197,6 @@ class dbProvider:
                         # verify first few AI messages
                         if len(chat_history) < 3:
                             for message in chat_history:
-                                print("----")
-                                print("message: ", message)
-                                print("isUserMessage: ",
-                                      message.get('isUserMessage'))
-                                print("aiCharacterName: ",
-                                      message.get('aiCharacterName'))
                                 if not message.get('isUserMessage'):
                                     ai_character_name = message.get(
                                         'aiCharacterName')

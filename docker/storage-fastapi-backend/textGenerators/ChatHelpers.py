@@ -5,8 +5,6 @@ logger = logconfig.logger
 # image_message_limit - how many user messages can be sent after an image message before we start trimming image URLs
 # goal is to feed openai API with image URLs only when necessary (for few messages, later for sure topic will change)
 # support_image_input some model support images as input, some not
-
-
 def prepare_chat_history(chat_history, memory_token_limit, model_name, support_image_input, image_message_limit=3):
     total_tokens = 0
     trimmed_messages = []

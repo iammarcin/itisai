@@ -146,7 +146,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     const input = userInputRef.current;
     if (input) {
       input.style.height = 'auto';
-      input.style.height = `${Math.min(input.scrollHeight, 100)}px`;
+      input.style.height = `${Math.min(input.scrollHeight, 500)}px`;
     }
   }, [userInput]);
 
