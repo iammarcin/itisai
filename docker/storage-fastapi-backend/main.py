@@ -75,7 +75,7 @@ async def generate_asset(job_request: MediaModel, token=Depends(auth_user_token)
 
             # special case for tts streaming (as diff response needed)
             if job_request.category == "tts" and job_request.action == "tts_stream":
-                return StreamingResponse(response, media_type="audio/opus")
+                return StreamingResponse(response, media_type="audio/pcm")
 
             response_content = response.body.decode(
                 "utf-8") if isinstance(response, JSONResponse) else response

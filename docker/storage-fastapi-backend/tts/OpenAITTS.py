@@ -26,7 +26,7 @@ class OpenAITTSGenerator:
     def __init__(self):
         self.model_name = "tts-1"
         self.voice = "alloy"
-        self.format = "opus"
+        self.format = "pcm"
         self.streaming = False
         self.speed = 1
         self.client = OpenAI()
@@ -120,7 +120,7 @@ class OpenAITTSGenerator:
                 speed=self.speed,
                 input=text,
             ) as response:
-                logger.info("-"*33)
+                logger.info("-" * 33)
                 for chunk in response.iter_bytes(1024):
                     logger.debug(chunk)
                     yield chunk
