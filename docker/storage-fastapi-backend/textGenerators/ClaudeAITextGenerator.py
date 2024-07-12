@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from textGenerators.ChatHelpers import prepare_chat_history
+from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content
 import anthropic
 from itisai_brain.text import getTextPromptTemplate
 
@@ -24,6 +24,8 @@ class ClaudeTextGenerator:
         self.max_tokens = 3072
         self.system_prompt = "You are an expert!"
         self.use_test_data = False
+        # OpenAI API works with URLs too, but Claude needs base64
+        self.use_base64 = True
         self.client = anthropic.Anthropic()
 
     def set_settings(self, user_settings={}):
@@ -36,13 +38,12 @@ class ClaudeTextGenerator:
             logger.debug("Setting user_settings: %s", user_settings)
             # Update model name
             if "model" in user_settings:
-                if user_settings["model"] == "GPT-3.5":
-                    # self.model_name = "gpt-3.5-turbo"
-                    self.support_image_input = False
+                if user_settings["model"] == "Claude-3.5":
+                    self.model_name = "claude-3-5-sonnet-20240620"
+                    self.support_image_input = True
                 else:
-                    # if not specified, use GPT-3.5
-                    # self.model_name = "gpt-3.5-turbo"
-                    self.support_image_input = False
+                    self.model_name = "claude-3-5-sonnet-20240620"
+                    self.support_image_input = True
 
             # Set system prompt
             self.set_system_prompt(
@@ -87,22 +88,26 @@ class ClaudeTextGenerator:
                 'chat_history') is not None else []
             latest_user_message = userInput.get('prompt')
 
+            # if it's more complex message - we need to process it (because there are differences between generator - especially if there are images)
+            if isinstance(latest_user_message, list):
+                latest_user_message = prepare_message_content(
+                    latest_user_message, self.model_name, self.use_base64)
+
+            logger.info("," * 20)
+            logger.info(latest_user_message)
+
             # fail on purpose
             # test = userInput['test']
             # Trim messages to fit within the memory token limit
-            chat_history = prepare_chat_history(
-                chat_history, self.memory_token_limit, self.model_name, self.support_image_input)
+            # chat_history = prepare_chat_history(
+            #    chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
+            chat_history = latest_user_message
 
-            chat_history.append(
-                {"role": "user", "content": latest_user_message})
-
-            logger.debug("Chat history: %s", chat_history)
+            # logger.info("Chat history: %s", chat_history)
 
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"
                 return
-
-            print("STREAMING: ", self.streaming)
 
             if self.streaming:
                 with self.client.messages.stream(
@@ -113,7 +118,7 @@ class ClaudeTextGenerator:
                     model=self.model_name
                 ) as stream:
                     for text in stream.text_stream:
-                        print(text, end="", flush=True)
+                        # print(text, end="", flush=True)
                         yield f"{text}"
             else:
                 response = self.client.messages.create(

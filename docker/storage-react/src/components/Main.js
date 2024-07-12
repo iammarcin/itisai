@@ -157,7 +157,7 @@ const Main = () => {
   const handleSendClick = useCallback(() => {
     setErrorMsg('');
     const modelName = getTextModelName();
-    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4') {
+    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4' && modelName !== 'Claude-3.5') {
       setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
       return;
     }

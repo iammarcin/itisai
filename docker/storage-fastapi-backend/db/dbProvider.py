@@ -136,10 +136,6 @@ class dbProvider:
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
-                    logger.info("!*" * 30)
-                    logger.info("userInput : " + str(userInput))
-                    logger.info("userSettings : " + str(userSettings))
-
                     # Check if session_id is set, if not create a new session
                     if not userInput.get('session_id'):
                         ai_character = userSettings.get(

@@ -62,7 +62,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     setAttachedImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const inputValue = e.target.value;
     setUserInput(inputValue);
 

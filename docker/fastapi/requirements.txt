@@ -25,3 +25,4 @@ bcrypt # password from DB
 google-api-python-client
 garth # garmin
 anthropic
+mimetypes # to get image mime type

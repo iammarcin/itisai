@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from pydanticValidation.general_schemas import MediaModel
-from textGenerators.ChatHelpers import prepare_chat_history
+from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls
 from openai import OpenAI
 from groq import Groq
 from itisai_brain.text import getTextPromptTemplate
@@ -26,6 +26,8 @@ class AITextGenerator:
         self.max_tokens = 3072
         self.system_prompt = "You are an expert!"
         self.use_test_data = False
+        # OpenAI API works with URLs too, but Claude needs base64
+        self.use_base64 = True
         self.llm = OpenAI()
 
     def set_settings(self, user_settings={}):
@@ -135,19 +137,26 @@ class AITextGenerator:
             chat_history = userInput.get('chat_history') if userInput.get(
                 'chat_history') is not None else []
             latest_user_message = userInput.get('prompt')
+
+            # if it's more complex message - we need to process it (because there are differences between generator - especially if there are images)
+            if isinstance(latest_user_message, list):
+                latest_user_message = prepare_message_content(
+                    latest_user_message, self.model_name, self.use_base64)
             # fail on purpose
             # test = userInput['test']
             # Trim messages to fit within the memory token limit
-            chat_history = prepare_chat_history(
-                chat_history, self.memory_token_limit, self.model_name, self.support_image_input)
+            # chat_history = prepare_chat_history(
+            #    chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
 
             # Add system prompt and latest user message to chat history
             chat_history.append(
                 {"role": "system", "content": self.system_prompt})
-            chat_history.append(
-                {"role": "user", "content": latest_user_message})
+            chat_history.append(latest_user_message)
+            #    {"role": "user", "content": latest_user_message})
 
-            logger.debug("Chat history: %s", chat_history)
+            logger.info("Chat history: %s", truncate_image_urls(chat_history))
+
+            # chat_history = latest_user_message
 
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"

@@ -210,8 +210,9 @@ async def db_methods(job_request: MediaModel, request: Request):  # token below
     # endpoint without auth - for example user login - because he doesnt have token yet
     if job_request.action not in ['db_auth_user']:
         token = await auth_user_token(request)
-    logger.info("*" * 100)
-    logger.info(job_request)
+    # TODO. it was temp. unhash it
+    # logger.info("*" * 100)
+    # logger.info(job_request)
 
     try:
         my_generator = get_generator(job_request.category, "doesntmatter")
