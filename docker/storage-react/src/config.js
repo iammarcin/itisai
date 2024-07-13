@@ -41,11 +41,13 @@ const config = {
 
 
 config.apiEndpoint = getAppModeApiUrl();
+config.VERBOSE_SUPERB = 0;
 
 if (getIsProdMode()) {
   config.AWS_REGION = 'eu-south-2';
   config.S3_BUCKET = "myaiappess3bucket";
   config.DEBUG = 0;
+  config.VERBOSE_SUPERB = 0;
 } else {
   config.AWS_REGION = 'eu-south-2';
   config.S3_BUCKET = "myaiappess3bucketnonprod";
@@ -56,5 +58,5 @@ if (getIsProdMode()) {
   }
 }
 
-config.VERBOSE_SUPERB = 1;
+
 export default config;
