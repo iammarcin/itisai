@@ -24,10 +24,10 @@ class FileWithFilename:
         self.file = file
         self.filename = filename
 
-# image_message_limit - how many user messages can be sent before we start trimming image URLs / base64
-# goal is to feed openai API with image URLs only when necessary (for few messages, later for sure topic will change)
-# support_image_input some model support images as input, some not
-def prepare_chat_history(chat_history, memory_token_limit, model_name, support_image_input, use_base64=True, image_message_limit=3):
+# file_attached_message_limit - how many user messages can be sent before we start trimming image or files URLs / base64
+# goal is to feed openai API with file/image URLs only when necessary (for few messages, later for sure topic will change)
+# support_image_input some model support images (and files - because in the end pdfs are for files) as input, some not
+def prepare_chat_history(chat_history, memory_token_limit, model_name, support_image_input, use_base64=True, file_attached_message_limit=3):
     total_tokens = 0
     trimmed_messages = []
     user_message_count = 0
@@ -59,11 +59,12 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
 
             text_content = next((item["text"] for item in message['content'] if item["type"] == "text"), "")
             image_urls = [item["image_url"]['url'] for item in message['content'] if item["type"] == "image_url"]
+            file_urls = [item["file_url"]['url'] for item in message['content'] if item["type"] == "file_url"]
 
             message_tokens = num_tokens_from_string(text_content, model=model_name)
 
-            # check if we should use images in API request
-            if support_image_input and image_urls and image_message_limit > user_message_count:
+            # check if we should use images / files in API request
+            if support_image_input and (image_urls or file_urls) and file_attached_message_limit > user_message_count:
                 message_content = prepare_message_content(message['content'], model_name, use_base64).get('content')
             else:
                 message_content = text_content
@@ -193,7 +194,7 @@ def prepare_message_content(message, model, use_base64):
     text_content = next((item["text"] for item in message if item["type"] == "text"), "")
     image_urls = [item["image_url"]['url'] for item in message if item["type"] == "image_url"]
     file_urls = [item["file_url"]['url'] for item in message if item["type"] == "file_url"]
-    logger.info("FILE URLS:   ", file_urls)
+    print("FILE URLS:   ", file_urls)
     # Filter out empty strings and check if the resulting list is not empty
     valid_file_urls = [url for url in file_urls if url.strip()]
     if valid_file_urls:

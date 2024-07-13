@@ -56,7 +56,8 @@ const ChatHandleAPI = async ({
       "role": message.isUserMessage ? "user" : "assistant",
       "content": [
         { "type": "text", "text": message.message },
-        ...(message.imageLocations || []).map(imageUrl => ({ "type": "image_url", "image_url": { "url": imageUrl } }))
+        ...(message.imageLocations || []).map(imageUrl => ({ "type": "image_url", "image_url": { "url": imageUrl } })),
+        ...(message.fileNames || []).map(url => ({ "type": "file_url", "file_url": { "url": url } }))
       ]
     }))),
   };

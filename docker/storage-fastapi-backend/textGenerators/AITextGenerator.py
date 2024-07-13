@@ -26,6 +26,8 @@ class AITextGenerator:
         self.max_tokens = 3072
         self.system_prompt = "You are an expert!"
         self.use_test_data = False
+        # how many user messages can be sent before we start trimming images or files attached (because later it doesn't make a lot of sense - because we switch topic etc)
+        self.file_attached_message_limit = 3
         # OpenAI API works with URLs too, but Claude needs base64
         self.use_base64 = True
         self.llm = OpenAI()
@@ -78,20 +80,20 @@ class AITextGenerator:
                     self.support_image_input = False
                     self.llm = OpenAI()
 
-            # Set system prompt
             self.set_system_prompt(
                 user_settings["ai_character"] if "ai_character" in user_settings else "Assistant")
 
-            # Update temperature
             if "temperature" in user_settings:
                 self.temperature = user_settings["temperature"]
 
-            # Update memory limit
             if "memory_limit" in user_settings:
                 self.memory_token_limit = user_settings["memory_limit"]
 
             if "streaming" in user_settings:
                 self.streaming = user_settings["streaming"]
+
+            if "file_attached_message_limit" in user_settings:
+                self.file_attached_message_limit = user_settings["file_attached_message_limit"]
 
     def set_system_prompt(self, ai_character: str):
         template = getTextPromptTemplate(ai_character)['template']
@@ -140,9 +142,9 @@ class AITextGenerator:
         try:
             chat_history = userInput.get('chat_history') if userInput.get(
                 'chat_history') is not None else []
+
             latest_user_message = userInput.get('prompt')
-            logger.info("latest_user_message: ")
-            logger.info(latest_user_message)
+
             # if it's more complex message - we need to process it (because there are differences between generator - especially if there are images)
             if isinstance(latest_user_message, list):
                 latest_user_message = prepare_message_content(
@@ -150,7 +152,8 @@ class AITextGenerator:
             # fail on purpose
             # test = userInput['test']
             # Trim messages to fit within the memory token limit
-            chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input, use_base64=self.use_base64)
+            chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input,
+                                                use_base64=self.use_base64, file_attached_message_limit=self.file_attached_message_limit)
 
             # Add system prompt and latest user message to chat history
             if not isItAnthropicModel(self.model_name):
@@ -158,7 +161,7 @@ class AITextGenerator:
 
             chat_history.append(latest_user_message)
 
-            logger.info("Chat history: %s", truncate_image_urls_from_history(chat_history))
+            logger.info("Final chat history sent to API: %s", truncate_image_urls_from_history(chat_history))
 
             if self.use_test_data:
                 yield f"Test response from Text generator (streaming)"
