@@ -19,7 +19,7 @@ const ChatHandleAPI = async ({
 
 
   // Add the user message to chat content
-  const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
+  const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url), fileNames: attachedFiles.map(file => file.url) };
   const updatedChatContent = [...chatContent];
   console.log("chatContent: ", chatContent)
   console.log("chatContent messages length: ", chatContent[sessionIndexForAPI].messages.length)
@@ -61,21 +61,16 @@ const ChatHandleAPI = async ({
     }))),
   };
 
-  // Extract the URLs from attachedImages and attachedFile
-  const imageUrls = attachedImages.map(image => image.url);
-  const fileUrls = attachedFiles.map(file => file.url);
-  // Combine the two arrays
-  const combinedUrls = [...imageUrls, ...fileUrls];
-
-  console.log("combinedUrls: ", combinedUrls)
-
   // Add or replace user message
   if (editMessagePosition === null) {
     updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   } else {
+    // Extract the URLs from attachedImages and attachedFile
+    const imageUrls = attachedImages.map(image => image.url);
+    const fileUrls = attachedFiles.map(file => file.url);
     updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].message = userInput;
-    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].imageLocations = combinedUrls;
-
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].imageLocations = imageUrls;
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].fileNames = fileUrls;
   }
   setChatContent(updatedChatContent);
 

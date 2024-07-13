@@ -178,8 +178,8 @@ const Main = () => {
     }
     setUserInput("");
     setAttachedImages([]);
-    //setAttachedFiles([]);
-  }, [attachedImages, attachedFiles, editingMessage, callChatAPI]);
+    setAttachedFiles([]);
+  }, [attachedImages, attachedFiles, userInput, editingMessage, callChatAPI]);
 
 
   // we monitor if handleRegenerate in ChatMessage was used
@@ -248,6 +248,7 @@ const Main = () => {
             chatContent={chatContent}
             setChatContent={setChatContent}
             setAttachedImages={setAttachedImages}
+            setAttachedFiles={setAttachedFiles}
             currentSessionIndex={currentSessionIndex}
             currentSessionIndexRef={currentSessionIndexRef}
             currentSessionId={currentSessionId}

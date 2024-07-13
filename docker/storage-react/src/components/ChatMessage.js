@@ -6,7 +6,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 
-import { convertImageLocationsToAttachedImages } from '../utils/misc';
+import { convertFileAndImageLocationsToAttached } from '../utils/misc';
 
 import apiMethods from '../services/api.methods';
 import { setTextAICharacter } from '../utils/configuration';
@@ -14,7 +14,7 @@ import { setTextAICharacter } from '../utils/configuration';
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setErrorMsg }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setAttachedFiles, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -26,6 +26,9 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   const [validImageLocations, setValidImageLocations] = useState(
     message.imageLocations ? message.imageLocations.filter(src => src !== "image_placeholder_url") : []
   );
+  const [validFileLocations, setValidFileLocations] = useState(
+    message.fileNames ? message.fileNames : []
+  );
 
   // Update validImageLocations when message.imageLocations changes (for example when it's auto generated image)
   useEffect(() => {
@@ -33,6 +36,11 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
       message.imageLocations ? message.imageLocations.filter(src => src !== "image_placeholder_url") : []
     );
   }, [message.imageLocations]);
+  useEffect(() => {
+    setValidFileLocations(
+      message.fileNames ? message.fileNames : []
+    );
+  }, [message.fileNames]);
 
   // and listener for click outside (if context menu appears and we click somewhere else we want to hide it)
   useEffect(() => {
@@ -94,9 +102,11 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     setEditingMessage({ index, messageId: message.messageId });
 
     // Convert image locations to attached images format
-    const attachedImages = convertImageLocationsToAttachedImages(message.imageLocations);
+    const attachedImages = convertFileAndImageLocationsToAttached(message.imageLocations);
+    const attachedFiles = convertFileAndImageLocationsToAttached(message.fileNames);
     setUserInput(message.message);
     setAttachedImages(attachedImages);
+    setAttachedFiles(attachedFiles);
     setFocusInput(true);
     setContextMenu(null);
   };
@@ -109,8 +119,10 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
       if (previousMessage.isUserMessage) {
         setUserInput(previousMessage.message);
         // Convert image locations to attached images format
-        const attachedImages = convertImageLocationsToAttachedImages(previousMessage.imageLocations);
+        const attachedImages = convertFileAndImageLocationsToAttached(previousMessage.imageLocations);
+        const attachedFiles = convertFileAndImageLocationsToAttached(previousMessage.fileNames);
         setAttachedImages(attachedImages);
+        setAttachedFiles(attachedFiles);
         // Set the editing message position
         setEditingMessage({ index: index - 1, messageId: previousMessage.messageId });
 
@@ -193,6 +205,13 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         <div className="context-menu-item" onClick={handleCopy}>Copy</div>
       </div>
     );
+  };
+
+  // file
+  const handleFileClick = (index) => {
+    // download the file
+    const fileLocation = validFileLocations[index];
+    console.log("DOWNLOAD")
   };
 
   // IMAGE MODAL
@@ -289,6 +308,15 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
               <img key={index} src={src} alt="Chat" onClick={() => handleImageClick(index)} />
             ))}
           </div>
+        )}
+        {validFileLocations.length > 0 && (
+          <>
+            {validFileLocations.map((src, index) => (
+              <div className="placeholder">
+                <span className="pdfName" onClick={() => handleFileClick(index)}>{src}</span>
+              </div>
+            ))}
+          </>
         )}
         {message.fileNames && message.fileNames.map((src, index) => (
           <audio key={index} controls>
