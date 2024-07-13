@@ -27,7 +27,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     message.imageLocations ? message.imageLocations.filter(src => src !== "image_placeholder_url") : []
   );
   const [validFileLocations, setValidFileLocations] = useState(
-    message.fileNames ? message.fileNames : []
+    message.fileNames ? message.fileNames.filter(src => src.endsWith('.pdf') || src.endsWith('.txt')) : []
   );
 
   // Update validImageLocations when message.imageLocations changes (for example when it's auto generated image)
@@ -38,7 +38,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   }, [message.imageLocations]);
   useEffect(() => {
     setValidFileLocations(
-      message.fileNames ? message.fileNames : []
+      message.fileNames ? message.fileNames.filter(src => src.endsWith('.pdf') || src.endsWith('.txt')) : []
     );
   }, [message.fileNames]);
 
@@ -207,11 +207,15 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     );
   };
 
-  // file
+  // on attached to message files (pdf or txt) - we can click - then we download them
   const handleFileClick = (index) => {
-    // download the file
     const fileLocation = validFileLocations[index];
-    console.log("DOWNLOAD")
+    const link = document.createElement('a');
+    link.href = fileLocation;
+    link.download = fileLocation.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // IMAGE MODAL
@@ -310,15 +314,15 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
           </div>
         )}
         {validFileLocations.length > 0 && (
-          <>
+          <div key={index} className="file-placeholder-preview">
             {validFileLocations.map((src, index) => (
-              <div className="placeholder">
-                <span className="pdfName" onClick={() => handleFileClick(index)}>{src}</span>
+              <div key={index} className="file-placeholder" onClick={() => handleFileClick(index)}>
+                <span className="pdfName2">{src.split("/")[7]}</span>
               </div>
             ))}
-          </>
+          </div>
         )}
-        {message.fileNames && message.fileNames.map((src, index) => (
+        {message.fileNames && message.fileNames.filter(src => src.endsWith('.ogg') || src.endsWith('.mp3') || src.endsWith('.wav') || src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.opus')).map((src, index) => (
           <audio key={index} controls>
             <source src={src} type="audio/ogg" />
             Your browser does not support the audio element.

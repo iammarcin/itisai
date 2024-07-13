@@ -76,3 +76,28 @@
   background-color: #2c2c2c;
   border-radius: 50%;
 }
+
+.file-placeholder-preview {
+  position: relative;
+  margin-right: 10px;
+}
+
+.file-placeholder {
+  width: 75px;
+  height: 100px;
+  background-color: black;
+  cursor: pointer;
+}
+
+.pdfName2 {
+  color: white;
+  font-size: 11px;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  max-width: 75px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+}
