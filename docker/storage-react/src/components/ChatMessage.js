@@ -317,7 +317,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
           <div key={index} className="file-placeholder-preview">
             {validFileLocations.map((src, index) => (
               <div key={index} className="file-placeholder" onClick={() => handleFileClick(index)}>
-                <span className="pdfName2">{src.split("/")[7]}</span>
+                <span className="pdfName">{src.split("/")[7]}</span>
               </div>
             ))}
           </div>

@@ -89,7 +89,7 @@
   cursor: pointer;
 }
 
-.pdfName2 {
+.file-placeholder-preview .file-placeholder .pdfName {
   color: white;
   font-size: 11px;
   position: absolute;
