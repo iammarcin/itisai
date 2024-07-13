@@ -188,6 +188,29 @@ const Main = () => {
         behavior: 'smooth',
       });
     }
+    // i tried few different methods - didn't really work well
+    /*const chatWindowContainer = document.querySelector('.bottom-tools-menu');
+    const isAtBottom = chatWindowContainer.scrollHeight - chatWindowContainer.scrollTop <= chatWindowContainer.clientHeight + 70;
+    console.log("isAtBottom: ", isAtBottom);*/
+    /*if (isAtBottom) {
+      console.log("scrolling to bottom")
+
+      console.log(whichChat)
+      console.log(currentSessionIndexRef.current)
+      if (whichChat === currentSessionIndexRef.current) {
+        console.log("scrolling to bottom2")
+        //const scrollTargetPosition = botTextAreaContainer.getBoundingClientRect().top - window.innerHeight + botTextAreaContainer.offsetHeight;
+
+        // Scroll smoothly to the target position
+        /*window.scrollBy({
+          top: chatWindowContainer.getBoundingClientRect().bottom,
+          behavior: 'smooth',
+        });*/
+    /*endOfMessagesRef.current.scrollIntoView({
+      behavior: 'smooth',
+    });
+  }
+}*/
   };
 
   return (
