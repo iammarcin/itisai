@@ -1,6 +1,7 @@
 // ChatWindow.js
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
@@ -10,6 +11,7 @@ import './css/ChatWindow.css';
 import { setTextAICharacter } from '../utils/configuration';
 
 const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, currentSessionIndex, currentSessionIndexRef, currentSessionId, setCurrentSessionId, fetchSessionId, endOfMessagesRef, showCharacterSelection, setShowCharacterSelection, setEditingMessage, setUserInput, setFocusInput, setErrorMsg, setReadyForRegenerate, manageProgressText }) => {
+  const navigate = useNavigate();
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
@@ -24,16 +26,23 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, currentSes
       const userInput = { "session_id": sessionIdToGet };
       const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
 
-      const chatHistory = response.message.result.chat_history;
-      setChatContent((prevChatContent) => {
-        const updatedChatContent = [...prevChatContent];
-        updatedChatContent[currentSessionIndexRef.current].ai_character_name = response.message.result.ai_character_name;
-        updatedChatContent[currentSessionIndexRef.current].sessionId = sessionIdToGet;
-        updatedChatContent[currentSessionIndexRef.current].messages = Array.isArray(chatHistory) ? chatHistory : [];
-        return updatedChatContent;
-      });
+      // if session doesn't exist
+      if (response.code !== 200) {
+        setCurrentSessionId(null);
+        navigate(`/`);
+        setShowCharacterSelection(true);
+      } else {
+        const chatHistory = response.message.result.chat_history;
+        setChatContent((prevChatContent) => {
+          const updatedChatContent = [...prevChatContent];
+          updatedChatContent[currentSessionIndexRef.current].ai_character_name = response.message.result.ai_character_name;
+          updatedChatContent[currentSessionIndexRef.current].sessionId = sessionIdToGet;
+          updatedChatContent[currentSessionIndexRef.current].messages = Array.isArray(chatHistory) ? chatHistory : [];
+          return updatedChatContent;
+        });
 
-      setShowCharacterSelection(false);
+        setShowCharacterSelection(false);
+      }
     } catch (error) {
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
