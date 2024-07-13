@@ -31,6 +31,8 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
     total_tokens = 0
     trimmed_messages = []
     user_message_count = 0
+    # this it to rack role for messages - to make sure that there is alternate order (user , assistant) always. other way - Claude will not proceed
+    last_role = None
 
     for message in reversed(chat_history):
         message_tokens = 0
@@ -45,9 +47,15 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             if message.get('content')[0].get('text') == "":
                 continue
 
-            # increase counter - so we know when to stop using images
             if message["role"] == "user":
+                # increase counter - so we know when to stop using images
                 user_message_count += 1
+
+            # if previous message was also from same role (user or assistant) - then lets skip it - because Claude will fail. and most probably this is error
+            if last_role == message["role"] and isItAnthropicModel(model_name):
+                continue
+
+            last_role = message["role"]
 
             text_content = next((item["text"] for item in message['content'] if item["type"] == "text"), "")
             image_urls = [item["image_url"]['url'] for item in message['content'] if item["type"] == "image_url"]
@@ -185,13 +193,11 @@ def prepare_message_content(message, model, use_base64):
     text_content = next((item["text"] for item in message if item["type"] == "text"), "")
     image_urls = [item["image_url"]['url'] for item in message if item["type"] == "image_url"]
     file_urls = [item["file_url"]['url'] for item in message if item["type"] == "file_url"]
-    print("FILE URLS:   ", file_urls)
+    logger.info("FILE URLS:   ", file_urls)
     # Filter out empty strings and check if the resulting list is not empty
     valid_file_urls = [url for url in file_urls if url.strip()]
     if valid_file_urls:
         response_files = process_attached_files(file_urls)
-        print("!!!!")
-        print(response_files)
         for file in response_files:
             # add file to image_urls
             image_urls.append(file)
@@ -206,32 +212,30 @@ def prepare_message_content(message, model, use_base64):
     return message_content
 
 def process_attached_files(file_urls):
-    logger.info("File urls: %s", file_urls)
+    logger.debug("File urls: %s", file_urls)
     final_urls = []
     for file in file_urls:
-        response = download_file(file)
-        pdf = pdfium.PdfDocument(response.content)
-        n_pages = len(pdf)
-        for i, page in enumerate(pdf):
-            bitmap = page.render(scale=1, rotation=0)
-            pil_image = bitmap.to_pil()
-            with NamedTemporaryFile(delete=False, suffix=f".png") as tmp_file:
-                tmp_file_path = tmp_file.name
-                pil_image.save(tmp_file, format='PNG')
-                logger.info("Saved temporary image file: %s", tmp_file_path)
+        # if its pdf file
+        if file.endswith(".pdf"):
+            response = download_file(file)
+            pdf = pdfium.PdfDocument(response.content)
+            for i, page in enumerate(pdf):
+                bitmap = page.render(scale=1, rotation=0)
+                pil_image = bitmap.to_pil()
+                with NamedTemporaryFile(delete=False, suffix=f"_p{i}.png") as tmp_file:
+                    tmp_file_path = tmp_file.name
+                    pil_image.save(tmp_file, format='PNG')
 
-            with open(tmp_file_path, "rb") as tmp_file:
-                file_with_filename = FileWithFilename(
-                    tmp_file, Path(tmp_file_path).name)
-                s3_url = asyncio.run(async_s3_upload(file_with_filename))
-                final_urls.append(s3_url)
+                with open(tmp_file_path, "rb") as tmp_file:
+                    file_with_filename = FileWithFilename(
+                        tmp_file, Path(tmp_file_path).name)
+                    s3_url = asyncio.run(async_s3_upload(file_with_filename))
+                    final_urls.append(s3_url)
 
-    logger.info("Final URLs: %s", final_urls)
+    logger.debug("Final URLs: %s", final_urls)
     return final_urls
 
 async def async_s3_upload(file_with_filename):
-    logger.info("Uploading to S3")
-    logger.info(file_with_filename)
     s3_response = await awsProvider.s3_upload(
         awsProvider,
         action="s3_upload",
@@ -241,7 +245,6 @@ async def async_s3_upload(file_with_filename):
     )
 
     s3_response_content = json.loads(s3_response.body.decode("utf-8"))
-    logger.info("s3_response_content %s", s3_response_content)
     s3_url = s3_response_content["message"]["result"]
     return s3_url
 

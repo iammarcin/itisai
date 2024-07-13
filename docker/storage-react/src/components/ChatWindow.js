@@ -47,7 +47,7 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, currentSes
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
     }
-  }, [currentSessionIndexRef, setChatContent, setShowCharacterSelection, setErrorMsg]);
+  }, [currentSessionIndexRef, setChatContent, navigate, setCurrentSessionId, setShowCharacterSelection, setErrorMsg]);
 
 
   // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data

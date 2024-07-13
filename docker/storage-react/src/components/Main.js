@@ -159,8 +159,16 @@ const Main = () => {
   const handleSendClick = useCallback(() => {
     setErrorMsg('');
     const modelName = getTextModelName();
+    if (userInput.trim() === '') {
+      setErrorMsg("Please provide your input");
+      return;
+    }
     if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4' && modelName !== 'Claude-3.5') {
       setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
+      return;
+    }
+    if (attachedFiles.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4' && modelName !== 'Claude-3.5') {
+      setErrorMsg("In order to process attached files you need to change the model");
       return;
     }
     if (editingMessage !== null) {
@@ -171,7 +179,7 @@ const Main = () => {
     setUserInput("");
     setAttachedImages([]);
     //setAttachedFiles([]);
-  }, [attachedImages, editingMessage, callChatAPI]);
+  }, [attachedImages, attachedFiles, editingMessage, callChatAPI]);
 
 
   // we monitor if handleRegenerate in ChatMessage was used
