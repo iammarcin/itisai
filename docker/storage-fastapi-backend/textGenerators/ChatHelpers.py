@@ -135,9 +135,12 @@ def isItAnthropicModel(model_name: str) -> bool:
 
 # IMAGE PART
 def download_file(url):
-    response = requests.get(url)
-    response.raise_for_status()  # Raise an error for bad status codes
-    return response
+    if url.startswith("http"):
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad status codes
+        return response
+    else:
+        return url
 
 def get_mime_type(image_content):
     mime_type, _ = mimetypes.guess_type(image_content)
@@ -151,7 +154,11 @@ def get_base64_for_image(url):
 
     mime_type = get_mime_type(url)
     print(f"MIME type: {mime_type}")
-    base64_encoding = calculate_base64(image_content.content)
+    if url.startswith("http"):
+        base64_encoding = calculate_base64(image_content.content)
+    else:
+        with open(image_content, "rb") as tmp_file:
+            base64_encoding = calculate_base64(tmp_file.read())
 
     return mime_type, base64_encoding
 
@@ -227,11 +234,9 @@ def process_attached_files(file_urls):
                     tmp_file_path = tmp_file.name
                     pil_image.save(tmp_file, format='PNG')
 
-                with open(tmp_file_path, "rb") as tmp_file:
-                    file_with_filename = FileWithFilename(
-                        tmp_file, Path(tmp_file_path).name)
-                    s3_url = asyncio.run(async_s3_upload(file_with_filename))
-                    final_urls.append(s3_url)
+                logger.info("tmp_file: %s", tmp_file_path)
+
+                final_urls.append(tmp_file_path)
 
     logger.debug("Final URLs: %s", final_urls)
     return final_urls

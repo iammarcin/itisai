@@ -8,6 +8,7 @@ const TEXT_MODEL_NAME = "text_model_name";
 const TEXT_TEMPERATURE = "text_temperature";
 const TEXT_MEMORY_SIZE = "text_memory_size";
 const TEXT_STREAMING = "text_streaming";
+const TEXT_FILE_ATTACHED_MESSAGE_LIMIT = "text_file_attached_message_limit";
 const GENERAL_USE_BLUETOOTH = "general_use_bluetooth";
 const GENERAL_TEST_DATA = "general_test_data";
 const GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING = "general_download_audio_files_before_playing";
@@ -38,6 +39,7 @@ const defaultSettings = {
   [TEXT_TEMPERATURE]: 0.0,
   [TEXT_MEMORY_SIZE]: 2000,
   [TEXT_STREAMING]: false,
+  [TEXT_FILE_ATTACHED_MESSAGE_LIMIT]: 3,
   [GENERAL_USE_BLUETOOTH]: false,
   [GENERAL_TEST_DATA]: false,
   [GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING]: true,
@@ -65,6 +67,7 @@ const convertType = (key, value) => {
   const typeMap = {
     [TEXT_TEMPERATURE]: 'float',
     [TEXT_MEMORY_SIZE]: 'int',
+    [TEXT_FILE_ATTACHED_MESSAGE_LIMIT]: 'int',
     [SPEECH_TEMPERATURE]: 'float',
     [TTS_STABILITY]: 'float',
     [TTS_SIMILARITY]: 'float',
@@ -114,6 +117,7 @@ export const getTextAICharacter = () => { return currentTextAICharacter; };
 export const getOriginalAICharacter = () => { return originalAICharacter; };
 export const getTextTemperature = () => getItem(TEXT_TEMPERATURE, defaultSettings[TEXT_TEMPERATURE]);
 export const getTextMemorySize = () => getItem(TEXT_MEMORY_SIZE, defaultSettings[TEXT_MEMORY_SIZE]);
+export const getTextFileAttachedMessageLimit = () => getItem(TEXT_FILE_ATTACHED_MESSAGE_LIMIT, defaultSettings[TEXT_FILE_ATTACHED_MESSAGE_LIMIT]);
 export const getIsStreamingEnabled = () => getItem(TEXT_STREAMING, defaultSettings[TEXT_STREAMING]);
 export const getUseBluetooth = () => getItem(GENERAL_USE_BLUETOOTH, defaultSettings[GENERAL_USE_BLUETOOTH]);
 export const getUseTestData = () => getItem(GENERAL_TEST_DATA, defaultSettings[GENERAL_TEST_DATA]);
@@ -145,6 +149,7 @@ export const setTextAICharacter = (value) => { currentTextAICharacter = value; }
 export const setOriginalAICharacter = (value) => { originalAICharacter = value; };
 export const setTextTemperature = (value) => setItem(TEXT_TEMPERATURE, value);
 export const setTextMemorySize = (value) => setItem(TEXT_MEMORY_SIZE, value);
+export const setTextFileAttachedMessageLimit = (value) => setItem(TEXT_FILE_ATTACHED_MESSAGE_LIMIT, value);
 export const setIsStreamingEnabled = (value) => setItem(TEXT_STREAMING, value);
 export const setUseBluetooth = (value) => setItem(GENERAL_USE_BLUETOOTH, value);
 export const setUseTestData = (value) => setItem(GENERAL_TEST_DATA, value);
@@ -185,6 +190,7 @@ export const getSettingsDict = () => ({
     memory_limit: getTextMemorySize(),
     ai_character: getTextAICharacter(),
     streaming: getIsStreamingEnabled(),
+    file_attached_message_limit: getTextFileAttachedMessageLimit(),
   },
   tts: {
     stability: getTTSStability(),
