@@ -9,6 +9,7 @@ import rehypeHighlight from 'rehype-highlight';
 import { convertImageLocationsToAttachedImages } from '../utils/misc';
 
 import apiMethods from '../services/api.methods';
+import { setTextAICharacter } from '../utils/configuration';
 
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
@@ -129,6 +130,8 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     updatedChatContent[currentSessionIndex].sessionId = ''; // New session will get a new ID from the backend
     updatedChatContent[currentSessionIndex].messages = selectedChatItems;
     setChatContent(updatedChatContent);
+
+    setTextAICharacter(chatContent[currentSessionIndex].ai_character_name);
 
     setCurrentSessionId(null);
 

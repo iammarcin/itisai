@@ -15,11 +15,15 @@ const ChatHandleAPI = async ({
   setIsLoading(true);
   manageProgressText("show", "Text");
 
+  attachedImages.map(image => image.url)
+
+
   // Add the user message to chat content
   const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url) };
   const updatedChatContent = [...chatContent];
   console.log("chatContent: ", chatContent)
   console.log("chatContent messages length: ", chatContent[sessionIndexForAPI].messages.length)
+  console.log("attachedFiles: ", attachedFiles)
   // if it's not first message and ai_character is set - don't overwrite it (at the beginning we set it as assistant)
   if (!updatedChatContent[sessionIndexForAPI].ai_character_name || chatContent[sessionIndexForAPI].messages.length < 2)
     updatedChatContent[sessionIndexForAPI].ai_character_name = currentAICharacter
@@ -29,11 +33,17 @@ const ChatHandleAPI = async ({
 
   // collect chat history (needed to send it API to get whole context of chat)
   // (excluding the latest message - as this will be sent via userPrompt), including images if any
-  // or excluding 2 last messages - if its edited user message
+  // or excluding 1 or 2 last messages - if its edited user message
   var chatHistory = chatContent[sessionIndexForAPI].messages;
 
   if (editMessagePosition !== null) {
-    chatHistory = chatHistory.slice(0, -2);
+    // if it is edited message - we have to drop 2 last messages (user and AI response)
+    // but only if it is not the last message in chat
+    if (editMessagePosition.index == chatHistory.length - 1) {
+      chatHistory = chatHistory.slice(0, -1);
+    } else {
+      chatHistory = chatHistory.slice(0, -2);
+    }
   }
 
   const finalUserInput = {
@@ -51,12 +61,21 @@ const ChatHandleAPI = async ({
     }))),
   };
 
+  // Extract the URLs from attachedImages and attachedFile
+  const imageUrls = attachedImages.map(image => image.url);
+  const fileUrls = attachedFiles.map(file => file.url);
+  // Combine the two arrays
+  const combinedUrls = [...imageUrls, ...fileUrls];
+
+  console.log("combinedUrls: ", combinedUrls)
+
   // Add or replace user message
   if (editMessagePosition === null) {
     updatedChatContent[sessionIndexForAPI].messages.push(userMessage);
   } else {
     updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].message = userInput;
-    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].imageLocations = attachedImages.map(image => image.url);
+    updatedChatContent[sessionIndexForAPI].messages[editMessagePosition.index].imageLocations = combinedUrls;
+
   }
   setChatContent(updatedChatContent);
 

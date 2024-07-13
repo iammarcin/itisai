@@ -4,6 +4,8 @@ import mimetypes
 import base64
 import copy
 import json
+import asyncio
+
 import pypdfium2 as pdfium
 from PIL import Image
 from aws.awsProvider import awsProvider
@@ -183,11 +185,16 @@ def prepare_message_content(message, model, use_base64):
     text_content = next((item["text"] for item in message if item["type"] == "text"), "")
     image_urls = [item["image_url"]['url'] for item in message if item["type"] == "image_url"]
     file_urls = [item["file_url"]['url'] for item in message if item["type"] == "file_url"]
-
-    if len(file_urls) > 0:
+    print("FILE URLS:   ", file_urls)
+    # Filter out empty strings and check if the resulting list is not empty
+    valid_file_urls = [url for url in file_urls if url.strip()]
+    if valid_file_urls:
         response_files = process_attached_files(file_urls)
         print("!!!!")
         print(response_files)
+        for file in response_files:
+            # add file to image_urls
+            image_urls.append(file)
 
     image_content = prepare_image_content(image_urls, model, use_base64)
 
@@ -208,9 +215,9 @@ def process_attached_files(file_urls):
         for i, page in enumerate(pdf):
             bitmap = page.render(scale=1, rotation=0)
             pil_image = bitmap.to_pil()
-            with NamedTemporaryFile(delete=False) as tmp:
-                tmp_file_path = tmp.name
-                pil_image.save(tmp, format='PNG')
+            with NamedTemporaryFile(delete=False, suffix=f".png") as tmp_file:
+                tmp_file_path = tmp_file.name
+                pil_image.save(tmp_file, format='PNG')
                 logger.info("Saved temporary image file: %s", tmp_file_path)
 
             with open(tmp_file_path, "rb") as tmp_file:
@@ -218,22 +225,27 @@ def process_attached_files(file_urls):
                     tmp_file, Path(tmp_file_path).name)
                 logger.info("Uploading to S3")
                 logger.info(file_with_filename)
-                '''
-                s3_response = awsProvider.s3_upload(
-                    awsProvider,
-                    action="s3_upload",
-                    userInput={"file": file_with_filename},
-                    assetInput={},
-                    customerId=1
-                )
-
-                s3_response_content = json.loads(s3_response.body.decode("utf-8"))
-                logger.info("s3_response_content %s", s3_response_content)
-                s3_url = s3_response_content["message"]["result"]
+                s3_url = asyncio.run(async_s3_upload(file_with_filename))
                 final_urls.append(s3_url)
-                '''
+
+    logger.info("Final URLs: %s", final_urls)
     return final_urls
 
+async def async_s3_upload(file_with_filename):
+    logger.info("Uploading to S3")
+    logger.info(file_with_filename)
+    s3_response = await awsProvider.s3_upload(
+        awsProvider,
+        action="s3_upload",
+        userInput={"file": file_with_filename},
+        assetInput={},
+        customerId=1
+    )
+
+    s3_response_content = json.loads(s3_response.body.decode("utf-8"))
+    logger.info("s3_response_content %s", s3_response_content)
+    s3_url = s3_response_content["message"]["result"]
+    return s3_url
 
 # it's bit dumb - but i don't see any other option
 # when displaying history and when base64 is in use

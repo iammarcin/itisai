@@ -56,11 +56,11 @@ class dbProvider:
 
         try:
             if action == "db_new_session":
-                return await self.db_new_session(userInput, customerId)
+                return await self.db_new_session(userInput, customerId, userSettings)
             elif action == "db_new_message":
                 return await self.db_new_message(userInput, customerId, userSettings)
             elif action == "db_edit_message":
-                return await self.db_edit_message(userInput, customerId)
+                return await self.db_edit_message(userInput, customerId, userSettings)
             elif action == "db_all_sessions_for_user":
                 return await self.db_all_sessions_for_user(userInput, customerId)
             elif action == "db_get_user_session":
@@ -68,7 +68,7 @@ class dbProvider:
             elif action == "db_search_messages":
                 return await self.db_search_messages(userInput, customerId)
             elif action == "db_update_session":
-                return await self.db_update_session(userInput, customerId)
+                return await self.db_update_session(userInput, customerId, userSettings)
             elif action == "db_remove_session":
                 return await self.db_remove_session(userInput, customerId)
             elif action == "db_auth_user":
@@ -109,7 +109,7 @@ class dbProvider:
 
     # TEST as sometimes db_new_session fails
     # @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-    async def db_new_session(self, userInput: dict, customerId: int):
+    async def db_new_session(self, userInput: dict, customerId: int, userSettings: dict = {}):
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
@@ -117,7 +117,10 @@ class dbProvider:
                     session_name = userInput.get(
                         'session_name', "New chat %s" % date_now)
                     ai_character_name = userInput.get(
-                        'ai_character_name', "assistant")
+                        'ai_character_name', "")
+                    if ai_character_name == "":
+                        ai_character_name = userSettings.get(
+                            'text', {}).get('ai_character', 'assistant')
 
                     chat_history = userInput.get('chat_history', [])
 
@@ -230,24 +233,56 @@ class dbProvider:
                     raise HTTPException(
                         status_code=500, detail="Error in DB! db_new_message")
 
-    async def db_edit_message(self, userInput: dict, customerId: int):
+    async def db_edit_message(self, userInput: dict, customerId: int, userSettings: dict = {}):
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
+                    # get session - it will be used to check if it exists (because it might not - for example when New session from here is used)
+                    # or there might be mistake
+                    # or it exists - so later we will need to update it
+                    chat_session = await session.get(ChatSession, userInput.get('session_id'))
+
+                    # Check if session_id is set, if not create a new session
+                    if chat_session is None:
+                        ai_character = userSettings.get(
+                            'text', {}).get('ai_character', 'assistant')
+                        # date now in format YYYY-MM-DD
+                        date_now = datetime.now().strftime("%Y-%m-%d")
+                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat %s" % date_now, ai_character_name=ai_character)
+                        chat_session = await session.get(ChatSession, userInput.get('session_id'))
+
                     userMessage = userInput['userMessage']
                     # might be null (for example for chats without AI response)
                     aiResponse = userInput.get('aiResponse')
 
-                    user_message_id = userMessage['message_id']
+                    user_message_id = userMessage.get('message_id', None)
+                    db_user_message = None
+                    if user_message_id and user_message_id != 0:
+                        # Check if the message exists and belongs to the user
+                        db_user_message = await session.get(ChatMessage, user_message_id)
+                        if db_user_message.customer_id != customerId:
+                            raise HTTPException(
+                                status_code=403, detail="Not authorized to edit this message")
 
-                    # Check if the message exists and belongs to the user
-                    db_user_message = await session.get(ChatMessage, user_message_id)
-                    if not db_user_message:
-                        raise HTTPException(
-                            status_code=404, detail="Message not found")
-                    if db_user_message.customer_id != customerId:
-                        raise HTTPException(
-                            status_code=403, detail="Not authorized to edit this message")
+                    # if no message id for user message provided or it simply doesn't exist - we need to create new one
+                    if db_user_message is None:
+                        db_user_message = ChatMessage(
+                            session_id=userInput['session_id'],
+                            customer_id=customerId,
+                            sender=userMessage['sender'],
+                            message=userMessage['message'],
+                            image_locations=userMessage.get(
+                                'image_locations'),
+                            file_locations=userMessage.get('file_locations')
+                        )
+                        session.add(db_user_message)
+                        await session.flush()  # Generate the new message
+                        # Update the last user message in the chat history with the new ID
+                        if userInput['chat_history']:
+                            for message in reversed(userInput['chat_history']):
+                                if message.get('isUserMessage'):
+                                    message['messageId'] = db_user_message.message_id
+                                    break
 
                     # Update the message text
                     db_user_message.message = userMessage['message']
@@ -258,7 +293,7 @@ class dbProvider:
                     # (there is a case where AI response fails and there is no message_id
                     # or aiResponse might be null - as mentioned above)
                     ai_message_id = aiResponse.get(
-                        'message_id', 0) if aiResponse else 0
+                        'message_id', None) if aiResponse else None
                     new_ai_message_id = 0
 
                     # Check if the message exists and belongs to the user
@@ -298,7 +333,6 @@ class dbProvider:
                             new_ai_message_id = db_ai_message.message_id
 
                     # Update chat session's chat_history and last_update
-                    chat_session = await session.get(ChatSession, userInput['session_id'])
                     if chat_session:
                         # Use chat_history from userInput directly
                         chat_session.chat_history = userInput['chat_history']
@@ -399,7 +433,7 @@ class dbProvider:
                     raise HTTPException(
                         status_code=500, detail="Error in DB! db_search_messages")
 
-    async def db_update_session(self, userInput: dict, customerId: int):
+    async def db_update_session(self, userInput: dict, customerId: int, userSettings: dict = {}):
         session_id = userInput['session_id']
         new_session_name = userInput.get('new_session_name')
         new_ai_character_name = userInput.get('new_ai_character_name')
@@ -409,13 +443,30 @@ class dbProvider:
             async with session.begin():
                 try:
                     result = await session.execute(
-                        select(ChatSession).where(ChatSession.session_id ==
-                                                  session_id, ChatSession.customer_id == customerId)
+                        select(ChatSession).where(
+                            ChatSession.session_id == session_id,
+                            ChatSession.customer_id == customerId
+                        )
                     )
                     chat_session = result.scalars().first()
+                    # if we're trying to update session but there is no session in DB - then something is wrong! we need to then most probably create new one
                     if chat_session is None:
-                        raise HTTPException(
-                            status_code=404, detail="Chat session not found")
+                        if not new_ai_character_name:
+                            new_ai_character_name = userSettings.get('text', {}).get('ai_character', 'assistant')
+                        if not new_session_name:
+                            date_now = datetime.now().strftime("%Y-%m-%d")
+                            new_session_name = "New chat %s" % date_now
+                        session_id = await self._db_new_session_internal(session, customerId, new_session_name, new_ai_character_name, chat_history)
+                        # and once created - we need to query for it again to use it further in this function
+                        result = await session.execute(
+                            select(ChatSession).where(
+                                ChatSession.session_id == session_id,
+                                ChatSession.customer_id == customerId
+                            )
+                        )
+                        chat_session = result.scalars().first()
+                    else:
+                        session_id = chat_session.session_id
                     if new_session_name:
                         chat_session.session_name = new_session_name
                     if new_ai_character_name:
@@ -424,7 +475,7 @@ class dbProvider:
                         chat_session.chat_history = chat_history
                     chat_session.last_update = func.now()
                     await session.commit()
-                    return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "Session updated"}}, status_code=200)
+                    return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": session_id}}, status_code=200)
                 except Exception as e:
                     logger.error("Error in DB! db_update_session: %s", str(e))
                     # traceback.print_exc()
@@ -478,7 +529,7 @@ class dbProvider:
             ai_character_name=ai_character_name,
             chat_history=chat_history
         )
-        logger.info("ai character: %s", ai_character_name)
+
         session.add(new_session)
 
         await session.flush()

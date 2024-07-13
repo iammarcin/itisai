@@ -141,7 +141,8 @@ class AITextGenerator:
             chat_history = userInput.get('chat_history') if userInput.get(
                 'chat_history') is not None else []
             latest_user_message = userInput.get('prompt')
-
+            logger.info("latest_user_message: ")
+            logger.info(latest_user_message)
             # if it's more complex message - we need to process it (because there are differences between generator - especially if there are images)
             if isinstance(latest_user_message, list):
                 latest_user_message = prepare_message_content(

@@ -30,6 +30,7 @@ elif defaults['environment'] == 'sherlock':
     defaults['AWS_S3_BUCKET'] = "myaiappess3bucketnonprod"
     defaults['MYSQL_HOST'] = "db.goodtogreat.life"
     defaults['MYSQL_DB'] = "aiapp_nonprod"
+    # defaults['MYSQL_DB'] = "aiapp"
 else:  # local non docker
     home_dir = os.path.expanduser("~")
     # defaults['LOCAL_MAIN_STORAGE']          = f"{home_dir}/storage/testApi/"

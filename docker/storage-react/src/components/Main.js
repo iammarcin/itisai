@@ -105,6 +105,7 @@ const Main = () => {
     setCurrentSessionId(null);
     setUserInput('');
     setAttachedImages([]);
+    setAttachedFiles([]);
     setIsLoading(false);
     setErrorMsg('');
     setTextAICharacter('assistant');
@@ -169,6 +170,7 @@ const Main = () => {
     }
     setUserInput("");
     setAttachedImages([]);
+    //setAttachedFiles([]);
   }, [attachedImages, editingMessage, callChatAPI]);
 
 
