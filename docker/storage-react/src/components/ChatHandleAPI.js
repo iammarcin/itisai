@@ -39,7 +39,7 @@ const ChatHandleAPI = async ({
   if (editMessagePosition !== null) {
     // if it is edited message - we have to drop 2 last messages (user and AI response)
     // but only if it is not the last message in chat
-    if (editMessagePosition.index == chatHistory.length - 1) {
+    if (editMessagePosition.index === chatHistory.length - 1) {
       chatHistory = chatHistory.slice(0, -1);
     } else {
       chatHistory = chatHistory.slice(0, -2);

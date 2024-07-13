@@ -24,10 +24,12 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   }
 
   const handleAttachClick = () => {
+    console.log("EXECUTED")
     document.getElementById('file-input').click();
   };
 
   const handleFileChange = async (e) => {
+    console.log("EXECUTED 2")
     setErrorMsg("");
     const files = Array.from(e.target.files);
     const imageFiles = files.filter(file => file.type.startsWith('image/'));

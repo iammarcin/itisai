@@ -95,8 +95,13 @@
 
 .pdfName {
   color: white;
-  font-size: 10px;
+  font-size: 11px;
   position: absolute;
   top: 30px;
   left: 0;
+  max-width: 100px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
 }

@@ -154,7 +154,7 @@ const Main = () => {
     } catch (e) {
       setIsLoading(false);
     }
-  }, [userInput, attachedImages, currentSessionId, currentSessionIndex, chatContent]);
+  }, [userInput, attachedImages, attachedFiles, currentSessionId, currentSessionIndex, chatContent]);
 
   const handleSendClick = useCallback(() => {
     setErrorMsg('');
