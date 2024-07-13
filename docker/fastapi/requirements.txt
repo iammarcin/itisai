@@ -25,3 +25,5 @@ bcrypt # password from DB
 google-api-python-client
 garth # garmin
 anthropic
+pypdfium2 # pdf 
+pillow # pdf and more

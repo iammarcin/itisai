@@ -223,8 +223,6 @@ def process_attached_files(file_urls):
             with open(tmp_file_path, "rb") as tmp_file:
                 file_with_filename = FileWithFilename(
                     tmp_file, Path(tmp_file_path).name)
-                logger.info("Uploading to S3")
-                logger.info(file_with_filename)
                 s3_url = asyncio.run(async_s3_upload(file_with_filename))
                 final_urls.append(s3_url)
 
