@@ -2,15 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  getIsProdMode,
-  setIsProdMode,
-  setURLForAPICalls,
-  getUseTestData,
-  setUseTestData,
-  getAppModeUseWatson,
-  setAppModeUseWatson,
-  getAuthTokenForBackend,
-  setAuthTokenForBackend
+  getIsProdMode, setIsProdMode, setURLForAPICalls,
+  getUseTestData, setUseTestData,
+  getGeneralShowMessageInfoBottomRight, setGeneralShowMessageInfoBottomRight,
+  getAppModeUseWatson, setAppModeUseWatson,
+  getAuthTokenForBackend, setAuthTokenForBackend
 } from '../../utils/configuration';
 
 const General = () => {
@@ -18,6 +14,7 @@ const General = () => {
 
   const [isProdMode, setLocalIsProdMode] = useState(getIsProdMode());
   const [useTestData, setLocalUseTestData] = useState(getUseTestData());
+  const [showLocalMessageInfo, setLocalShowMessageInfo] = useState(getGeneralShowMessageInfoBottomRight());
   const [useWatson, setLocalUseWatson] = useState(getAppModeUseWatson());
   const [authToken, setLocalAuthToken] = useState(getAuthTokenForBackend());
 
@@ -34,6 +31,12 @@ const General = () => {
     setLocalUseTestData(checked);
     setUseTestData(checked);
   };
+
+  const handleShowMessageInfoChange = (e) => {
+    const checked = e.target.checked;
+    setLocalShowMessageInfo(checked);
+    setGeneralShowMessageInfoBottomRight(checked);
+  }
 
   const handleUseWatsonChange = (e) => {
     const checked = e.target.checked;
@@ -70,6 +73,11 @@ const General = () => {
         <label>Use Watson for nonprod</label>
         <input type="checkbox" checked={useWatson} onChange={handleUseWatsonChange} />
       </div>
+      <div className="option-item">
+        <label>Show message info (bottom,right corner)</label>
+        <input type="checkbox" checked={showLocalMessageInfo} onChange={handleShowMessageInfoChange} />
+      </div>
+      <br />
       <div className="option-item">
         <label>API auth Token</label>
         <input type="password" value={authToken} onChange={handleAuthTokenChange} />

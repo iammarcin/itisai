@@ -12,6 +12,7 @@ const TEXT_FILE_ATTACHED_MESSAGE_LIMIT = "text_file_attached_message_limit";
 const GENERAL_USE_BLUETOOTH = "general_use_bluetooth";
 const GENERAL_TEST_DATA = "general_test_data";
 const GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING = "general_download_audio_files_before_playing";
+const GENERAL_SHOW_MESSAGE_INFO_BOTTOM_RIGHT = "general_show_message_info_bottom_right";
 const SPEECH_LANGUAGE = "speech_language";
 const SPEECH_TEMPERATURE = "speech_temperature";
 const TTS_STABILITY = "tts_stability";
@@ -43,6 +44,7 @@ const defaultSettings = {
   [GENERAL_USE_BLUETOOTH]: false,
   [GENERAL_TEST_DATA]: false,
   [GENERAL_DOWNLOAD_AUDIO_FILES_BEFORE_PLAYING]: true,
+  [GENERAL_SHOW_MESSAGE_INFO_BOTTOM_RIGHT]: false,
   [SPEECH_LANGUAGE]: "en",
   [SPEECH_TEMPERATURE]: 0.0,
   [TTS_STABILITY]: 0.0,
@@ -121,6 +123,7 @@ export const getTextFileAttachedMessageLimit = () => getItem(TEXT_FILE_ATTACHED_
 export const getIsStreamingEnabled = () => getItem(TEXT_STREAMING, defaultSettings[TEXT_STREAMING]);
 export const getUseBluetooth = () => getItem(GENERAL_USE_BLUETOOTH, defaultSettings[GENERAL_USE_BLUETOOTH]);
 export const getUseTestData = () => getItem(GENERAL_TEST_DATA, defaultSettings[GENERAL_TEST_DATA]);
+export const getGeneralShowMessageInfoBottomRight = () => getItem(GENERAL_SHOW_MESSAGE_INFO_BOTTOM_RIGHT, defaultSettings[GENERAL_SHOW_MESSAGE_INFO_BOTTOM_RIGHT]);
 export const getSpeechLanguage = () => getItem(SPEECH_LANGUAGE, defaultSettings[SPEECH_LANGUAGE]);
 export const getSpeechTemperature = () => getItem(SPEECH_TEMPERATURE, defaultSettings[SPEECH_TEMPERATURE]);
 export const getTTSStability = () => getItem(TTS_STABILITY, defaultSettings[TTS_STABILITY]);
@@ -153,6 +156,7 @@ export const setTextFileAttachedMessageLimit = (value) => setItem(TEXT_FILE_ATTA
 export const setIsStreamingEnabled = (value) => setItem(TEXT_STREAMING, value);
 export const setUseBluetooth = (value) => setItem(GENERAL_USE_BLUETOOTH, value);
 export const setUseTestData = (value) => setItem(GENERAL_TEST_DATA, value);
+export const setGeneralShowMessageInfoBottomRight = (value) => setItem(GENERAL_SHOW_MESSAGE_INFO_BOTTOM_RIGHT, value);
 export const setSpeechLanguage = (value) => setItem(SPEECH_LANGUAGE, value.toLowerCase());
 export const setSpeechTemperature = (value) => setItem(SPEECH_TEMPERATURE, value);
 export const setTTSStability = (value) => setItem(TTS_STABILITY, value);

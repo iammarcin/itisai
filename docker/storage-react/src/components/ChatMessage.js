@@ -9,7 +9,7 @@ import rehypeHighlight from 'rehype-highlight';
 import { convertFileAndImageLocationsToAttached } from '../utils/misc';
 
 import apiMethods from '../services/api.methods';
-import { setTextAICharacter } from '../utils/configuration';
+import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../utils/configuration';
 
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
@@ -328,7 +328,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
             Your browser does not support the audio element.
           </audio>
         ))}
-        {(message.apiAIModelName || message.dateGenerate) && (
+        {getGeneralShowMessageInfoBottomRight() && (message.apiAIModelName || message.dateGenerate) && (
           <div className="date-ai-model-name">
             {message.apiAIModelName && <span className="generated-info">{message.apiAIModelName}</span>}
             {message.dateGenerate && <span className="generated-info">{message.dateGenerate}</span>}
