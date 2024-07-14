@@ -139,11 +139,12 @@ const Main = () => {
       // session index (top menu circle button)
       const sessionIndexForAPI = currentSessionIndex;
       const currentAICharacter = getTextAICharacter();
+      const apiAIModelName = getTextModelName();
 
       await ChatHandleAPI({
         userInput, editMessagePosition, attachedImages, attachedFiles,
         currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
-        chatContent, setChatContent, currentAICharacter, setFocusInput, setRefreshChatSessions,
+        chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions,
         setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
       });
 

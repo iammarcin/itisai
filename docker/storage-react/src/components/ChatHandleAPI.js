@@ -3,23 +3,29 @@ import config from '../config';
 import apiMethods from '../services/api.methods';
 import { setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
 import { characters } from './ChatCharacters';
+import { formatDate } from '../utils/misc';
 
 // to clarify some of params:
 // editMessagePosition - this is set to index of edited message - if its null its normal, new message, if not - it is edited message
 // sessionIndexForAPI, sessionIdForAPI - those are needed because we want to be sure that we're generating data for proper session (if user switches or whatever happens)
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 // currentSessionIndex - also needed - as we're checking if currently generating in active session
+// apiAIModelName - model name that we are using for generating the message (sent to API). this will be recorded in order to show which model generated each message
 const ChatHandleAPI = async ({
-  userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+  userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
 
   attachedImages.map(image => image.url)
 
-
   // Add the user message to chat content
-  const userMessage = { message: userInput, isUserMessage: true, imageLocations: attachedImages.map(image => image.url), fileNames: attachedFiles.map(file => file.url) };
+  const userMessage = {
+    message: userInput,
+    isUserMessage: true,
+    imageLocations: attachedImages.map(image => image.url),
+    fileNames: attachedFiles.map(file => file.url)
+  };
   const updatedChatContent = [...chatContent];
   console.log("chatContent: ", chatContent)
   console.log("chatContent messages length: ", chatContent[sessionIndexForAPI].messages.length)
@@ -91,6 +97,8 @@ const ChatHandleAPI = async ({
         const aiMessagePlaceholder = {
           message: '',
           isUserMessage: false,
+          apiAIModelName: apiAIModelName,
+          dateGenerate: formatDate(new Date().toISOString()),
           imageLocations: [],
           aiCharacterName: currentAICharacter
         };
@@ -104,6 +112,8 @@ const ChatHandleAPI = async ({
           const aiMessagePlaceholder = {
             message: '',
             isUserMessage: false,
+            apiAIModelName: apiAIModelName,
+            dateGenerate: formatDate(new Date().toISOString()),
             imageLocations: [],
             aiCharacterName: currentAICharacter
           };

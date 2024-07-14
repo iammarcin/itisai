@@ -328,6 +328,12 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
             Your browser does not support the audio element.
           </audio>
         ))}
+        {(message.apiAIModelName || message.dateGenerate) && (
+          <div className="date-ai-model-name">
+            {message.apiAIModelName && <span className="generated-info">{message.apiAIModelName}</span>}
+            {message.dateGenerate && <span className="generated-info">{message.dateGenerate}</span>}
+          </div>
+        )}
       </div>
       {
         isModalOpen && (

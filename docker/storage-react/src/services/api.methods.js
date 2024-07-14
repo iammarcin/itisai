@@ -1,6 +1,7 @@
 // api.methods.js
 import makeApiCall from './api.service';
 import { getSettingsDict } from '../utils/configuration';
+import { formatDate } from '../utils/misc';
 import config from "../config";
 
 // helper function to prepare data for DB request in proper format - as it is used in few places
@@ -13,6 +14,8 @@ const prepareChatHistoryForDB = (chatContent) => {
     "fileNames": message.fileNames || [],
     "aiCharacterName": message.aiCharacterName || "",
     "messageId": message.messageId || 0,
+    "apiAIModelName": message.apiAIModelName,
+    "dateGenerate": message.dateGenerate ? formatDate(message.dateGenerate) : null,
     "isTTS": message.isTTS || false,
     "showTranscribeButton": message.showTranscribeButton || false,
     "isGPSLocationMessage": message.isGPSLocationMessage || false
