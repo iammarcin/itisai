@@ -5,6 +5,8 @@ import Main from './components/Main';
 import Login from './components/Login';
 import Sleep from './components/Sleep';
 import Garmin from './components/Garmin';
+import PrivacyPolicy from './components/Privacy';
+import TermsAndConditions from './components/TermsConditions';
 
 const isTokenValid = (tokenData) => {
   if (!tokenData || !tokenData.expiration) {
@@ -40,6 +42,8 @@ function App() {
             <Route path="session/:sessionId" element={<Main />} />
             <Route path="/sleep" element={<Sleep />} />
             <Route path="/garmin" element={<Garmin />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
           </>
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
