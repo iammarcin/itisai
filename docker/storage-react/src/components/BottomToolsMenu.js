@@ -197,10 +197,6 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     }
   }, [focusInput, setFocusInput]);
 
-  useEffect(() => {
-    console.log("attachedFiles: ", attachedFiles)
-  }, [attachedFiles]);
-
   return (
     <div className="bottom-tools-menu">
       <div className="bottom-tools-menu-characters">
