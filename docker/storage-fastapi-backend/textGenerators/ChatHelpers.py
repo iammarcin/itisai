@@ -31,31 +31,41 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
     total_tokens = 0
     trimmed_messages = []
     user_message_count = 0
-    # this it to rack role for messages - to make sure that there is alternate order (user , assistant) always. other way - Claude will not proceed
+    # this it to track role for messages - to make sure that there is alternate order (user , assistant) always. other way - Claude will not proceed
     last_role = None
+    # this is to track last message - because there were cases where last_role was the same, but last message was empty (because it was recording from android) - so then we don't want to skip current message
+    last_message = ""
 
     for message in reversed(chat_history):
         message_tokens = 0
         message_content = ""
 
+        if config.VERBOSE_SUPERB:
+            logger.info("-----")
+            logger.info("last_role %s" % last_role)
+            logger.info("last_message %s" % last_message)
+            logger.info("current message: %s" % message)
+
+        # if previous message was also from same role (user or assistant) - then lets skip it - because Claude will fail. and most probably this is error
+        # added later - but (as mentioned above) sometimes last message from same user can be empty - so then we dont want to skip
+        if last_role == message["role"] and last_message != "" and isItAnthropicModel(model_name):
+            continue
+
+        last_role = message["role"]
+
         # Check if the message has a content list
         # this should be message - with text and potentially additional images etc - this should be standard
         if isinstance(message["content"], list):
+            last_message = message["content"][0].get('text')
             # sometimes message can empty and then it looks like :
             # {'role': 'user', 'content': [{'type': 'text', 'text': ''}]}
             # in this case we should skip it
-            if message.get('content')[0].get('text') == "":
+            if last_message == "":
                 continue
 
             if message["role"] == "user":
                 # increase counter - so we know when to stop using images
                 user_message_count += 1
-
-            # if previous message was also from same role (user or assistant) - then lets skip it - because Claude will fail. and most probably this is error
-            if last_role == message["role"] and isItAnthropicModel(model_name):
-                continue
-
-            last_role = message["role"]
 
             text_content = next((item["text"] for item in message['content'] if item["type"] == "text"), "")
             image_urls = [item["image_url"]['url'] for item in message['content'] if item["type"] == "image_url"]
@@ -71,6 +81,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
 
         else:
             # Handle simple text messages
+            last_message = message["content"]
             message_content = message["content"]
             message_tokens = num_tokens_from_string(message_content, model=model_name)
 
