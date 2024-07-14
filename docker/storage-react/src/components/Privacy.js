@@ -36,11 +36,43 @@ const PrivacyPolicy = () => {
       <h2>5. Your Choices</h2>
       <p>You can choose not to provide certain information, but this may affect your ability to use some features of our app.</p>
 
-      <h2>6. Changes to This Privacy Policy</h2>
+      <h2>6. GDPR Compliance</h2>
+      <h3>Data Controller Information</h3>
+      <p>The data controller responsible for your personal data is "Good to great life", located in Lisbon, Portugal.</p>
+
+      <h3>Legal Basis for Processing</h3>
+      <p>We process your personal data based on the following legal grounds:</p>
+      <ul>
+        <li>Your consent.</li>
+        <li>The performance of a contract with you.</li>
+        <li>Compliance with legal obligations.</li>
+        <li>Our legitimate interests.</li>
+      </ul>
+
+      <h3>User Rights</h3>
+      <p>Under GDPR, you have the following rights:</p>
+      <ul>
+        <li>The right to access your data.</li>
+        <li>The right to rectify inaccurate or incomplete data.</li>
+        <li>The right to erasure (the "right to be forgotten").</li>
+        <li>The right to restrict processing.</li>
+        <li>The right to data portability.</li>
+        <li>The right to object to processing.</li>
+        <li>The right to withdraw consent at any time.</li>
+        <li>The right to lodge a complaint with a supervisory authority.</li>
+      </ul>
+
+      <h3>Data Retention</h3>
+      <p>We retain your personal data only for as long as necessary to fulfill the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.</p>
+
+      <h3>Third-Party Services</h3>
+      <p>We may use third-party services for hosting, data processing, and analytics. These third parties may have access to your data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</p>
+
+      <h2>7. Changes to This Privacy Policy</h2>
       <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
 
-      <h2>7. Contact Us</h2>
-      <p>If you have any questions about this Privacy Policy, please contact us at: support AT goodtogreat.life.</p>
+      <h2>8. Contact Us</h2>
+      <p>If you have any questions about this Privacy Policy, please contact us at support AT goodtogreat.life.</p>
     </div>
   );
 }

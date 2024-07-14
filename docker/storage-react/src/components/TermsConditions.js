@@ -32,13 +32,20 @@ const TermsAndConditions = () => {
       <p>We may terminate or suspend your account and bar access to the Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
 
       <h2>7. Limitation of Liability</h2>
-      <p>In no event shall "Good to great life", nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your use or inability to use the Service; (ii) any unauthorized access to or use of our servers and/or any personal information stored therein; (iii) any interruption or cessation of transmission to or from the Service; (iv) any bugs, viruses, trojan horses, or the like that may be transmitted to or through our Service by any third party; (v) any errors or omissions in any content or for any loss or damage incurred as a result of your use of any content posted, emailed, transmitted, or otherwise made available through the Service; and/or (vi) the defamatory, offensive, or illegal conduct of any third party. In no event shall "Good to great life" be liable for any damages, losses, or causes of action.</p>
+      <p>In no event shall [Your App Name], nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your use or inability to use the Service; (ii) any unauthorized access to or use of our servers and/or any personal information stored therein; (iii) any interruption or cessation of transmission to or from the Service; (iv) any bugs, viruses, trojan horses, or the like that may be transmitted to or through our Service by any third party; (v) any errors or omissions in any content or for any loss or damage incurred as a result of your use of any content posted, emailed, transmitted, or otherwise made available through the Service; and/or (vi) the defamatory, offensive, or illegal conduct of any third party. In no event shall "Good to great life" be liable for any damages, losses, or causes of action.</p>
 
       <h2>8. Governing Law</h2>
-      <p>These Terms shall be governed and construed in accordance with the laws of European Union, without regard to its conflict of law provisions.</p>
+      <p>These Terms shall be governed and construed in accordance with the laws of [Your State/Country], without regard to its conflict of law provisions.</p>
 
-      <h2>9. Contact Us</h2>
-      <p>If you have any questions about these Terms, please contact us at support AT goodtogreat.life .</p>
+      <h2>9. GDPR Compliance</h2>
+      <h3>Data Processing Agreement</h3>
+      <p>By using our Service, you agree to our processing of your personal data as described in our Privacy Policy.</p>
+
+      <h3>User Consent</h3>
+      <p>By creating an account and using our Service, you consent to the collection and use of your data in accordance with our Privacy Policy and these Terms and Conditions.</p>
+
+      <h2>10. Contact Us</h2>
+      <p>If you have any questions about these Terms, please contact us at support AT goodtogreat.life.</p>
     </div>
   );
 }
