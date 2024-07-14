@@ -23,6 +23,7 @@ const ChatHandleAPI = async ({
   const userMessage = {
     message: userInput,
     isUserMessage: true,
+    dateGenerate: formatDate(new Date().toISOString()),
     imageLocations: attachedImages.map(image => image.url),
     fileNames: attachedFiles.map(file => file.url)
   };

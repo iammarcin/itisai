@@ -31,7 +31,7 @@
 }
 
 .chat-message .message-content {
-  max-width: 80%;
+  max-width: 100%;
 }
 
 .chat-message p {
