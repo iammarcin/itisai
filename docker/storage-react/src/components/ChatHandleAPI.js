@@ -121,6 +121,8 @@ const ChatHandleAPI = async ({
         } else {
           // if exists - overwrite
           updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].message = '';
+          updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].apiAIModelName = apiAIModelName;
+          updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].dateGenerate = formatDate(new Date().toISOString());
         }
       }
 
