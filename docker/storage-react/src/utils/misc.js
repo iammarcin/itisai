@@ -1,8 +1,6 @@
 // misc.js
 
 const formatDate = (dateString) => {
-  console.log("MISC")
-  console.log("dateString: ", dateString)
   if (dateString === null) {
     return '';
   }
