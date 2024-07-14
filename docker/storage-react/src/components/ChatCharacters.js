@@ -4,11 +4,13 @@ import React, { useEffect, useRef } from 'react';
 import './css/ChatCharacters.css'; // Make sure to create appropriate styles
 
 export const characters = [
-  { name: "Assistant", imageResId: "assistant.png", nameForAPI: "assistant", autoResponse: true, showGPSButton: false },
+  { name: "Assistant", imageResId: "assistant.png", nameForAPI: "assistant", autoResponse: true, showGPSButton: false, voice: "Samantha", welcome_msg: "Random story especially for you!", wait_for_user_input: false },
   { name: "Art gen", imageResId: "tools_artgen.png", nameForAPI: "tools_artgen", autoResponse: true, showGPSButton: false },
   { name: "Alergy expert", imageResId: "alergy.png", nameForAPI: "alergy", autoResponse: true, showGPSButton: true },
   { name: "Garmin", imageResId: "garmin.png", nameForAPI: "garmin", autoResponse: true, showGPSButton: true },
   { name: "Dietetist", imageResId: "dietetist.png", nameForAPI: "dietetist", autoResponse: true, showGPSButton: false },
+  { name: "Twitter advisor", imageResId: "twitter_advisor.png", nameForAPI: "twitter_advisor", autoResponse: true, showGPSButton: false },
+  { name: "Mood tracker", imageResId: "mood_tracker.png", nameForAPI: "mood_tracker", autoResponse: false, showGPSButton: true },
   { name: "Blogger", imageResId: "blogger.png", nameForAPI: "blogger", autoResponse: false, showGPSButton: true },
   { name: "Personal coach", imageResId: "personal_coach.png", nameForAPI: "personal_coach", autoResponse: true, showGPSButton: false },
   { name: "Longevity expert", imageResId: "longevity_expert.png", nameForAPI: "longevity_expert", autoResponse: true, showGPSButton: false },
