@@ -113,9 +113,8 @@ class dbProvider:
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
-                    date_now = datetime.now().strftime("%Y-%m-%d")
                     session_name = userInput.get(
-                        'session_name', "New chat %s" % date_now)
+                        'session_name', "New chat")
                     ai_character_name = userInput.get(
                         'ai_character_name', "")
                     if ai_character_name == "":
@@ -143,9 +142,7 @@ class dbProvider:
                     if not userInput.get('session_id'):
                         ai_character = userSettings.get(
                             'text', {}).get('ai_character', 'assistant')
-                        # date now in format YYYY-MM-DD
-                        date_now = datetime.now().strftime("%Y-%m-%d")
-                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat %s" % date_now, ai_character_name=ai_character)
+                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat", ai_character_name=ai_character)
 
                     userMessage = userInput['userMessage']
                     aiResponse = userInput.get('aiResponse')
@@ -246,9 +243,7 @@ class dbProvider:
                     if chat_session is None:
                         ai_character = userSettings.get(
                             'text', {}).get('ai_character', 'assistant')
-                        # date now in format YYYY-MM-DD
-                        date_now = datetime.now().strftime("%Y-%m-%d")
-                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat %s" % date_now, ai_character_name=ai_character)
+                        userInput['session_id'] = await self._db_new_session_internal(session, customerId, session_name="New chat", ai_character_name=ai_character)
                         chat_session = await session.get(ChatSession, userInput.get('session_id'))
 
                     userMessage = userInput['userMessage']
@@ -454,8 +449,7 @@ class dbProvider:
                         if not new_ai_character_name:
                             new_ai_character_name = userSettings.get('text', {}).get('ai_character', 'assistant')
                         if not new_session_name:
-                            date_now = datetime.now().strftime("%Y-%m-%d")
-                            new_session_name = "New chat %s" % date_now
+                            new_session_name = "New chat"
                         session_id = await self._db_new_session_internal(session, customerId, new_session_name, new_ai_character_name, chat_history)
                         # and once created - we need to query for it again to use it further in this function
                         result = await session.execute(
