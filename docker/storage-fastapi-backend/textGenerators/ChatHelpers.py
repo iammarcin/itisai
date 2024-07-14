@@ -4,18 +4,21 @@ import mimetypes
 import base64
 import copy
 import json
-import asyncio
+# import asyncio
 
 import pypdfium2 as pdfium
-from PIL import Image
+# from PIL import Image
 from aws.awsProvider import awsProvider
 
-from pathlib import Path
+# from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import config as config
 import logconfig
 logger = logconfig.logger
+
+DEBUG = config.defaults["DEBUG"]
+VERBOSE_SUPERB = config.defaults["VERBOSE_SUPERB"]
 
 # little helper class - s3 upload in aws provider was already set and used by other functions
 # and it needs file and filename to process the file
@@ -40,7 +43,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
         message_tokens = 0
         message_content = ""
 
-        if config.VERBOSE_SUPERB:
+        if VERBOSE_SUPERB:
             logger.info("-----")
             logger.info("last_role %s" % last_role)
             logger.info("last_message %s" % last_message)
