@@ -1,2 +1,4 @@
 client.json
 client_web.json
+token.json
+*.json
