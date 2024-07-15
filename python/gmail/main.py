@@ -108,9 +108,11 @@ def main():
             content += email['snippet']
             content += "\n"
 
+        sender = os.getenv('EMAIL_SENDER')
+        recipient = os.getenv('EMAIL_TO')
         # Example usage of send_email function
-        sent_message = send_email(service, sender='mniskiewicz@gmail.com', to='mniskiewicz@gmail.com', subject='Test Subject',
-                                  message_text=content, cc='mniskiewicz@gmail.com')
+        sent_message = send_email(service, sender=sender, to=recipient, subject='Test Subject',
+                                  message_text=content)
         if sent_message:
             print("Email sent successfully")
 
