@@ -34,7 +34,7 @@ const AUTH_TOKEN_FOR_BACKEND = "auth_token_for_backend";
 // Default values
 const defaultSettings = {
   [APP_MODE_PRODUCTION]: true,
-  [APP_MODE_API_URL]: "https://ai.atamai.biz/api/",
+  [APP_MODE_API_URL]: "https://www.goodtogreat.life/api/",
   [APP_MODE_USE_WATSON]: false,
   [TEXT_MODEL_NAME]: "GPT-4o",
   [TEXT_TEMPERATURE]: 0.0,
@@ -178,7 +178,7 @@ export const setAuthTokenForBackend = (value) => setItem(AUTH_TOKEN_FOR_BACKEND,
 // Depending if it's production mode and also depending on which internal API server is in use
 export const setURLForAPICalls = () => {
   const url = getIsProdMode()
-    ? "https://ai.atamai.biz/api"
+    ? "https://www.goodtogreat.life/api"
     : getAppModeUseWatson()
       ? "http://192.168.1.123:8000"
       //: "http://192.168.1.150:8000";
