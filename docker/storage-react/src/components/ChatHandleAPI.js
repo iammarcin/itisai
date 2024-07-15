@@ -189,6 +189,11 @@ const ChatHandleAPI = async ({
                 currentAIResponse.messageId = response.message.result.aiMessageId;
               if (response.message.result.userMessageId)
                 currentUserMessage.messageId = response.message.result.userMessageId;
+
+              // refresh sidebar chat sessions (only once - when we have initial messages - not to keep refreshing all the time)
+              if (chatContent[sessionIndexForAPI].messages.length < 3) {
+                setRefreshChatSessions(true);
+              }
             }
           });
 
@@ -256,6 +261,11 @@ const ChatHandleAPI = async ({
           // update current message with userMessageId
           updatedChatContent[sessionIndexForAPI].messages[updatedChatContent[sessionIndexForAPI].messages.length - 1].messageId = response.message.result.userMessageId;
           setCurrentSessionId(response.message.result.sessionId);
+
+          // refresh sidebar chat sessions (only once - when we have initial messages - not to keep refreshing all the time)
+          if (chatContent[sessionIndexForAPI].messages.length < 2) {
+            setRefreshChatSessions(true);
+          }
         }
       }).catch((error) => {
         setIsLoading(false);
@@ -268,12 +278,6 @@ const ChatHandleAPI = async ({
     setIsLoading(false);
     manageProgressText("hide", "Text");
     setFocusInput(true);
-
-    // refresh sidebar chat sessions (only once - when we have initial messages - not to keep refreshing all the time)
-    if ((currentCharacter.autoResponse && chatContent[sessionIndexForAPI].messages.length < 3) ||
-      (!currentCharacter.autoResponse && chatContent[sessionIndexForAPI].messages.length < 2)) {
-      setRefreshChatSessions(true);
-    }
 
     // only if it's current session
     if (sessionIndexForAPI === currentSessionIndex) {
