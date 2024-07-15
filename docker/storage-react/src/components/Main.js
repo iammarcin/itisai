@@ -69,6 +69,7 @@ const Main = () => {
 
   // Update ref every time currentSessionIndex changes (use cases above)
   useEffect(() => {
+    console.log("current session index changed: ", currentSessionIndex)
     currentSessionIndexRef.current = currentSessionIndex;
   }, [currentSessionIndex]);
 
@@ -86,6 +87,7 @@ const Main = () => {
 
   // new chat session (in top menu) clicked - pretty much reset
   const handleOnNewChatClicked = () => {
+    setFetchSessionId(null);
     navigate(`/`);
     setChatContent([
       {
