@@ -8,6 +8,8 @@ import rehypeHighlight from 'rehype-highlight';
 
 import { convertFileAndImageLocationsToAttached } from '../utils/misc';
 
+import { characters } from './ChatCharacters';
+
 import apiMethods from '../services/api.methods';
 import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../utils/configuration';
 
@@ -29,6 +31,10 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   const [validFileLocations, setValidFileLocations] = useState(
     message.fileNames ? message.fileNames.filter(src => src.endsWith('.pdf') || src.endsWith('.txt')) : []
   );
+
+  // get current character and determine value of autoResponse 
+  const currentAICharacter = characters.find(char => char.nameForAPI === chatContent[currentSessionIndex].ai_character_name);
+  const autoResponseIsFalse = currentAICharacter && !currentAICharacter.autoResponse;
 
   // Update validImageLocations when message.imageLocations changes (for example when it's auto generated image)
   useEffect(() => {
@@ -188,7 +194,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         className="context-menu"
         style={{ top: contextMenu.y, left: contextMenu.x, position: 'fixed' }}
       >
-        {isUserMessage && isLastMessage && (
+        {(isUserMessage && (isLastMessage || autoResponseIsFalse)) && (
           <div className="context-menu-item" onClick={handleEdit}>Edit</div>
         )}
         {isUserMessage && !isLastMessage && (
