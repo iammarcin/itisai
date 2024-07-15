@@ -21,3 +21,4 @@ services:
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       MY_AUTH_BEARER_TOKEN: ${MY_AUTH_BEARER_TOKEN}
       NODE_ENV: "local"
+      TZ: Europe/Madrid

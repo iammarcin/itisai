@@ -12,6 +12,7 @@ services:
     environment:
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       NODE_ENV: ${NODE_ENV}
+      TZ: Europe/Madrid
   fastapibackend:
     build: fastapi
     mem_limit: ${MEMORY_LIMIT_FASTAPI}
@@ -34,3 +35,4 @@ services:
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       MY_AUTH_BEARER_TOKEN: ${MY_AUTH_BEARER_TOKEN}
       NODE_ENV: ${NODE_ENV}
+      TZ: Europe/Madrid

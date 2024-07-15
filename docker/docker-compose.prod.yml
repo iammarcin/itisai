@@ -13,6 +13,7 @@ services:
     environment:
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       NODE_ENV: ${NODE_ENV}
+      TZ: Europe/Madrid
     depends_on:
       - fastapibackend
   fastapibackend:
@@ -37,3 +38,4 @@ services:
       MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
       MY_AUTH_BEARER_TOKEN: ${MY_AUTH_BEARER_TOKEN}
       NODE_ENV: ${NODE_ENV}
+      TZ: Europe/Madrid
