@@ -28,9 +28,10 @@ const ChatHandleAPI = async ({
     fileNames: attachedFiles.map(file => file.url)
   };
   const updatedChatContent = [...chatContent];
-  console.log("chatContent: ", chatContent)
-  console.log("chatContent messages length: ", chatContent[sessionIndexForAPI].messages.length)
-  console.log("attachedFiles: ", attachedFiles)
+  if (config.VERBOSE_SUPERB === 1) {
+    console.log("chatContent: ", chatContent)
+    console.log("attachedFiles: ", attachedFiles)
+  }
   // if it's not first message and ai_character is set - don't overwrite it (at the beginning we set it as assistant)
   if (!updatedChatContent[sessionIndexForAPI].ai_character_name || chatContent[sessionIndexForAPI].messages.length < 2)
     updatedChatContent[sessionIndexForAPI].ai_character_name = currentAICharacter
