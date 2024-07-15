@@ -19,7 +19,7 @@
   background: none;
   border: none;
   color: white;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   padding: 10px;
 }
@@ -42,6 +42,7 @@
 
 .option-item label {
   flex: 1;
+  font-size: 0.9rem;
 }
 
 .option-item input[type="range"] {
@@ -103,12 +104,13 @@
 .option-item span {
   flex: 1;
   text-align: right;
+  font-size: 0.9rem;
   margin-right: 10px;
 }
 
 .optionsAdditionalText {
   display: block;
-  font-size: 0.83rem;
+  font-size: 0.7rem;
   margin-block-start: 0rem;
   margin-block-end: 1.67rem;
   margin-inline-start: 0px;

@@ -2,7 +2,7 @@
 .chat-message {
   display: flex;
   align-items: flex-start;
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin-top: 12px;
   padding: 10px;
   border-radius: 5px;
@@ -94,7 +94,7 @@
 
 .file-placeholder-preview .file-placeholder .pdfName {
   color: white;
-  font-size: 11px;
+  font-size: 0.6rem;
   position: absolute;
   top: 15px;
   left: 0;
@@ -109,7 +109,7 @@
   position: absolute;
   bottom: 5px;
   right: 10px;
-  font-size: 0.63rem;
+  font-size: 0.6rem;
   color: white;
 }
 
