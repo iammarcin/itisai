@@ -2,6 +2,7 @@
 .chat-message {
   display: flex;
   align-items: flex-start;
+  font-size: 1.1rem;
   margin-top: 12px;
   padding: 10px;
   border-radius: 5px;
@@ -31,7 +32,7 @@
 }
 
 .chat-message .message-content {
-  max-width: 100%;
+  max-width: 95%;
   padding-bottom: 5px;
 }
 
@@ -108,7 +109,7 @@
   position: absolute;
   bottom: 5px;
   right: 10px;
-  font-size: 10px;
+  font-size: 0.63rem;
   color: white;
 }
 

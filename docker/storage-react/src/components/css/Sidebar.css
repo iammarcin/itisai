@@ -7,11 +7,6 @@
   /* Adjust height considering the top menu */
 }
 
-.sidebar h2 {
-  font-size: 1.5em;
-  margin-bottom: 20px;
-}
-
 .search-bar {
   padding: 10px;
   width: calc(100% - 20px);
@@ -59,11 +54,12 @@
 }
 
 .session-name {
-  font-size: 1.2em;
+  font-size: 1.1rem;
 }
 
 .session-date {
-  font-size: 0.9em;
+  margin-top: 2px;
+  font-size: 0.8rem;
   color: #bbb;
 }
 
