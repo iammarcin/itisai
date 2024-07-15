@@ -42,12 +42,12 @@ function App() {
             <Route path="/session/:sessionId" element={<Main />} />
             <Route path="/sleep" element={<Sleep />} />
             <Route path="/garmin" element={<Garmin />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
           </>
         ) : (
           <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         )}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
       </Routes>
     </Router>
   );
