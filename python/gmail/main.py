@@ -1,10 +1,13 @@
 import os
 import base64
+import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from email.mime.base import MIMEBase
+from email import encoders
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.readonly']
 
@@ -49,6 +52,33 @@ def search_emails(service, query='', max_results=10, label_ids=None):
         print(f"An error occurred: {e}")
         return []
 
+def download_attachments(service, message):
+    """
+    Download attachments from a message.
+
+    Parameters:
+    - service: Authenticated Gmail API service instance.
+    - message: Message object from which to download attachments.
+
+    Returns:
+    - List of file paths to the downloaded attachments.
+    """
+    attachments = []
+    for part in message['payload'].get('parts', []):
+        if part['filename']:
+            if 'data' in part['body']:
+                data = part['body']['data']
+            else:
+                att_id = part['body'].get('attachmentId')
+                att = service.users().messages().attachments().get(userId='me', messageId=message['id'], id=att_id).execute()
+                data = att['data']
+            file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+            path = os.path.join('/tmp', part['filename'])
+            with open(path, 'wb') as f:
+                f.write(file_data)
+            attachments.append(path)
+    return attachments
+
 def send_email(service, sender, to, subject, message_text, cc=None, bcc=None, attachments=None):
     """
     Create and send an email.
@@ -80,8 +110,6 @@ def send_email(service, sender, to, subject, message_text, cc=None, bcc=None, at
 
         if attachments:
             for file in attachments:
-                from email.mime.base import MIMEBase
-                from email import encoders
                 with open(file, 'rb') as f:
                     mime_base = MIMEBase('application', 'octet-stream')
                     mime_base.set_payload(f.read())
@@ -100,19 +128,24 @@ def send_email(service, sender, to, subject, message_text, cc=None, bcc=None, at
 def main():
     service = authenticate_gmail()
     if service:
-        # Example usage of search_emails function
-        content = ""
-        emails = search_emails(service, query='subject:Boarding', max_results=5)
-        for email in emails:
-            print(email['snippet'])
-            content += email['snippet']
-            content += "\n"
-
+        # Get sender and recipient from environment variables
         sender = os.getenv('EMAIL_SENDER')
         recipient = os.getenv('EMAIL_TO')
-        # Example usage of send_email function
-        sent_message = send_email(service, sender=sender, to=recipient, subject='Test Subject',
-                                  message_text=content)
+        if not sender or not recipient:
+            print("Error: EMAIL_SENDER or EMAIL_TO environment variable not set.")
+            return
+
+        # Search for emails
+        emails = search_emails(service, query='subject:Boarding', max_results=10)
+        all_attachments = []
+        for email in emails:
+            print(email['snippet'])
+            attachments = download_attachments(service, email)
+            all_attachments.extend(attachments)
+
+        # Send email with the collected attachments
+        sent_message = send_email(service, sender=sender, to=recipient, subject='Test Subject', message_text='This is a test email with attachments.',
+                                  cc='cc@example.com', bcc='bcc@example.com', attachments=all_attachments)
         if sent_message:
             print("Email sent successfully")
 
