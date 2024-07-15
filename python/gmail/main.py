@@ -1,4 +1,5 @@
 import os
+import re
 import base64
 import requests
 from email.mime.multipart import MIMEMultipart
@@ -66,6 +67,7 @@ def download_attachments(service, message):
     attachments = []
     for part in message['payload'].get('parts', []):
         if part['filename']:
+            sanitized_filename = sanitize_filename(part['filename'])
             if 'data' in part['body']:
                 data = part['body']['data']
             else:
@@ -73,11 +75,12 @@ def download_attachments(service, message):
                 att = service.users().messages().attachments().get(userId='me', messageId=message['id'], id=att_id).execute()
                 data = att['data']
             file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-            path = os.path.join('/tmp', part['filename'])
+            path = os.path.join('/tmp', sanitized_filename)
             with open(path, 'wb') as f:
                 f.write(file_data)
             attachments.append(path)
     return attachments
+
 
 def send_email(service, sender, to, subject, message_text, cc=None, bcc=None, attachments=None):
     """
@@ -125,6 +128,12 @@ def send_email(service, sender, to, subject, message_text, cc=None, bcc=None, at
         print(f"An error occurred: {e}")
         return None
 
+# to avoid problems with filenames (it happened!)
+def sanitize_filename(filename):
+    # Replace problematic characters with an underscore
+    return re.sub(r'[\/:*?"<>|]', '_', filename)
+
+
 def main():
     service = authenticate_gmail()
     if service:
@@ -147,7 +156,3 @@ def main():
         sent_message = send_email(service, sender=sender, to=recipient, subject='Test Subject', message_text='This is a test email with attachments.', attachments=all_attachments)
         if sent_message:
             print("Email sent successfully")
-
-
-if __name__ == '__main__':
-    main()
