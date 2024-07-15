@@ -144,8 +144,7 @@ def main():
             all_attachments.extend(attachments)
 
         # Send email with the collected attachments
-        sent_message = send_email(service, sender=sender, to=recipient, subject='Test Subject', message_text='This is a test email with attachments.',
-                                  cc='cc@example.com', bcc='bcc@example.com', attachments=all_attachments)
+        sent_message = send_email(service, sender=sender, to=recipient, subject='Test Subject', message_text='This is a test email with attachments.', attachments=all_attachments)
         if sent_message:
             print("Email sent successfully")
 
