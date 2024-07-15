@@ -41,7 +41,7 @@ const config = {
 
 
 config.apiEndpoint = getAppModeApiUrl();
-config.VERBOSE_SUPERB = 0;
+config.VERBOSE_SUPERB = 1;
 
 if (getIsProdMode()) {
   config.AWS_REGION = 'eu-south-2';

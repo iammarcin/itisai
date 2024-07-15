@@ -39,7 +39,7 @@ function App() {
         {isAuthenticated ? (
           <>
             <Route path="/" element={<Main />} />
-            <Route path="session/:sessionId" element={<Main />} />
+            <Route path="/session/:sessionId" element={<Main />} />
             <Route path="/sleep" element={<Sleep />} />
             <Route path="/garmin" element={<Garmin />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
