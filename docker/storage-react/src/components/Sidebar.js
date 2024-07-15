@@ -32,6 +32,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
         searchText ? "db_search_messages" : "db_all_sessions_for_user",
         userInput
       );
+
       const sessions = response.message.result;
 
       const uniqueSessions = sessions.filter(

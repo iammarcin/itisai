@@ -406,13 +406,24 @@ class dbProvider:
         async with AsyncSessionLocal() as session:
             async with session.begin():
                 try:
-                    stmt = select(ChatSession).distinct(ChatSession.session_id).join(ChatMessage).where(
-                        ChatMessage.customer_id == customerId,
-                        or_(
-                            ChatMessage.message.ilike(f"%{search_text}%"),
-                            ChatSession.session_name.ilike(f"%{search_text}%")
-                        )
-                    ).order_by(ChatSession.last_update.desc())
+                    if search_text:
+                        stmt = select(ChatSession).distinct(ChatSession.session_id).join(ChatMessage).where(
+                            ChatMessage.customer_id == customerId,
+                            or_(
+                                ChatMessage.message.ilike(f"%{search_text}%"),
+                                ChatSession.session_name.ilike(f"%{search_text}%")
+                            )
+                        ).order_by(ChatSession.last_update.desc())
+                    else:
+                        offset = 0
+                        limit = 30
+                        stmt = select(ChatSession).where(
+                            and_(
+                                ChatSession.customer_id == customerId,
+                                func.json_length(ChatSession.chat_history) > 0
+                            )
+                        ).order_by(ChatSession.last_update.desc()).offset(offset).limit(limit)
+
                     result = await session.execute(stmt)
                     messages = result.scalars().all()
                     sessions_list = [to_dict(message)
