@@ -5,6 +5,8 @@ import './css/ChatCharacters.css'; // Make sure to create appropriate styles
 
 export const characters = [
   { name: "Assistant", imageResId: "assistant.png", nameForAPI: "assistant", autoResponse: true, showGPSButton: false, voice: "Samantha", welcome_msg: "Hey! I'm your assistant. What do you want me to help you with?", wait_for_user_input: true },
+  { name: "Your best AI", imageResId: "best_ai.png", nameForAPI: "best_ai", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I'm best AI you can imagine to interact with. Test me.", wait_for_user_input: false },
+  { name: "Rick Sanchez", imageResId: "rick.png", nameForAPI: "rick", autoResponse: true, showGPSButton: false, voice: "Rick", welcome_msg: "I'm Rick - but you know it. What do you want to bother me about today?", wait_for_user_input: false },
   { name: "Art gen", imageResId: "tools_artgen.png", nameForAPI: "tools_artgen", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I am artist. I will create you any medium you want. Just describe it.", wait_for_user_input: true },
   { name: "Alergy expert", imageResId: "alergy.png", nameForAPI: "alergy", autoResponse: true, showGPSButton: true, voice: "Elli", welcome_msg: "Hello! I'm your allergy expert. How can I assist you today?", wait_for_user_input: false },
   { name: "Garmin", imageResId: "garmin.png", nameForAPI: "garmin", autoResponse: true, showGPSButton: true, voice: "Sherlock", welcome_msg: "Hello! I'm your Garmin assistant. How can I help you with your trainings?", wait_for_user_input: false },
@@ -44,7 +46,6 @@ export const characters = [
   { name: "Naval", imageResId: "naval.png", nameForAPI: "naval", autoResponse: true, showGPSButton: false, voice: "Naval", welcome_msg: "Hello! I'm Naval. What do you want to talk about?", wait_for_user_input: false },
   { name: "Shaan Puri", imageResId: "shaan.png", nameForAPI: "shaan", autoResponse: true, showGPSButton: false, voice: "Shaan", welcome_msg: "Hello! I'm Shaan. What do you want to talk about?", wait_for_user_input: false },
   { name: "Sir David", imageResId: "david.png", nameForAPI: "david", autoResponse: true, showGPSButton: false, voice: "David", welcome_msg: "Hello! I'm David. What do you want to talk about?", wait_for_user_input: false },
-  { name: "Rick Sanchez", imageResId: "rick.png", nameForAPI: "rick", autoResponse: true, showGPSButton: false, voice: "Rick", welcome_msg: "I'm Rick - but you know it. What do you want to bother me about today?", wait_for_user_input: false },
 ];
 
 // used when @ in bottom area is used - this is to filter characters

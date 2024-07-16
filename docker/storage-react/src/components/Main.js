@@ -69,7 +69,6 @@ const Main = () => {
 
   // Update ref every time currentSessionIndex changes (use cases above)
   useEffect(() => {
-    console.log("current session index changed: ", currentSessionIndex)
     currentSessionIndexRef.current = currentSessionIndex;
   }, [currentSessionIndex]);
 
