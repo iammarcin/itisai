@@ -43,7 +43,7 @@ def get_tts_generator(userSettings):
     logger.info("voice")
     logger.info(voice)
 
-    voices_elevenlabs = ['Sherlock', 'Naval', 'Yuval', 'Elon', 'David', 'Shaan', 'Rick']
+    voices_elevenlabs = ['Sherlock', 'Naval', 'Yuval', 'Elon', 'David', 'Shaan', 'Rick', 'Samantha']
     logger.info(voices_elevenlabs)
     if voice in voices_elevenlabs:
         logger.info("yes")
