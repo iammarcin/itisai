@@ -27,3 +27,4 @@ garth # garmin
 anthropic
 pypdfium2 # pdf 
 pillow # pdf and more
+elevenlabs
