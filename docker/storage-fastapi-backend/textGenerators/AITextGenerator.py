@@ -164,7 +164,8 @@ class AITextGenerator:
             logger.info("Final chat history sent to API: %s", truncate_image_urls_from_history(chat_history))
 
             if self.use_test_data:
-                yield f"Test response from Text generator (streaming)"
+                yield f"Hello"
+                # yield f"Test response from Text generator (streaming)"
                 return
 
             if isItAnthropicModel(self.model_name):

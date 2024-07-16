@@ -3,6 +3,7 @@ from textGenerators.AITextGenerator import AITextGenerator
 from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
 from imageGenerators.OpenAIImageGenerator import OpenAIImageGenerator
 from tts.OpenAITTS import OpenAITTSGenerator
+from tts.ElevenLabsTTS import ElevenLabsTTSGenerator
 from aws.awsProvider import awsProvider
 from db.dbProvider import dbProvider
 from garmin.garminProvider import garminProvider
@@ -35,8 +36,21 @@ async def startup_event_generators(app: FastAPI):
 def get_speech_generator():
     return OpenAISpeechRecognitionGenerator()
 
-def get_tts_generator():
-    return OpenAITTSGenerator()
+def get_tts_generator(userSettings):
+    voice = userSettings.get('voice')
+    logger.info(userSettings)
+    logger.info(userSettings.get('voice', {}))
+    logger.info("voice")
+    logger.info(voice)
+
+    voices_elevenlabs = ['Sherlock', 'Naval', 'Yuval', 'Elon', 'David', 'Shaan', 'Rick']
+    logger.info(voices_elevenlabs)
+    if voice in voices_elevenlabs:
+        logger.info("yes")
+        return ElevenLabsTTSGenerator()
+    else:
+        logger.info("no")
+        return OpenAITTSGenerator()
 
 def get_text_generator():
     return AITextGenerator()
@@ -65,7 +79,10 @@ def get_generator(category: str, userSettings: dict):
     }
 
     if category in generators:
-        generator = generators[category]["function"]()
+        if category == "tts":
+            generator = generators[category]["function"](userSettings)
+        else:
+            generator = generators[category]["function"]()
         return generator
     else:
         return None

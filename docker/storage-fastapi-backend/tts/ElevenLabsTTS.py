@@ -8,6 +8,11 @@ import re
 import json
 import os
 from aws.awsProvider import awsProvider
+from pathlib import Path
+
+from elevenlabs.client import ElevenLabs
+from elevenlabs import Voice, VoiceSettings, save
+
 
 from tempfile import NamedTemporaryFile
 
@@ -44,17 +49,18 @@ availableVoices = [
     {"voice_id": "VR6AewLTigWG4xSOukaG", "name": "Arnold", },
     {"voice_id": "pNInz6obpgDQGcFmaJgB", "name": "Adam", }]
 
-class ElevenLabsAudioGenerator:
-    def __init__(self, eleven_labs_api_key):
-        self.eleven_labs_api_key = eleven_labs_api_key
+class ElevenLabsTTSGenerator:
+    def __init__(self):
         self.save_to_file = True
         self.save_to_file_iterator = 0
         self.stability = 0.85
         self.similarity_boost = 0.95
+        self.format = "mp3"
         self.voice_id = "Sherlock"
         self.eleven_labs_api_voices_url = "https://api.elevenlabs.io/v1/voices"
         self.eleven_labs_api_text_to_speech_url = "https://api.elevenlabs.io/v1/text-to-speech"
         self.eleven_labs_api_billing_url = "https://api.elevenlabs.io/v1/user/subscription"
+        self.client = ElevenLabs()
 
     def set_settings(self, user_settings={}):
         if user_settings:
@@ -65,7 +71,8 @@ class ElevenLabsAudioGenerator:
                 self.model_name = user_settings["model"]
 
             if "voice" in user_settings:
-                self.voice = user_settings["voice"]
+                logger.info("Setting voice: %s", user_settings["voice"])
+                self.voice_id = user_settings["voice"]
 
             if "format" in user_settings:
                 self.format = user_settings["format"]
@@ -113,6 +120,7 @@ class ElevenLabsAudioGenerator:
         return filename
 
     def get_voice_id(self, voice_name):
+        logger.info("search for voice: %s", voice_name)
         for voice in availableVoices:
             if voice_name == voice["name"]:
                 return voice["voice_id"]
@@ -259,6 +267,51 @@ class ElevenLabsAudioGenerator:
                 status_code=500, detail="Error processing TTS request")
 
     async def generate_tts(self, userInput: dict, customerId: int = 1):
+
+        try:
+            text = userInput["text"]
+            logger.info("voice id: %s", self.voice_id)
+            final_voice = self.get_voice_id(self.voice_id)
+            logger.info("final_voice %s", final_voice)
+            logger.info("self.voice_id %s", self.voice_id)
+
+            audio = self.client.generate(
+                text=text,
+                voice=Voice(
+                    voice_id=final_voice,
+                    settings=VoiceSettings(stability=0.85, similarity_boost=0.9, style=0.0, use_speaker_boost=True)
+                ),
+                model="eleven_monolingual_v1"
+            )
+            logger.info("AUDIO: %s", audio)
+
+            with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:
+                save(audio, tmp_file.name)
+                tmp_file_path = tmp_file.name
+
+            with open(tmp_file_path, "rb") as tmp_file:
+                file_with_filename = FileWithFilename(
+                    tmp_file, Path(tmp_file_path).name)
+                logger.info("Uploading TTS to S3")
+                logger.info(file_with_filename)
+                s3_response = await awsProvider.s3_upload(
+                    awsProvider,
+                    action="s3_upload",
+                    userInput={"file": file_with_filename},
+                    assetInput={},
+                    customerId=customerId
+                )
+
+            s3_response_content = json.loads(s3_response.body.decode("utf-8"))
+            logger.info("s3_response_content %s", s3_response_content)
+            s3_url = s3_response_content["message"]["result"]
+
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": s3_url}}, status_code=200)
+        except Exception as e:
+            logger.error("Error generating TTS: %s", str(e))
+            raise HTTPException(status_code=500, detail="Error generating TTS")
+
+    async def generate_tts_old(self, userInput: dict, customerId: int = 1):
         try:
             text = userInput["text"]
 
