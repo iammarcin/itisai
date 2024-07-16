@@ -180,7 +180,8 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     const input = userInputRef.current;
     if (input) {
       input.style.height = 'auto';
-      input.style.height = `${Math.min(input.scrollHeight, 500)}px`;
+      const halfOfScreen = window.innerHeight * 0.5;
+      input.style.height = `${Math.min(input.scrollHeight, halfOfScreen)}px`;
     }
   }, [userInput]);
 
