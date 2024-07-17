@@ -56,9 +56,6 @@ class ElevenLabsTTSGenerator:
         self.similarity_boost = 0.95
         self.format = "mp3"
         self.voice_id = "Sherlock"
-        self.eleven_labs_api_voices_url = "https://api.elevenlabs.io/v1/voices"
-        self.eleven_labs_api_text_to_speech_url = "https://api.elevenlabs.io/v1/text-to-speech"
-        self.eleven_labs_api_billing_url = "https://api.elevenlabs.io/v1/user/subscription"
         self.client = ElevenLabs()
 
     def set_settings(self, user_settings={}):
@@ -99,94 +96,41 @@ class ElevenLabsTTSGenerator:
         return availableVoices[0]["voice_id"]
 
     def tune_text(self, text):
-        # replace comma with two dots in text
+        # Replace comma with two dots in text
         text = text.replace(",", ".. …")
         text = text.replace("?!", "??")
 
         # Find any single period at the end of sentence followed by a space
         pattern = r"([a-zA-Z])\. "
         text = re.sub(pattern, r"\1.. ", text)
-        # same with exclamation mark
+        # Same with exclamation mark
         pattern = r"([a-zA-Z])\! "
         text = re.sub(pattern, r"\1!!.. ", text)
-        # same with question mark
+        # Same with question mark
         pattern = r"([a-zA-Z])\? "
         text = re.sub(pattern, r"\1??.. ", text)
+
+        # Remove specific phrases
+        # For example for Rick
+        patterns_to_remove = [
+            r"\*burps loudly\*",
+            r"\*belches\*",
+            r"\*burps\*",
+            r"\*Burp\*",
+            r"\*burp\*",
+            r"\*laughs maniacally\*",
+            r"\*takes a swig from flask\*",
+            r"<response>",
+            r"</response>"
+        ]
+
+        for pattern in patterns_to_remove:
+            text = re.sub(pattern, "", text)
+
+        # Remove everything between <inner_monologue> and </inner_monologue>
+        text = re.sub(r"<inner_monologue>.*?</inner_monologue>", "", text, flags=re.DOTALL)
+
         return text
-
-    def billing(self):
-        url = self.eleven_labs_api_billing_url
-        headers = {
-            "xi-api-key": self.eleven_labs_api_key
-        }
-        # response = requests.get(url, headers=headers)
-        response = {
-            "tier": "creator",
-            "character_count": 54211,
-            "character_limit": 100000,
-            "can_extend_character_limit": True,
-            "allowed_to_extend_character_limit": True,
-            "next_character_count_reset_unix": 1678630692,
-            "voice_limit": 30,
-            "professional_voice_limit": 1,
-            "can_extend_voice_limit": False,
-            "can_use_instant_voice_cloning": True,
-            "can_use_professional_voice_cloning": True,
-            "available_models": [
-                {
-                    "model_id": "prod",
-                    "display_name": "Prod",
-                    "supported_language": [
-                        {
-                            "iso_code": "en-us",
-                            "display_name": "English"
-                        }
-                    ]
-                }
-            ],
-            "can_use_delayed_payment_methods": False,
-            "currency": "usd",
-            "status": "active",
-            "next_invoice": {
-                "amount_due_cents": 2200,
-                "next_payment_attempt_unix": 1683829646
-            }
-        }
-
-        import time
-
-        # Get the current UNIX timestamp
-        now = int(time.time())
-
-        # Get the UNIX timestamp of the next character count reset
-        reset_unix = response['next_invoice']['next_payment_attempt_unix']
-
-        # Calculate the number of seconds until the reset
-        seconds_until_reset = reset_unix - now
-
-        # Calculate the number of days until the reset
-        days_until_reset = seconds_until_reset // (60 * 60 * 24)
-
-        # with hours
-        # Calculate the number of seconds until the reset
-        seconds_until_reset = reset_unix - now
-
-        # Calculate the number of days, hours, and minutes until the reset
-        days_until_reset = seconds_until_reset // (60 * 60 * 24)
-        hours_until_reset = (seconds_until_reset % (60 * 60 * 24)) // (60 * 60)
-        minutes_until_reset = (seconds_until_reset % (60 * 60)) // 60
-
-        # Format the result as a string
-        result = f"There are {days_until_reset} days, {hours_until_reset} hours, and {minutes_until_reset} minutes until the next character count reset."
-
-        print(result)
-
-        print(f"There are {days_until_reset} days until the next character count reset.")
-
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return response.text
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS
