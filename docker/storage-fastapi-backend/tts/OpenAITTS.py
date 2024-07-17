@@ -24,7 +24,9 @@ class OpenAITTSGenerator:
     def __init__(self):
         self.model_name = "tts-1"
         self.voice = "alloy"
-        self.format = "pcm"
+        # if i work with streaming - pcm is better most probably
+        # maybe different value if streaming is set and different when its not
+        self.format = "mp3"
         self.streaming = False
         self.speed = 1
         self.client = OpenAI()

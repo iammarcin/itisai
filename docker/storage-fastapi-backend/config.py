@@ -10,7 +10,7 @@ defaults = dict(
     VERBOSE_SUPERB=False,
     MYSQL_USER="aitools",
     MYSQL_PASSWORD=os.environ.get('AWS_DB_PASS', None),
-    ALLOWED_FILE_TYPES=['jpg', 'jpeg', 'png', 'gif', 'mp3',
+    ALLOWED_FILE_TYPES=['jpg', 'jpeg', 'png', 'gif', 'mp3', 'pcm',
                         'mpeg', 'mpga', 'webm', 'wav', 'm4a', 'txt', 'mp4', 'opus', 'pdf'],
     # error message - in config - because it is used in multiple places (for sending error, but also for NOT storing data in DB)
     # if we change here - in restore function in android - it's also set (in ChatHelper)

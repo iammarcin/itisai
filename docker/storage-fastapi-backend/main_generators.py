@@ -3,7 +3,7 @@ from textGenerators.AITextGenerator import AITextGenerator
 from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
 from imageGenerators.OpenAIImageGenerator import OpenAIImageGenerator
 from tts.OpenAITTS import OpenAITTSGenerator
-from tts.ElevenLabsTTS import ElevenLabsTTSGenerator
+from tts.ElevenLabsTTS import ElevenLabsTTSGenerator, availableVoices
 from aws.awsProvider import awsProvider
 from db.dbProvider import dbProvider
 from garmin.garminProvider import garminProvider
@@ -38,18 +38,11 @@ def get_speech_generator():
 
 def get_tts_generator(userSettings):
     voice = userSettings.get('voice')
-    logger.info(userSettings)
-    logger.info(userSettings.get('voice', {}))
-    logger.info("voice")
-    logger.info(voice)
-
-    voices_elevenlabs = ['Sherlock', 'Naval', 'Yuval', 'Elon', 'David', 'Shaan', 'Rick', 'Samantha']
-    logger.info(voices_elevenlabs)
-    if voice in voices_elevenlabs:
-        logger.info("yes")
+    # lets get voices from elevenlabs
+    voice_names = [voice_info['name'] for voice_info in availableVoices]
+    if voice in voice_names:
         return ElevenLabsTTSGenerator()
     else:
-        logger.info("no")
         return OpenAITTSGenerator()
 
 def get_text_generator():

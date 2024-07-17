@@ -1,8 +1,6 @@
-from fastapi import HTTPException, Response
+from fastapi import HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 
-import requests
-import traceback
 import logconfig
 import re
 import json
@@ -27,6 +25,7 @@ class FileWithFilename:
 
 
 # TODO: turn it into functions to get from API
+# but if do so - check main_generators as there is a function to get these voices
 availableVoices = [
     {"voice_id": "OQxYoOfpAUkG05J0ccwK", "name": "Sherlock", },
     {"voice_id": "30zc5PfKKHzfXQfjXbLU", "name": "Naval", },
@@ -71,7 +70,6 @@ class ElevenLabsTTSGenerator:
                 self.model_name = user_settings["model"]
 
             if "voice" in user_settings:
-                logger.info("Setting voice: %s", user_settings["voice"])
                 self.voice_id = user_settings["voice"]
 
             if "format" in user_settings:
@@ -88,36 +86,6 @@ class ElevenLabsTTSGenerator:
 
             if "similarity_boost" in user_settings:
                 self.similarity_boost = user_settings["similarity_boost"]
-
-    # getter and setter for save_to_file variable
-    def get_save_to_file(self):
-        return self.save_to_file
-
-    def set_save_to_file(self, save_to_file):
-        self.save_to_file = save_to_file
-
-    # getter and setter for save_to_file_iterator variable
-    def get_save_to_file_iterator(self):
-        return self.save_to_file_iterator
-
-    def set_save_to_file_iterator(self, save_to_file_iterator):
-        self.save_to_file_iterator = save_to_file_iterator
-
-    def save2file(self, content, customerId, requestId):
-        self.save_to_file_iterator += 1
-        filename = f"output_{self.save_to_file_iterator}.mp3"
-        # save to /storage/testApi/1
-        filename = f"/storage/testApi/{customerId}/{requestId}/{filename}"
-
-        try:
-            if not os.path.exists(os.path.dirname(filename)):
-                os.makedirs(os.path.dirname(filename))
-            with open(filename, "wb") as f:
-                f.write(content)
-        except:
-            print("Error writing file")
-            return False
-        return filename
 
     def get_voice_id(self, voice_name):
         logger.info("search for voice: %s", voice_name)
@@ -220,44 +188,15 @@ class ElevenLabsTTSGenerator:
         else:
             return response.text
 
-    def voice_settings(self, voice_id, stability=None, similarity_boost=0.95):
-        voice_id = self.get_voice_id(voice_id)
-        if stability is None:
-            self.eleven_labs_api_url = "https://api.elevenlabs.io/v1/voices"
-            # get current settings
-            url = f"{self.eleven_labs_api_voices_url}/{voice_id}/settings"
-            headers = {
-                "xi-api-key": self.eleven_labs_api_key
-            }
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return response.text
-        else:
-            # edit settings
-            url = f"{self.eleven_labs_api_voices_url}/{voice_id}/settings/edit"
-            headers = {
-                "xi-api-key": self.eleven_labs_api_key,
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "stability": stability,
-                "similarity_boost": similarity_boost
-            }
-            response = requests.post(url, headers=headers, json=payload)
-            if response.status_code == 200:
-                return response.text
-            else:
-                return response.text
-
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS
         self.set_settings(userSettings)
         try:
             if action == "tts_no_stream":
                 return await self.generate_tts(userInput, customerId)
-            # elif action == "tts_stream":
+            elif action == "tts_stream":
+                # until i work on stream mode - non stream in use
+                return await self.generate_tts(userInput, customerId)
             #    return self.stream_tts(userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
@@ -269,21 +208,23 @@ class ElevenLabsTTSGenerator:
     async def generate_tts(self, userInput: dict, customerId: int = 1):
 
         try:
-            text = userInput["text"]
-            logger.info("voice id: %s", self.voice_id)
+            text = self.tune_text(userInput['text'])
+            logger.info("TEXT after tunning: %s", text)
             final_voice = self.get_voice_id(self.voice_id)
-            logger.info("final_voice %s", final_voice)
-            logger.info("self.voice_id %s", self.voice_id)
 
             audio = self.client.generate(
                 text=text,
                 voice=Voice(
                     voice_id=final_voice,
-                    settings=VoiceSettings(stability=0.85, similarity_boost=0.9, style=0.0, use_speaker_boost=True)
+                    settings=VoiceSettings(
+                        stability=self.stability,
+                        similarity_boost=self.similarity_boost,
+                        style=0.0,
+                        use_speaker_boost=True
+                    )
                 ),
                 model="eleven_monolingual_v1"
             )
-            logger.info("AUDIO: %s", audio)
 
             with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:
                 save(audio, tmp_file.name)
@@ -310,121 +251,3 @@ class ElevenLabsTTSGenerator:
         except Exception as e:
             logger.error("Error generating TTS: %s", str(e))
             raise HTTPException(status_code=500, detail="Error generating TTS")
-
-    async def generate_tts_old(self, userInput: dict, customerId: int = 1):
-        try:
-            text = userInput["text"]
-
-            # fail on purpose
-            # test = userInput['test']
-
-            # url = "https://api.elevenlabs.io/v1/text-to-speech/{self.voice_id}"
-
-            final_voice = self.get_voice_id(self.voice_id)
-            response = requests.post(f"{self.eleven_labs_api_text_to_speech_url}/{final_voice}", headers=headers, json=payload)
-
-            payload = {
-                "text": text,
-                "model_id": "<string>",
-                "voice_settings": {
-                    "stability": 123,
-                    "similarity_boost": 123,
-                    "style": 123,
-                    "use_speaker_boost": True
-                },
-                "pronunciation_dictionary_locators": [
-                    {
-                        "pronunciation_dictionary_id": "<string>",
-                        "version_id": "<string>"
-                    }
-                ],
-                "seed": 123,
-                "previous_text": "<string>",
-                "next_text": "<string>",
-                "previous_request_ids": ["<string>"],
-                "next_request_ids": ["<string>"]
-            }
-            headers = {"Content-Type": "application/json"}
-
-            response = requests.request("POST", url, json=payload, headers=headers)
-
-            print(response.text)
-
-            response = self.client.audio.speech.create(
-                model=self.model_name,
-                voice=self.voice,
-                speed=self.speed,
-                response_format=self.format,
-                input=text,
-            )
-
-            with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:
-                tmp_file_path = tmp_file.name
-                response.stream_to_file(tmp_file_path)
-
-            with open(tmp_file_path, "rb") as tmp_file:
-                file_with_filename = FileWithFilename(
-                    tmp_file, Path(tmp_file_path).name)
-                logger.info("Uploading TTS to S3")
-                logger.info(file_with_filename)
-                s3_response = await awsProvider.s3_upload(
-                    awsProvider,
-                    action="s3_upload",
-                    userInput={"file": file_with_filename},
-                    assetInput={},
-                    customerId=customerId
-                )
-
-            s3_response_content = json.loads(s3_response.body.decode("utf-8"))
-            logger.info("s3_response_content %s", s3_response_content)
-            s3_url = s3_response_content["message"]["result"]
-
-            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": s3_url}}, status_code=200)
-        except Exception as e:
-            logger.error("Error generating TTS: %s", str(e))
-            raise HTTPException(status_code=500, detail="Error generating TTS")
-
-    async def generateOLD(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, requestId: int = None, userSettings: dict = {}, returnTestData: bool = False):
-        logger.debug("ElevenLabsAudioGenerator.text_to_speech() called")
-
-        if returnTestData:
-            return {'code': 200, 'success': True, 'message': {"status": "completed", "result_type": "ready_file", "result": "/storage/testApi/11/1225/output_1.mp3"}}
-
-        # tune text a bit - so emotions are better
-        text = self.tune_text(userInput['prompt'])
-        headers = {
-            "xi-api-key": self.eleven_labs_api_key
-        }
-        payload = {
-            "text": text,
-        }
-        final_voice = self.get_voice_id(self.voice_id)
-
-        self.voice_settings(final_voice, stability=self.stability, similarity_boost=self.similarity_boost)
-
-        logger.info(f"voice_id chosen: {final_voice}")
-
-        try:
-            response = requests.post(f"{self.eleven_labs_api_text_to_speech_url}/{final_voice}", headers=headers, json=payload)
-            logger.info(f"ElevenLabsAudioGenerator.text_to_speech() - response: {response}")
-            if response.status_code == 200:
-                filename = None
-                if self.save_to_file:
-                    filename = self.save2file(response.content, customerId, requestId)
-
-                logger.debug("ElevenLabsAudioGenerator.text_to_speech() - success")
-
-                return {'code': 200, 'success': True, 'message': {"status": "completed", "result_type": "ready_file", "result": filename}}
-            else:
-                logger.error(f"ElevenLabsAudioGenerator.text_to_speech() -  error")
-                logger.error(response.text)
-                raise HTTPException(status_code=response.status_code, detail=json.loads(response.text)['detail'])
-        except HTTPException as e:
-            logger.error("Error while making API call to ElevenLabs - HTTPException ")
-            logger.error(e)
-            return {'code': e.status_code, 'success': False, 'message': e.detail}
-        except Exception as e:
-            logger.error("Error while making API call to ElevenLabs - exception ")
-            logger.error(e)
-            traceback.print_exc()
-            return {'code': 500, 'success': False, 'message': str(e)}
