@@ -39,6 +39,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
     # this is to track last message - because there were cases where last_role was the same, but last message was empty (because it was recording from android) - so then we don't want to skip current message
     last_message = ""
 
+    # we go from newest to oldest - because if we need to cut of course we will cut older messages
     for message in reversed(chat_history):
         message_tokens = 0
         message_content = ""
@@ -57,7 +58,9 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
         last_role = message["role"]
 
         # Check if the message has a content list
-        # this should be message - with text and potentially additional images etc - this should be standard
+        # this should be message - with text and potentially additional images etc - this should be standard user request
+        # because usually we provide whole structure in case there are files (images etc) attached
+        # if there's no content - probably it might be AI response or some exceptional user message
         if isinstance(message["content"], list):
             last_message = message["content"][0].get('text')
             # sometimes message can empty and then it looks like :
@@ -70,10 +73,12 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
                 # increase counter - so we know when to stop using images
                 user_message_count += 1
 
+            # we collect text and files (images etc). file_urls - most probably will be pdf if something. audio might be there as well but we won't use them here (as of now)
             text_content = next((item["text"] for item in message['content'] if item["type"] == "text"), "")
             image_urls = [item["image_url"]['url'] for item in message['content'] if item["type"] == "image_url"]
             file_urls = [item["file_url"]['url'] for item in message['content'] if item["type"] == "file_url"]
 
+            # calculate how many tokens we use for this text
             message_tokens = num_tokens_from_string(text_content, model=model_name)
 
             # check if we should use images / files in API request
@@ -83,7 +88,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
                 message_content = text_content
 
         else:
-            # Handle simple text messages
+            # Handle simple text messages (AI response mostly)
             last_message = message["content"]
             message_content = message["content"]
             message_tokens = num_tokens_from_string(message_content, model=model_name)
@@ -98,7 +103,7 @@ def prepare_chat_history(chat_history, memory_token_limit, model_name, support_i
             # so i decided that more or less is enough - and i will just cut % of the message (knowing how many tokens i have to trim to fit into limit)
             if message_tokens > 0:  # Avoid division by zero
                 trim_percentage = (message_tokens - remaining_tokens) / message_tokens
-                # for simple messages
+                # for simple messages like AI response
                 if isinstance(message_content, str):
                     trim_index = int(len(message_content) * (trim_percentage))
                     message_content = message_content[trim_index:]
