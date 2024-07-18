@@ -68,7 +68,7 @@ class OpenAITTSGenerator:
 
     async def generate_tts(self, userInput: dict, customerId: int = 1):
         try:
-            text = self.tune_text(userInput['text'])
+            text = tune_text(userInput['text'])
 
             # fail on purpose
             # test = userInput['test']

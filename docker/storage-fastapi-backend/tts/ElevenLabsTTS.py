@@ -8,13 +8,14 @@ from tts.ttsHelpers import *
 
 from pathlib import Path
 
-from elevenlabs.client import ElevenLabs
+from elevenlabs.client import ElevenLabs, BaseElevenLabs
 from elevenlabs import Voice, VoiceSettings, save
 
-
 from tempfile import NamedTemporaryFile
-
+import config as config
 logger = logconfig.logger
+
+VERBOSE_SUPERB = config.defaults['VERBOSE_SUPERB']
 
 # little helper class - s3 upload in aws provider was already set and used by other functions
 # and it needs file and filename to process the file
@@ -104,7 +105,9 @@ class ElevenLabsTTSGenerator:
             elif action == "tts_stream":
                 # until i work on stream mode - non stream in use
                 return await self.generate_tts(userInput, customerId)
-            #    return self.stream_tts(userInput, customerId)
+                #    return self.stream_tts(userInput, customerId)
+            elif action == "billing":
+                return await self.billing(userInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
@@ -115,7 +118,7 @@ class ElevenLabsTTSGenerator:
     async def generate_tts(self, userInput: dict, customerId: int = 1):
 
         try:
-            text = self.tune_text(userInput['text'])
+            text = tune_text(userInput['text'])
             logger.info("TEXT after tunning: %s", text)
             final_voice = self.get_voice_id(self.voice_id)
 
@@ -155,6 +158,29 @@ class ElevenLabsTTSGenerator:
             s3_url = s3_response_content["message"]["result"]
 
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": s3_url}}, status_code=200)
+        except Exception as e:
+            logger.error("Error generating TTS: %s", str(e))
+            raise HTTPException(status_code=500, detail="Error generating TTS")
+
+    async def billing(self, userInput: dict, customerId: int = 1):
+
+        try:
+            client = BaseElevenLabs()
+
+            billing = client.user.get_subscription()
+
+            if VERBOSE_SUPERB:
+                logger.info("billing data:")
+                logger.info(billing)
+
+            character_count = billing.character_count
+            character_limit = billing.character_limit
+            logger.info(billing.next_character_count_reset_unix)
+            next_character_count_reset_unix = convert_timestamp_to_date(billing.next_character_count_reset_unix)
+            # 1723830408
+            logger.info(next_character_count_reset_unix)
+
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": {"character_count": character_count, "character_limit": character_limit, "next_billing_date": next_character_count_reset_unix}}}, status_code=200)
         except Exception as e:
             logger.error("Error generating TTS: %s", str(e))
             raise HTTPException(status_code=500, detail="Error generating TTS")

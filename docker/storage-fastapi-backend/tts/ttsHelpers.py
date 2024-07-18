@@ -1,6 +1,7 @@
 import re
+from datetime import datetime
 
-def tune_text(self, text):
+def tune_text(text):
     # Replace comma with two dots in text
     text = text.replace(",", ".. …")
     text = text.replace("?!", "??")
@@ -36,3 +37,8 @@ def tune_text(self, text):
     text = re.sub(r"<inner_monologue>.*?</inner_monologue>", "", text, flags=re.DOTALL)
 
     return text
+
+def convert_timestamp_to_date(timestamp):
+    if timestamp:
+        return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M')
+    return None
