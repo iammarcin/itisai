@@ -2,10 +2,10 @@ from fastapi import HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 
 import logconfig
-import re
 import json
-import os
 from aws.awsProvider import awsProvider
+from tts.ttsHelpers import *
+
 from pathlib import Path
 
 from elevenlabs.client import ElevenLabs
@@ -94,43 +94,6 @@ class ElevenLabsTTSGenerator:
                     return voice["voice_id"]
         # if nothing works - return first voice
         return availableVoices[0]["voice_id"]
-
-    def tune_text(self, text):
-        # Replace comma with two dots in text
-        text = text.replace(",", ".. …")
-        text = text.replace("?!", "??")
-
-        # Find any single period at the end of sentence followed by a space
-        pattern = r"([a-zA-Z])\. "
-        text = re.sub(pattern, r"\1.. ", text)
-        # Same with exclamation mark
-        pattern = r"([a-zA-Z])\! "
-        text = re.sub(pattern, r"\1!!.. ", text)
-        # Same with question mark
-        pattern = r"([a-zA-Z])\? "
-        text = re.sub(pattern, r"\1??.. ", text)
-
-        # Remove specific phrases
-        # For example for Rick
-        patterns_to_remove = [
-            r"\*burps loudly\*",
-            r"\*belches\*",
-            r"\*burps\*",
-            r"\*Burp\*",
-            r"\*burp\*",
-            r"\*laughs maniacally\*",
-            r"\*takes a swig from flask\*",
-            r"<response>",
-            r"</response>"
-        ]
-
-        for pattern in patterns_to_remove:
-            text = re.sub(pattern, "", text)
-
-        # Remove everything between <inner_monologue> and </inner_monologue>
-        text = re.sub(r"<inner_monologue>.*?</inner_monologue>", "", text, flags=re.DOTALL)
-
-        return text
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS

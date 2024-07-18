@@ -3,8 +3,8 @@ from fastapi import HTTPException
 from pathlib import Path
 from openai import OpenAI
 from aws.awsProvider import awsProvider
+from tts.ttsHelpers import *
 import logconfig
-import os
 import json
 import config as config
 from tempfile import NamedTemporaryFile
@@ -68,7 +68,7 @@ class OpenAITTSGenerator:
 
     async def generate_tts(self, userInput: dict, customerId: int = 1):
         try:
-            text = userInput["text"]
+            text = self.tune_text(userInput['text'])
 
             # fail on purpose
             # test = userInput['test']
