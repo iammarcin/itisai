@@ -39,9 +39,9 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                     calendar_date=mainSleepData.get("calendarDate"),
                     sleep_time_seconds=mainSleepData.get("sleepTimeSeconds"),
                     sleep_start=convert_timestamp_to_hhmm(
-                        mainSleepData.get("sleepStartTimestampLocal")),
+                        mainSleepData.get("sleepStartTimestampGMT")),
                     sleep_end=convert_timestamp_to_hhmm(
-                        mainSleepData.get("sleepEndTimestampLocal")),
+                        mainSleepData.get("sleepEndTimestampGMT")),
                     nap_time_seconds=mainSleepData.get("napTimeSeconds"),
                     nap_data=nap_data,
                     deep_sleep_seconds=mainSleepData.get("deepSleepSeconds"),
@@ -109,9 +109,9 @@ async def insert_sleep_data(AsyncSessionLocal, userInput: dict, customerId):
                 ).on_duplicate_key_update(
                     sleep_time_seconds=mainSleepData.get("sleepTimeSeconds"),
                     sleep_start=convert_timestamp_to_hhmm(
-                        mainSleepData.get("sleepStartTimestampLocal")),
+                        mainSleepData.get("sleepStartTimestampGMT")),
                     sleep_end=convert_timestamp_to_hhmm(
-                        mainSleepData.get("sleepEndTimestampLocal")),
+                        mainSleepData.get("sleepEndTimestampGMT")),
                     nap_time_seconds=mainSleepData.get("napTimeSeconds"),
                     nap_data=nap_data,
                     deep_sleep_seconds=mainSleepData.get("deepSleepSeconds"),
