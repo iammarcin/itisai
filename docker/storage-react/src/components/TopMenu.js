@@ -180,7 +180,7 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
         <div className="model-selector">
           <select id="model" value={textModelName} onChange={handleTextModelChange}>
             <option value="GPT-4o">GPT-4o</option>
-            <option value="GPT-3.5">GPT-3.5</option>
+            <option value="GPT-4o-mini">GPT-4o-mini</option>
             <option value="Claude-3.5">Claude-3.5</option>
             <option value="LLama 3 70b">LLama 3 70b</option>
           </select>

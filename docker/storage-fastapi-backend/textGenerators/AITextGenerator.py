@@ -12,7 +12,7 @@ logger = logconfig.logger
 
 class AITextGenerator:
     def __init__(self):
-        self.model_name = "gpt-3.5-turbo"
+        self.model_name = "gpt-4o-mini"
         self.save_to_file = True
         self.save_to_file_iterator = 0
         self.streaming = False
@@ -45,6 +45,10 @@ class AITextGenerator:
                 if user_settings["model"] == "GPT-3.5":
                     self.model_name = "gpt-3.5-turbo"
                     self.support_image_input = False
+                    self.llm = OpenAI()
+                elif user_settings["model"] == "GPT-4o-mini":
+                    self.model_name = "gpt-4o-mini"
+                    self.support_image_input = True
                     self.llm = OpenAI()
                 elif user_settings["model"] == "GPT-4":
                     self.model_name = "gpt-4-turbo"
