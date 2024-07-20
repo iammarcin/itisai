@@ -144,7 +144,6 @@ class AITextGenerator:
                 messages=chat_history,
                 model=self.model_name
             )
-            print("RESPONSE: ", response)
             response_content = response.content
 
         else:
@@ -156,10 +155,9 @@ class AITextGenerator:
                 stream=False,
             )
 
-            logger.info("Response from Text generator: %s", response)
+            logger.debug("Response from Text generator: %s", response)
 
             response_content = response.choices[0].message.content
-            logger.info("Response from Text generator: %s", response_content)
         return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_content}}
 
     def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
@@ -193,7 +191,7 @@ class AITextGenerator:
                 yield f"Test response from Text generator (streaming)"
                 return
 
-            logger.info("Using model: %s", self.model_name)
+            logger.debug("Using model: %s", self.model_name)
 
             if isItAnthropicModel(self.model_name):
                 if self.streaming:
@@ -258,11 +256,7 @@ class AITextGenerator:
     Respond with just single sentence consisting of session name. Don't add any other information.
             """ % (textToProcess)
             newUserInput = {"prompt": finalPrompt}
-            logger.info("Final prompt: %s", finalPrompt)
             response = await self.tools("generate_session_name", newUserInput, assetInput, customerId)
-            logger.info("Response 1:  %s", response)
-
-            logger.info("Response 1:  %s", response.get("message", {}).get("result"))
 
             finalAnswer = response["message"]["result"]
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalAnswer}}, status_code=200)
