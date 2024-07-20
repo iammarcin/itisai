@@ -229,7 +229,6 @@ class ElevenLabsTTSGenerator:
 
         try:
             client = BaseElevenLabs()
-            test = userInput['fail']
             billing = client.user.get_subscription()
 
             if VERBOSE_SUPERB:
