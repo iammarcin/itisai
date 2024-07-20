@@ -51,10 +51,14 @@ availableVoices = [
 
 class ElevenLabsTTSGenerator:
     def __init__(self):
+        self.model_name = "eleven_monolingual_v1"
+        self.available_models = ["eleven_monolingual_v1", "eleven_multilingual_v2", "eleven_turbo_v2_5", "eleven_turbo_v2"]
         self.save_to_file = True
         self.save_to_file_iterator = 0
         self.stability = 0.85
         self.similarity_boost = 0.95
+        self.style_exaggeration = 0  # affects latency, should remain 0 in most cases
+        self.speaker_boost = False  # affects latency, rather subtle changes
         self.format = "mp3"
         self.voice_id = "Sherlock"
         self.client = ElevenLabs()
@@ -64,8 +68,16 @@ class ElevenLabsTTSGenerator:
             # and now process aws settings (doubt it will be used)
             # this is not in use - just for maybe future
             user_settings = user_settings.get("tts", {})
+            model = user_settings["model"]
             if "model" in user_settings:
-                self.model_name = user_settings["model"]
+                if model == 'english':
+                    self.model_name = "eleven_monolingual_v1"
+                elif model == "multi":
+                    self.model_name = "eleven_multilingual_v2"
+                elif model == "turbo":
+                    self.model_name = "eleven_turbo_v2_5"
+                else:
+                    self.model_name = "eleven_monolingual_v1"
 
             if "voice" in user_settings:
                 self.voice_id = user_settings["voice"]
@@ -84,6 +96,12 @@ class ElevenLabsTTSGenerator:
 
             if "similarity_boost" in user_settings:
                 self.similarity_boost = user_settings["similarity_boost"]
+
+            if "style_exaggeration" in user_settings:
+                self.style_exaggeration = user_settings["style_exaggeration"]
+
+            if "speaker_boost" in user_settings:
+                self.speaker_boost = user_settings["speaker_boost"]
 
     def get_voice_id(self, voice_name):
         logger.info("search for voice: %s", voice_name)
@@ -129,11 +147,11 @@ class ElevenLabsTTSGenerator:
                     settings=VoiceSettings(
                         stability=self.stability,
                         similarity_boost=self.similarity_boost,
-                        style=0.0,
-                        use_speaker_boost=True
+                        style=self.style_exaggeration,
+                        use_speaker_boost=self.speaker_boost
                     )
                 ),
-                model="eleven_monolingual_v1"
+                model=self.model_name
             )
 
             with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:

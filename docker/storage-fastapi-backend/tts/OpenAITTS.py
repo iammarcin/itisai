@@ -23,6 +23,7 @@ class FileWithFilename:
 class OpenAITTSGenerator:
     def __init__(self):
         self.model_name = "tts-1"
+        self.available_models = ["tts-1", "tts-1-hd"]
         self.voice = "alloy"
         # if i work with streaming - pcm is better most probably
         # maybe different value if streaming is set and different when its not
@@ -37,7 +38,10 @@ class OpenAITTSGenerator:
             # this is not in use - just for maybe future
             user_settings = user_settings.get("tts", {})
             if "model" in user_settings:
-                self.model_name = user_settings["model"]
+                if user_settings["model"] not in self.available_models:
+                    self.model_name = "tts-1"
+                else:
+                    self.model_name = user_settings["model"]
 
             if "voice" in user_settings:
                 self.voice = user_settings["voice"]
