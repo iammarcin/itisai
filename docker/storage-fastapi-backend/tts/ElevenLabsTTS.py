@@ -59,6 +59,8 @@ class ElevenLabsTTSGenerator:
         self.similarity_boost = 0.95
         self.style_exaggeration = 0  # affects latency, should remain 0 in most cases
         self.speaker_boost = False  # affects latency, rather subtle changes
+        self.sound_effects_duration = 10  # max - 22
+        self.sound_effects_prompt_influence = 0.3
         self.format = "mp3"
         self.voice_id = "Sherlock"
         self.client = ElevenLabs()
@@ -124,6 +126,8 @@ class ElevenLabsTTSGenerator:
                 # until i work on stream mode - non stream in use
                 return await self.generate_tts(userInput, customerId)
                 #    return self.stream_tts(userInput, customerId)
+            elif action == "sound_effect":
+                return await self.generate_sound_effect(userInput, customerId)
             elif action == "billing":
                 return await self.billing(userInput, customerId)
             else:
@@ -156,6 +160,46 @@ class ElevenLabsTTSGenerator:
 
             with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:
                 save(audio, tmp_file.name)
+                tmp_file_path = tmp_file.name
+
+            with open(tmp_file_path, "rb") as tmp_file:
+                file_with_filename = FileWithFilename(
+                    tmp_file, Path(tmp_file_path).name)
+                logger.info("Uploading TTS to S3")
+                logger.info(file_with_filename)
+                s3_response = await awsProvider.s3_upload(
+                    awsProvider,
+                    action="s3_upload",
+                    userInput={"file": file_with_filename},
+                    assetInput={},
+                    customerId=customerId
+                )
+
+            s3_response_content = json.loads(s3_response.body.decode("utf-8"))
+            logger.info("s3_response_content %s", s3_response_content)
+            s3_url = s3_response_content["message"]["result"]
+
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": s3_url}}, status_code=200)
+        except Exception as e:
+            logger.error("Error generating TTS: %s", str(e))
+            raise HTTPException(status_code=500, detail="Error generating TTS")
+
+    async def generate_sound_effect(self, userInput: dict, customerId: int = 1):
+        try:
+            text = userInput['text']
+            # TODO test with null - or without providing parameter
+            duration_seconds = userInput.get("duration_seconds", 10)
+            prompt_influence = userInput.get("prompt_influence", 0.3)
+
+            result = self.client.text_to_sound_effects.convert(
+                text=text,
+                duration_seconds=duration_seconds,
+                prompt_influence=prompt_influence
+            )
+
+            with NamedTemporaryFile(delete=False, suffix=f".{self.format}") as tmp_file:
+                for chunk in result:
+                    tmp_file.write(chunk)
                 tmp_file_path = tmp_file.name
 
             with open(tmp_file_path, "rb") as tmp_file:

@@ -3,7 +3,7 @@
 import React from 'react';
 import './css/ChatImageModal.css';
 
-const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev }) => {
+const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, characterName, characterDescription }) => {
   if (!images || images.length === 0) return null;
 
   return (
@@ -11,6 +11,8 @@ const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev }) => {
       <div className="image-modal-content">
         <span className="close" onClick={onClose}>&times;</span>
         <img src={images[currentIndex]} alt="Chat" className="modal-image" />
+        {characterName && <div className="modal-character-name">{characterName}</div>}
+        {characterDescription && <div className="modal-character-description">{characterDescription}</div>}
         {images.length > 1 && (
           <>
             <button className="prev" onClick={onPrev}>&#10094;</button>

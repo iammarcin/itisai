@@ -1,11 +1,12 @@
 // ChatCharacters.js
 
-import React, { useEffect, useRef } from 'react';
-import './css/ChatCharacters.css'; // Make sure to create appropriate styles
+import React, { useEffect, useState, useRef } from 'react';
+import ChatImageModal from './ChatImageModal';
+import './css/ChatCharacters.css';
 
 export const characters = [
   { name: "Assistant", imageResId: "assistant.png", nameForAPI: "assistant", autoResponse: true, showGPSButton: false, voice: "Samantha", welcome_msg: "Hey! I'm your assistant. What do you want me to help you with?", wait_for_user_input: true },
-  { name: "Your best AI", imageResId: "best_ai.png", nameForAPI: "best_ai", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I'm best AI you can imagine to interact with. Test me.", wait_for_user_input: false },
+  { name: "Nova", imageResId: "best_ai.png", nameForAPI: "best_ai", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I'm Nova. I'm best AI you can imagine to interact with. Test me.", wait_for_user_input: false },
   { name: "Nexus", imageResId: "nexus.png", nameForAPI: "nexus", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I'm friendly AI and I can help you with anything you want.", wait_for_user_input: false },
   { name: "Rick Sanchez", imageResId: "rick.png", nameForAPI: "rick", autoResponse: true, showGPSButton: false, voice: "Rick", welcome_msg: "I'm Rick - but you know it. What do you want to bother me about today?", wait_for_user_input: false },
   { name: "Elon", imageResId: "elon.png", nameForAPI: "elon", autoResponse: true, showGPSButton: false, voice: "Elon", welcome_msg: "Hello! I'm Elon. What do you want to talk about?", wait_for_user_input: false },
@@ -61,9 +62,23 @@ const ChatCharacters = ({ onSelect, characters: propCharacters, selectedCharacte
   const selectedCharacterName = propSelectedName || "Assistant";
   // this is used when we want to scroll to selected character (when using left and right arrow)
   const selectedCharacterRef = useRef(null);
+  // needed for displaying character in image modal upon right click
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentCharacter, setCurrentCharacter] = useState(null);
 
   const handleClick = (name) => {
     onSelect(name);
+  };
+
+  const handleRightClick = (event, character) => {
+    event.preventDefault();
+    setCurrentCharacter(character);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setCurrentCharacter(null);
   };
 
   // this is used when we want to scroll to selected character (when using left and right arrow)
@@ -79,12 +94,22 @@ const ChatCharacters = ({ onSelect, characters: propCharacters, selectedCharacte
         <div key={index}
           className={`persona${persona.name === selectedCharacterName ? ' active' : ''}`}
           onClick={() => handleClick(persona)}
+          onContextMenu={(e) => handleRightClick(e, persona)}
           ref={selectedCharacterName === persona.name ? selectedCharacterRef : null}
         >
           <img src={`/imgs/${persona.imageResId}`} alt={persona.name} className="persona-avatar" />
           <div className="persona-name">{persona.name}</div>
         </div>
       ))}
+      {modalVisible && currentCharacter && (
+        <ChatImageModal
+          images={[`/imgs/${currentCharacter.imageResId}`]}
+          currentIndex={0}
+          onClose={handleCloseModal}
+          characterName={currentCharacter.name}
+          characterDescription={currentCharacter.welcome_msg}
+        />
+      )}
     </div>
   );
 };
