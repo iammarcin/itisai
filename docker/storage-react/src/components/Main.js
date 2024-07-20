@@ -157,7 +157,7 @@ const Main = () => {
       setErrorMsg("Please provide your input");
       return;
     }
-    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4' && modelName !== 'Claude-3.5') {
+    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4o-mini' && modelName !== 'GPT-4' && modelName !== 'Claude-3.5') {
       setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
       return;
     }
