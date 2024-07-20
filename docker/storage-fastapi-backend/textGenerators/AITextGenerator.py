@@ -256,12 +256,13 @@ Based on this message please generate a session name, that will represent accura
 Please try to make session name as short as possible.
 Respond with just single sentence consisting of session name. Don't add any other information.
             """ % (textToProcess)
-            # get rid of some characters
-            finalPrompt = finalPrompt.replace('"', '')
+
             newUserInput = {"prompt": finalPrompt}
             response = await self.tools("generate_session_name", newUserInput, assetInput, customerId)
 
             finalAnswer = response["message"]["result"]
+            # get rid of some characters
+            finalAnswer = finalAnswer.replace('"', '')
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalAnswer}}, status_code=200)
         except Exception as e:
             logger.error("Error generating session name: %s", str(e))
