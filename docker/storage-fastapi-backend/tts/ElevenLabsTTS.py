@@ -70,8 +70,9 @@ class ElevenLabsTTSGenerator:
             # and now process aws settings (doubt it will be used)
             # this is not in use - just for maybe future
             user_settings = user_settings.get("tts", {})
-            model = user_settings["model"]
+
             if "model" in user_settings:
+                model = user_settings["model"]
                 if model == 'english':
                     self.model_name = "eleven_monolingual_v1"
                 elif model == "multi":
@@ -188,7 +189,7 @@ class ElevenLabsTTSGenerator:
         try:
             text = userInput['text']
             # TODO test with null - or without providing parameter
-            duration_seconds = userInput.get("duration_seconds", 10)
+            duration_seconds = userInput.get("duration_seconds", None)
             prompt_influence = userInput.get("prompt_influence", 0.3)
 
             result = self.client.text_to_sound_effects.convert(

@@ -10,9 +10,9 @@ response = requests.post(
     headers={"accept": "application/json",
              "Authorization": "Bearer %s" % authToken},
     json={
-        "action": "billing",
+        "action": "sound_effect",
         "category": "tts",
-        "userInput": {"text": "test"},
+        "userInput": {"text": "high-quality, professionally recorded footsteps on grass, sound effects foley.", "duration_seconds": 6},
         "userSettings": {"tts": {'voice': "Sherlock"}, "general": {}},
         "customerId": 1
     },
