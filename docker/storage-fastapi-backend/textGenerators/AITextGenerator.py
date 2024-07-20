@@ -249,12 +249,15 @@ class AITextGenerator:
                     status_code=400, detail="Text to process is required")
 
             finalPrompt = """
-    Following is a message from chat application:
-    %s
+Following is a message from chat application:
+%s
 
-    Based on this message please generate a session name, that will represent accurately the topic of this conversation.
-    Respond with just single sentence consisting of session name. Don't add any other information.
+Based on this message please generate a session name, that will represent accurately the topic of this conversation.
+Please try to make session name as short as possible.
+Respond with just single sentence consisting of session name. Don't add any other information.
             """ % (textToProcess)
+            # get rid of some characters
+            finalPrompt = finalPrompt.replace('"', '')
             newUserInput = {"prompt": finalPrompt}
             response = await self.tools("generate_session_name", newUserInput, assetInput, customerId)
 
