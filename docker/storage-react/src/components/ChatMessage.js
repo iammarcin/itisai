@@ -16,7 +16,7 @@ import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../uti
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setAttachedFiles, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setErrorMsg }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setAttachedFiles, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setTriggerRenameSession, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -186,6 +186,11 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     }
   };
 
+  const handleGenerateChatName = () => {
+    setTriggerRenameSession(message.message);
+    setContextMenu(null);
+  };
+
   // show context menu (on right click) - different per user and ai message
   const renderContextMenu = () => {
     if (!contextMenu || contextMenuIndex !== index) return null;
@@ -209,6 +214,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         )}
         <div className="context-menu-item" onClick={handleNewSessionFromHere}>New Session from here</div>
         <div className="context-menu-item" onClick={handleCopy}>Copy</div>
+        <div className="context-menu-item" onClick={handleGenerateChatName}>Generate chat name</div>
       </div>
     );
   };

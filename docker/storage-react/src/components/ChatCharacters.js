@@ -6,7 +6,7 @@ import './css/ChatCharacters.css';
 
 export const characters = [
   { name: "Assistant", imageResId: "assistant.png", nameForAPI: "assistant", autoResponse: true, showGPSButton: false, voice: "Samantha", welcome_msg: "Hey! I'm your assistant. What do you want me to help you with?", wait_for_user_input: true },
-  { name: "Nova", imageResId: "best_ai.png", nameForAPI: "best_ai", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I'm Nova. I'm best AI you can imagine to interact with. Test me.", wait_for_user_input: false },
+  { name: "Nova", imageResId: "nova.png", nameForAPI: "nova", autoResponse: true, showGPSButton: false, voice: "Samantha", welcome_msg: "I'm Nova. I'm best AI you can imagine to interact with. Test me.", wait_for_user_input: false },
   { name: "Nexus", imageResId: "nexus.png", nameForAPI: "nexus", autoResponse: true, showGPSButton: false, voice: "Sherlock", welcome_msg: "I'm friendly AI and I can help you with anything you want.", wait_for_user_input: false },
   { name: "Rick Sanchez", imageResId: "rick.png", nameForAPI: "rick", autoResponse: true, showGPSButton: false, voice: "Rick", welcome_msg: "I'm Rick - but you know it. What do you want to bother me about today?", wait_for_user_input: false },
   { name: "Elon", imageResId: "elon.png", nameForAPI: "elon", autoResponse: true, showGPSButton: false, voice: "Elon", welcome_msg: "Hello! I'm Elon. What do you want to talk about?", wait_for_user_input: false },

@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history, isItAnthropicModel
 from openai import OpenAI
 from groq import Groq
@@ -112,8 +113,8 @@ class AITextGenerator:
                 return await self.tools(action, userInput, assetInput, customerId)
             elif action == "chat":
                 return self.chat(userInput, assetInput, customerId)
-            elif action == "job_status":
-                return self.job_status(userInput)
+            elif action == "generate_session_name":
+                return self.generate_session_name(userInput)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
@@ -219,3 +220,6 @@ class AITextGenerator:
             logger.error("Error in streaming from Text generator:", str(e))
             # Error message in SSE format
             yield config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']
+
+    def generate_session_name(self, userInput: dict):
+        return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "New1"}}, status_code=200)

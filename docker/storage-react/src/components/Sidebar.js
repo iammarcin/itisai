@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refreshChatSessions, setRefreshChatSessions, setErrorMsg }) => {
+const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refreshChatSessions, setRefreshChatSessions, triggerRenameSession, setTriggerRenameSession, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -67,12 +67,6 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
       setOffset(0)
     }
   }, [offset, limit, isSearchMode, hasMoreSessions]);
-
-  const updateSessionName = (sessionId, newName) => {
-    setChatSessions(prevSessions => prevSessions.map(session =>
-      session.session_id === sessionId ? { ...session, session_name: newName } : session
-    ));
-  };
 
   const removeSession = (sessionId) => {
     setChatSessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
@@ -192,12 +186,21 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
     });
   };
 
-  const handleRenameSubmit = () => {
+  const handleRenameSubmit = (sessionId, newSessionName) => {
     const triggerDBRename = async () => {
       try {
-        const userInput = { "session_id": renamePopup.session.session_id, "new_session_name": renamePopup.name };
+        const currentSessionId = sessionId || renamePopup.session.session_id;
+        const currentNewName = newSessionName || renamePopup.name;
+
+        const userInput = {
+          "session_id": currentSessionId,
+          "new_session_name": currentNewName
+        };
         await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_update_session", userInput);
-        updateSessionName(renamePopup.session.session_id, renamePopup.name);
+
+        setChatSessions(prevSessions => prevSessions.map(session =>
+          session.session_id === currentSessionId ? { ...session, session_name: currentNewName } : session
+        ));
       } catch (error) {
         console.error('Failed to rename session', error);
       }
@@ -205,6 +208,31 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
     triggerDBRename();
     setRenamePopup(null);
   };
+
+  useEffect(() => {
+    const renameSession = async () => {
+      if (triggerRenameSession !== "") {
+        console.log("RENAME AUTOMATED!");
+        console.log(triggerRenameSession);
+
+        try {
+          const userInput = { "text": triggerRenameSession };
+          const response = await apiMethods.triggerAPIRequest("generate", "text", "generate_session_name", userInput);
+          if (response.success) {
+            const newSessionName = response.message.result;
+            handleRenameSubmit(currentSessionId, newSessionName);
+          }
+        } catch (error) {
+          console.error('Failed to rename session', error);
+        }
+
+        setTriggerRenameSession("");
+      }
+    };
+
+    renameSession();
+  }, [triggerRenameSession, setTriggerRenameSession, handleRenameSubmit]);
+
 
   const handleRenameCancel = () => {
     setRenamePopup(null);
