@@ -46,9 +46,6 @@ const Main = () => {
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  // this will be used to trigger automated rename session from ChatMessage (right-click context menu) to Sidebar 
-  // it can be empty or consists of message text that we click on (this is passed to Sidebar for further use)
-  const [triggerRenameSession, setTriggerRenameSession] = useState("");
   const [progressBarMessage, setProgressBarMessage] = useState('');
   // this will be used to focus (make active) userInput text area from BottomToolsMenu - so i don't need to click on it to start typing
   const [focusInput, setFocusInput] = useState(false);
@@ -234,12 +231,12 @@ const Main = () => {
       <div className="main-content">
         <Sidebar
           onSelectSession={handleSelectSession}
+          chatContent={chatContent}
+          currentSessionIndex={currentSessionIndex}
           currentSessionId={currentSessionId}
           setCurrentSessionId={setCurrentSessionId}
           refreshChatSessions={refreshChatSessions}
           setRefreshChatSessions={setRefreshChatSessions}
-          triggerRenameSession={triggerRenameSession}
-          setTriggerRenameSession={setTriggerRenameSession}
           setErrorMsg={setErrorMsg}
         />
         <div className="chat-area">
@@ -252,7 +249,6 @@ const Main = () => {
             currentSessionIndexRef={currentSessionIndexRef}
             currentSessionId={currentSessionId}
             setCurrentSessionId={setCurrentSessionId}
-            setTriggerRenameSession={setTriggerRenameSession}
             fetchSessionId={fetchSessionId}
             endOfMessagesRef={endOfMessagesRef}
             showCharacterSelection={showCharacterSelection}

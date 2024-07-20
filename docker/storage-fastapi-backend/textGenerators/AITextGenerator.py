@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history, isItAnthropicModel
+import json
 from openai import OpenAI
 from groq import Groq
 import anthropic
@@ -14,6 +15,8 @@ logger = logconfig.logger
 class AITextGenerator:
     def __init__(self):
         self.model_name = "gpt-4o-mini"
+        # sometimes there are activities - that really just need cheap AI to process (for example setting session name)
+        self.cheapest_model_name = "gpt-4o-mini"
         self.save_to_file = True
         self.save_to_file_iterator = 0
         self.streaming = False
@@ -114,7 +117,10 @@ class AITextGenerator:
             elif action == "chat":
                 return self.chat(userInput, assetInput, customerId)
             elif action == "generate_session_name":
-                return self.generate_session_name(userInput)
+                self.model_name = self.cheapest_model_name
+                self.streaming = False
+                self.temperature = 0.1
+                return await self.generate_session_name(userInput, assetInput, customerId)
             else:
                 raise HTTPException(status_code=400, detail="Unknown action")
         except Exception as e:
@@ -122,7 +128,7 @@ class AITextGenerator:
             raise HTTPException(
                 status_code=500, detail="Error processing Text request")
 
-    async def tools(self, action: str, userInput: dict, assetInput: dict, customerId: int = None):
+    async def tools(self, action: str, userInput: dict, assetInput: dict, customerId: int = 1):
         if self.use_test_data:
             response = f"data: Test response from Text generator"
             return response
@@ -130,16 +136,29 @@ class AITextGenerator:
         chat_history = []
         chat_history.append({"role": "user", "content": userInput["prompt"]})
 
-        response = self.llm.chat.completions.create(
-            model=self.model_name,
-            messages=chat_history,
-            temperature=self.temperature,
-            stream=False,
-        )
+        if isItAnthropicModel(self.model_name):
+            response = self.llm.messages.create(
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                system=self.system_prompt,
+                messages=chat_history,
+                model=self.model_name
+            )
+            print("RESPONSE: ", response)
+            response_content = response.content
 
-        logger.info("Response from Text generator: %s", response)
+        else:
+            response = self.llm.chat.completions.create(
+                model=self.model_name,
+                messages=chat_history,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                stream=False,
+            )
 
-        response_content = response.choices[0].message.content
+            logger.info("Response from Text generator: %s", response)
+
+            response_content = response.choices[0].message.content
         return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_content}}
 
     def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
@@ -169,9 +188,11 @@ class AITextGenerator:
             logger.info("Final chat history sent to API: %s", truncate_image_urls_from_history(chat_history))
 
             if self.use_test_data:
-                yield f"Hello"
-                # yield f"Test response from Text generator (streaming)"
+                # yield f"Hello"
+                yield f"Test response from Text generator (streaming)"
                 return
+
+            logger.info("Using model: %s", self.model_name)
 
             if isItAnthropicModel(self.model_name):
                 if self.streaming:
@@ -221,5 +242,28 @@ class AITextGenerator:
             # Error message in SSE format
             yield config.defaults['ERROR_MESSAGE_FOR_TEXT_GEN']
 
-    def generate_session_name(self, userInput: dict):
-        return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": "New1"}}, status_code=200)
+    async def generate_session_name(self, userInput: dict, assetInput: dict, customerId: int = 1):
+        try:
+            textToProcess = userInput.get('text')
+            if textToProcess is None:
+                raise HTTPException(
+                    status_code=400, detail="Text to process is required")
+
+            finalPrompt = """
+    Following is a message from chat application:
+    %s
+
+    Based on this message please generate a session name, that will represent accurately the topic of this conversation.
+    Respond with just single sentence consisting of session name. Don't add any other information.
+            """ % (textToProcess)
+            newUserInput = {"prompt": finalPrompt}
+            logger.info("Final prompt: %s", finalPrompt)
+            response = await self.tools("generate_session_name", newUserInput, assetInput, customerId)
+            response_content = json.loads(response.body.decode("utf-8"))
+            logger.info("response_content %s", response_content)
+            finalAnswer = response_content["message"]["result"]
+            return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalAnswer}}, status_code=200)
+        except Exception as e:
+            logger.error("Error generating session name: %s", str(e))
+            raise HTTPException(
+                status_code=500, detail="Error generating session name")

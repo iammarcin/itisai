@@ -6,7 +6,7 @@ import apiMethods from '../services/api.methods';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refreshChatSessions, setRefreshChatSessions, triggerRenameSession, setTriggerRenameSession, setErrorMsg }) => {
+const Sidebar = ({ onSelectSession, chatContent, currentSessionIndex, currentSessionId, setCurrentSessionId, refreshChatSessions, setRefreshChatSessions, setErrorMsg }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -209,29 +209,24 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
     setRenamePopup(null);
   };
 
-  useEffect(() => {
-    const renameSession = async () => {
-      if (triggerRenameSession !== "") {
-        console.log("RENAME AUTOMATED!");
-        console.log(triggerRenameSession);
+  const handleAutoRename = async () => {
+    console.log("RENAME AUTOMATED!");
 
-        try {
-          const userInput = { "text": triggerRenameSession };
-          const response = await apiMethods.triggerAPIRequest("generate", "text", "generate_session_name", userInput);
-          if (response.success) {
-            const newSessionName = response.message.result;
-            handleRenameSubmit(currentSessionId, newSessionName);
-          }
-        } catch (error) {
-          console.error('Failed to rename session', error);
-        }
+    try {
+      const firstTwoMessages = chatContent[currentSessionIndex].messages.slice(0, 2);
+      const firstTwomessagesContent = "request: %s\nresponse: %s " % (firstTwoMessages[0].message, firstTwoMessages[1].message);
 
-        setTriggerRenameSession("");
+      const userInput = { "text": firstTwoMessages };
+      const response = await apiMethods.triggerAPIRequest("generate", "text", "generate_session_name", userInput);
+      if (response.success) {
+        const newSessionName = response.message.result;
+        handleRenameSubmit(currentSessionId, newSessionName);
       }
-    };
-
-    renameSession();
-  }, [triggerRenameSession, setTriggerRenameSession, handleRenameSubmit]);
+    } catch (error) {
+      console.error('Failed to rename session', error);
+    }
+    setRenamePopup(null);
+  };
 
 
   const handleRenameCancel = () => {
@@ -290,6 +285,7 @@ const Sidebar = ({ onSelectSession, currentSessionId, setCurrentSessionId, refre
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
           <div className="context-menu-item" onClick={handleRename}>Rename</div>
+          <div className="context-menu-item" onClick={handleAutoRename}>Auto rename</div>
           <div className="context-menu-item" onClick={handleRemove}>Remove</div>
         </div>
       )}
