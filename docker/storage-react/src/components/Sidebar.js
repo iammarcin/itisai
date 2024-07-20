@@ -211,12 +211,16 @@ const Sidebar = ({ onSelectSession, chatContent, currentSessionIndex, currentSes
 
   const handleAutoRename = async () => {
     console.log("RENAME AUTOMATED!");
-
+    setContextMenu(null);
     try {
       const firstTwoMessages = chatContent[currentSessionIndex].messages.slice(0, 2);
-      const firstTwomessagesContent = "request: %s\nresponse: %s " % (firstTwoMessages[0].message, firstTwoMessages[1].message);
+      console.log("!!!")
+      console.log(firstTwoMessages);
+      console.log(firstTwoMessages[0].message)
+      const firstTwoMessagesContent = `request: ${firstTwoMessages[0].message}\nresponse: ${firstTwoMessages[1].message}`;
+      console.log(firstTwoMessagesContent);
 
-      const userInput = { "text": firstTwoMessages };
+      const userInput = { "text": firstTwoMessagesContent };
       const response = await apiMethods.triggerAPIRequest("generate", "text", "generate_session_name", userInput);
       if (response.success) {
         const newSessionName = response.message.result;
@@ -225,7 +229,7 @@ const Sidebar = ({ onSelectSession, chatContent, currentSessionIndex, currentSes
     } catch (error) {
       console.error('Failed to rename session', error);
     }
-    setRenamePopup(null);
+
   };
 
 

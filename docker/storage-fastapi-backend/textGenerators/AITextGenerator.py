@@ -83,8 +83,7 @@ class AITextGenerator:
                     self.support_image_input = True
                     self.llm = anthropic.Anthropic()
                 else:
-                    # if not specified, use GPT-3.5
-                    self.model_name = "gpt-3.5-turbo"
+                    self.model_name = self.cheapest_model_name
                     self.support_image_input = False
                     self.llm = OpenAI()
 
@@ -118,6 +117,7 @@ class AITextGenerator:
                 return self.chat(userInput, assetInput, customerId)
             elif action == "generate_session_name":
                 self.model_name = self.cheapest_model_name
+                self.llm = OpenAI()
                 self.streaming = False
                 self.temperature = 0.1
                 return await self.generate_session_name(userInput, assetInput, customerId)
@@ -159,6 +159,7 @@ class AITextGenerator:
             logger.info("Response from Text generator: %s", response)
 
             response_content = response.choices[0].message.content
+            logger.info("Response from Text generator: %s", response_content)
         return {'code': 200, 'success': True, 'message': {"status": "completed", "result": response_content}}
 
     def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
@@ -259,9 +260,11 @@ class AITextGenerator:
             newUserInput = {"prompt": finalPrompt}
             logger.info("Final prompt: %s", finalPrompt)
             response = await self.tools("generate_session_name", newUserInput, assetInput, customerId)
-            response_content = json.loads(response.body.decode("utf-8"))
-            logger.info("response_content %s", response_content)
-            finalAnswer = response_content["message"]["result"]
+            logger.info("Response 1:  %s", response)
+
+            logger.info("Response 1:  %s", response.get("message", {}).get("result"))
+
+            finalAnswer = response["message"]["result"]
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": finalAnswer}}, status_code=200)
         except Exception as e:
             logger.error("Error generating session name: %s", str(e))
