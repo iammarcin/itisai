@@ -218,7 +218,7 @@ const Sidebar = ({ onSelectSession, chatContent, currentSessionIndex, currentSes
       const response = await apiMethods.triggerAPIRequest("generate", "text", "generate_session_name", userInput);
       if (response.success) {
         const newSessionName = response.message.result;
-        handleRenameSubmit(currentSessionId, newSessionName);
+        handleRenameSubmit(contextMenu.session.session_id, newSessionName);
       }
     } catch (error) {
       console.error('Failed to rename session', error);
