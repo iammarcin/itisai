@@ -37,7 +37,7 @@ availableVoices = [
     {"voice_id": "QIhQcQqeyCWyOPuE7kv9", "name": "Shaan", },
     {"voice_id": "5AZpUXZFKLKyfeZerS7c", "name": "Rick", },
     {"voice_id": "0P79HLgfttzosL3iYbb5", "name": "Morty", },
-    {"voice_id": "Wbfy3EA2EOxCADPza1BU", "name": "Samantha", },
+    {"voice_id": "a5l5z8A3DCH5XmSdNGyS", "name": "Samantha", },
     {"voice_id": "xctasy8XvGp2cVO9HL9k", "name": "Allison", },  # quite energetic
     {"voice_id": "ZF6FPAbjXT4488VcRRnw", "name": "Amelia", },  # UK, quite energetic
     {"voice_id": "FVQMzxJGPUBtfz1Azdoy", "name": "Danielle", },  # rather calm

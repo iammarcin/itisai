@@ -69,10 +69,12 @@ const General = () => {
         <label>Test Data</label>
         <input type="checkbox" checked={useTestData} onChange={handleUseTestDataChange} />
       </div>
-      <div className="option-item">
-        <label>Use Watson for nonprod</label>
-        <input type="checkbox" checked={useWatson} onChange={handleUseWatsonChange} />
-      </div>
+      {!isProduction && (
+        <div className="option-item">
+          <label>Use Watson for nonprod</label>
+          <input type="checkbox" checked={useWatson} onChange={handleUseWatsonChange} />
+        </div>
+      )}
       <div className="option-item">
         <label>Show message info (bottom,right corner)</label>
         <input type="checkbox" checked={showLocalMessageInfo} onChange={handleShowMessageInfoChange} />
