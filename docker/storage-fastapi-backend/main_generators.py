@@ -38,6 +38,7 @@ def get_speech_generator():
 
 def get_tts_generator(userSettings):
     voice = userSettings.get('voice')
+    voice = voice.capitalize()
     # lets get voices from elevenlabs
     voice_names = [voice_info['name'] for voice_info in availableVoices]
     if voice in voice_names:
