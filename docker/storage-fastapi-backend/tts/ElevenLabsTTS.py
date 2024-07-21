@@ -28,26 +28,27 @@ class FileWithFilename:
 # TODO: turn it into functions to get from API
 # but if do so - check main_generators as there is a function to get these voices
 availableVoices = [
-    {"voice_id": "OQxYoOfpAUkG05J0ccwK", "name": "Sherlock", },
-    {"voice_id": "30zc5PfKKHzfXQfjXbLU", "name": "Naval", },
-    {"voice_id": "VXeKt8WY8XxvvuAzPcBq", "name": "Yuval", },
-    {"voice_id": "N1LkSFjuhW6TRodJYBhu", "name": "Elon", },
+    {"voice_id": "ywZw8GayBRRkuqUnUGhk", "name": "Sherlock", },
+    {"voice_id": "Fd0tSzlmsvLr5hseQNC5", "name": "Naval", },
+    {"voice_id": "Pr8yZ8kUAqVppjka91Ip", "name": "Yuval", },
+    {"voice_id": "xZNdnt7SgqbwFCk9fva3", "name": "Elon", },
     {"voice_id": "IlULyVcJD5RzBQR0n2LG", "name": "Hermiona", },
-    {"voice_id": "2hYX7DThVWR7WT2BGQ3N", "name": "David", },
+    {"voice_id": "kOqEtFu394L4slr6R3ld", "name": "David", },
     {"voice_id": "QIhQcQqeyCWyOPuE7kv9", "name": "Shaan", },
-    {"voice_id": "tRT6MMJIOgJI7oSILj0I", "name": "Rick", },
+    {"voice_id": "5AZpUXZFKLKyfeZerS7c", "name": "Rick", },
     {"voice_id": "0P79HLgfttzosL3iYbb5", "name": "Morty", },
-    {"voice_id": "a5l5z8A3DCH5XmSdNGyS", "name": "Samantha", },
-    {"voice_id": "NwcIoUSR50GT4NXePX5l", "name": "MyVoiceAmericanWoman1", },
-    {"voice_id": "vKqkldqRlIKEBthZUkwj", "name": "MyVoiceAmerican1", },
-    {"voice_id": "21m00Tcm4TlvDq8ikWAM", "name": "Rachel", },
-    {"voice_id": "AZnzlk1XvdvUeBnXmlld", "name": "Domi", },
-    {"voice_id": "EXAVITQu4vr4xnSDxMaL", "name": "Bella", },
-    {"voice_id": "ErXwobaYiN019PkySvjV", "name": "Antoni", },
-    {"voice_id": "MF3mGyEYCl7XYWbV9V6O", "name": "Elli", },
-    {"voice_id": "TxGEqnHWrfWFTfGW9XjX", "name": "Josh", },
-    {"voice_id": "VR6AewLTigWG4xSOukaG", "name": "Arnold", },
-    {"voice_id": "pNInz6obpgDQGcFmaJgB", "name": "Adam", }]
+    {"voice_id": "Wbfy3EA2EOxCADPza1BU", "name": "Samantha", },
+    {"voice_id": "xctasy8XvGp2cVO9HL9k", "name": "Allison", },  # quite energetic
+    {"voice_id": "ZF6FPAbjXT4488VcRRnw", "name": "Amelia", },  # UK, quite energetic
+    {"voice_id": "FVQMzxJGPUBtfz1Azdoy", "name": "Danielle", },  # rather calm
+    {"voice_id": "OYTbf65OHHFELVut7v2H", "name": "Hope", },  # natural US
+    {"voice_id": "Xb7hH8MSUJpSbSDYk0k2", "name": "Alice", },
+    {"voice_id": "pqHfZKP75CvOlQylNhV4", "name": "Bill", },
+    {"voice_id": "nPczCjzI2devNBz1zQrb", "name": "Brian", },
+    {"voice_id": "cjVigY5qzO86Huf0OWal", "name": "Eric", },
+    {"voice_id": "cgSgspJ2msm6clMCkdW9", "name": "Jessica", },
+    {"voice_id": "EXAVITQu4vr4xnSDxMaL", "name": "Sarah", },
+    {"voice_id": "bIHbv24MWmeRgasZH58o", "name": "Will", }]
 
 class ElevenLabsTTSGenerator:
     def __init__(self):
@@ -83,7 +84,8 @@ class ElevenLabsTTSGenerator:
                     self.model_name = "eleven_monolingual_v1"
 
             if "voice" in user_settings:
-                self.voice_id = user_settings["voice"]
+                # make sure that first letter is capital, but rest is small
+                self.voice_id = user_settings["voice"].capitalize()
 
             if "format" in user_settings:
                 self.format = user_settings["format"]
@@ -107,6 +109,7 @@ class ElevenLabsTTSGenerator:
                 self.speaker_boost = user_settings["speaker_boost"]
 
     def get_voice_id(self, voice_name):
+        voice_name = voice_name.capitalize()
         logger.info("search for voice: %s", voice_name)
         for voice in availableVoices:
             if voice_name == voice["name"]:
