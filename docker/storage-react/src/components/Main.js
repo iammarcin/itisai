@@ -224,7 +224,6 @@ const Main = () => {
 
   // a memoized version of scroll to bottom (not to trigger re-renders)
   const mScrollToBottom = useCallback((whichChat, smooth = true) => {
-    console.log("Executing mScrollToBottom")
     scrollToBottom(whichChat, smooth, endOfMessagesRef, currentSessionIndexRef);
   }, [endOfMessagesRef, currentSessionIndexRef]);
 

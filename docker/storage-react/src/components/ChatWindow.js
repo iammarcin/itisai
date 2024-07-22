@@ -15,6 +15,8 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
+  // chat content loaded - so we can scroll to bottom (and we need to separate it to make sure that scroll is executed AFTER chat content is loaded)
+  const [contentLoaded, setContentLoaded] = useState(false);
 
   // fetch chat content (for specific session)
   // useCallback in use to ensure that execution is done only once
@@ -51,14 +53,14 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
         });
 
         setShowCharacterSelection(false);
-        //TODO enable
-        mScrollToBottom(currentSessionIndexRef.current, false);
+        // content loaded - so we can trigger scroll to bottom
+        setContentLoaded(true);
       }
     } catch (error) {
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
     }
-  }, [currentSessionId, currentSessionIndexRef, setChatContent, navigate, setCurrentSessionId, setShowCharacterSelection, setErrorMsg, mScrollToBottom]);
+  }, [currentSessionId, currentSessionIndexRef, setChatContent, navigate, setCurrentSessionId, setShowCharacterSelection, setErrorMsg]);
 
 
   // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data
@@ -81,6 +83,14 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
       });
     }
   }, [fetchSessionId, currentSessionId, currentSessionIndexRef, fetchChatContent, setChatContent]);
+
+  // once chat content loaded - we can scroll to bottom finally
+  useEffect(() => {
+    if (contentLoaded) {
+      mScrollToBottom(currentSessionIndexRef.current, false);
+      setContentLoaded(false); // Reset for future loads
+    }
+  }, [contentLoaded, currentSessionIndexRef, mScrollToBottom]);
 
   const handleCharacterSelect = (character) => {
     setShowCharacterSelection(false);
