@@ -11,7 +11,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import apiMethods from '../services/api.methods';
+import apiMethods from '../../services/api.methods';
 import FloatingChat from './FloatingChat';
 
 // Register Chart.js components
@@ -28,7 +28,7 @@ ChartJS.register(
 
 const getColor = (color, type = "background") => {
   var colorTransparency = 0;
-  if (type == "border") {
+  if (type === "border") {
     colorTransparency = 1;
   } else {
     colorTransparency = 0; // 0.2
@@ -67,7 +67,6 @@ const Health = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      console.log("EXEC")
       const userInput = {
         "start_date": "2024-01-01",
         "end_date": "2024-07-22",
@@ -95,6 +94,15 @@ const Health = () => {
       const lightSleepTimes = data.map(entry => entry.light_sleep_seconds / 3600);
       const remSleepTimes = data.map(entry => entry.rem_sleep_seconds / 3600);
       const awakeSleepTimes = data.map(entry => entry.awake_sleep_seconds / 3600);
+      const napTimes = data.map(entry => entry.nap_time_seconds / 3600);
+
+      const sleepStart = data.map(entry => entry.sleep_start);
+      const sleepEnd = data.map(entry => entry.sleep_end);
+      const averageRespiration = data.map(entry => entry.average_respiration_value);
+      const avgSleepStress = data.map(entry => entry.avg_sleep_stress);
+      const avgOvernightHrv = data.map(entry => entry.avg_overnight_hrv);
+      const restingHeartRate = data.map(entry => entry.resting_heart_rate);
+      const bodyBatteryChange = data.map(entry => entry.body_battery_change);
 
       setChartData({
         labels: dates,
@@ -105,8 +113,8 @@ const Health = () => {
             backgroundColor: getColor("red"),
             borderColor: getColor("red", "border"),
             borderWidth: 1,
+            yAxisID: 'y-right',
             fill: true,
-
           },
           {
             label: 'Total Sleep Time (hours)',
@@ -114,6 +122,7 @@ const Health = () => {
             backgroundColor: getColor("violet"),
             borderColor: getColor("violet", "border"),
             borderWidth: 1,
+            yAxisID: 'y-left',
             fill: true,
           },
           {
@@ -122,6 +131,7 @@ const Health = () => {
             backgroundColor: getColor("orange"),
             borderColor: getColor("orange", "border"),
             borderWidth: 1,
+            yAxisID: 'y-left',
             fill: true,
             hidden: true,
           },
@@ -131,6 +141,7 @@ const Health = () => {
             backgroundColor: getColor("green_light"),
             borderColor: getColor("green_light", "border"),
             borderWidth: 1,
+            yAxisID: 'y-left',
             fill: true,
             hidden: true,
           },
@@ -140,6 +151,7 @@ const Health = () => {
             backgroundColor: getColor("blue_dark"),
             borderColor: getColor("blue_dark", "border"),
             borderWidth: 1,
+            yAxisID: 'y-left',
             fill: true,
             hidden: true,
           },
@@ -149,6 +161,17 @@ const Health = () => {
             backgroundColor: getColor("green_dark"),
             borderColor: getColor("green_dark", "border"),
             borderWidth: 1,
+            yAxisID: 'y-left',
+            fill: true,
+            hidden: true,
+          },
+          {
+            label: 'Nap time (hours)',
+            data: napTimes,
+            backgroundColor: getColor("yellow_dark"),
+            borderColor: getColor("yellow_dark", "border"),
+            borderWidth: 1,
+            yAxisID: 'y-left',
             fill: true,
             hidden: true,
           },
@@ -175,7 +198,7 @@ const Health = () => {
 
   return (
     <div>
-      <h2>Sleep Metrics Over Time</h2>
+      <h2>Your Health stats</h2>
       <Line
         data={chartData}
         options={{
@@ -186,14 +209,30 @@ const Health = () => {
                 display: true,
                 text: 'Date'
               },
-              type: 'category' // Specify the type explicitly
+              type: 'category'
             },
-            y: {
+            'y-left': {
+              type: 'linear',
+              position: 'left',
               title: {
                 display: true,
-                text: 'Value'
+                text: 'Sleep hours'
               },
               beginAtZero: true
+            },
+            'y-right': {
+              type: 'linear',
+              position: 'right',
+              title: {
+                display: true,
+                text: 'Overall Sleep Score'
+              },
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              grid: {
+                drawOnChartArea: false // only want the grid lines for one axis to show up
+              }
             }
           }
         }}
