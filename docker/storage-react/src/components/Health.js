@@ -25,6 +25,37 @@ ChartJS.register(
   Filler
 );
 
+const getColor = (color, type = "background") => {
+  var colorTransparency = 0;
+  if (type == "border") {
+    colorTransparency = 1;
+  } else {
+    colorTransparency = 0; // 0.2
+  }
+
+  //rgba(75,192,192,1)',
+
+  const colors = {
+    "red": "rgba(255,0,0," + colorTransparency + ")",
+    "green_dark": "rgba(0,102,51," + colorTransparency + ")",
+    "green_light": "rgba(0,255,0," + colorTransparency + ")",
+    "blue_dark": "rgba(0,102,204," + colorTransparency + ")",
+    "blue_light": "rgba(153,255,255," + colorTransparency + ")",
+    "violet": "rgba(102,0,204," + colorTransparency + ")",
+    "orange": "rgba(255,128,0," + colorTransparency + ")",
+    "yellow_dark": "rgba(255,255,0," + colorTransparency + ")",
+    "yellow_light": "rgba(255,255,204," + colorTransparency + ")",
+    "purple": "rgba(255,51,255," + colorTransparency + ")",
+    "white": "rgba(255,255,255," + colorTransparency + ")",
+    "gray_dark": "rgba(96,96,96," + colorTransparency + ")",
+    "gray_light": "rgba(192,192,192," + colorTransparency + ")",
+  }
+
+  return colors[color];
+}
+
+
+
 const Health = () => {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -38,7 +69,7 @@ const Health = () => {
       console.log("EXEC")
       const userInput = {
         "start_date": "2024-01-01",
-        "end_date": "2024-07-01",
+        "end_date": "2024-07-22",
         "table": "get_sleep_data"
       };
       const response = await apiMethods.triggerAPIRequest(
@@ -57,7 +88,7 @@ const Health = () => {
       }
 
       const dates = data.map(entry => entry.calendar_date);
-      //const overallScores = data.map(entry => entry.overall_score_value);
+      const overallScores = data.map(entry => entry.overall_score_value);
       const sleepTimes = data.map(entry => entry.sleep_time_seconds / 3600);
       const deepSleepTimes = data.map(entry => entry.deep_sleep_seconds / 3600);
       const lightSleepTimes = data.map(entry => entry.light_sleep_seconds / 3600);
@@ -67,53 +98,58 @@ const Health = () => {
       setChartData({
         labels: dates,
         datasets: [
-          /*{
+          {
             label: 'Overall Sleep Score',
             data: overallScores,
-            backgroundColor: 'rgba(75,192,192,0.2)',
-            borderColor: 'rgba(75,192,192,1)',
+            backgroundColor: getColor("red"),
+            borderColor: getColor("red", "border"),
             borderWidth: 1,
             fill: true,
-          },*/
+
+          },
           {
             label: 'Total Sleep Time (hours)',
             data: sleepTimes,
-            backgroundColor: 'rgba(153,102,255,0.2)',
-            borderColor: 'rgba(153,102,255,1)',
+            backgroundColor: getColor("violet"),
+            borderColor: getColor("violet", "border"),
             borderWidth: 1,
             fill: true,
           },
           {
             label: 'Deep Sleep Time (hours)',
             data: deepSleepTimes,
-            backgroundColor: 'rgba(255,159,64,0.2)',
-            borderColor: 'rgba(255,159,64,1)',
+            backgroundColor: getColor("orange"),
+            borderColor: getColor("orange", "border"),
             borderWidth: 1,
             fill: true,
+            hidden: true,
           },
           {
             label: 'Light Sleep Time (hours)',
             data: lightSleepTimes,
-            backgroundColor: 'rgba(54,162,235,0.2)',
-            borderColor: 'rgba(54,162,235,1)',
+            backgroundColor: getColor("green_light"),
+            borderColor: getColor("green_light", "border"),
             borderWidth: 1,
             fill: true,
+            hidden: true,
           },
           {
             label: 'REM Sleep Time (hours)',
             data: remSleepTimes,
-            backgroundColor: 'rgba(255,206,86,0.2)',
-            borderColor: 'rgba(255,206,86,1)',
+            backgroundColor: getColor("blue_dark"),
+            borderColor: getColor("blue_dark", "border"),
             borderWidth: 1,
             fill: true,
+            hidden: true,
           },
           {
             label: 'Awake Time (hours)',
             data: awakeSleepTimes,
-            backgroundColor: 'rgba(255,99,132,0.2)',
-            borderColor: 'rgba(255,99,132,1)',
+            backgroundColor: getColor("green_dark"),
+            borderColor: getColor("green_dark", "border"),
             borderWidth: 1,
             fill: true,
+            hidden: true,
           },
         ]
       });
