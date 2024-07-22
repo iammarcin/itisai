@@ -22,6 +22,15 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
     if (config.VERBOSE_SUPERB === 1) {
       console.log("EXecuting fetchChatContent with sessionIdToGet: ", sessionIdToGet);
     }
+    // this hopefully won't be in use - but just in case added here
+    // due to async nature of react - this was executed twice (for session that we were switching from too)
+    // so this is to avoid it
+    if (sessionIdToGet !== currentSessionId) {
+      if (config.VERBOSE_SUPERB === 1) {
+        console.log("Skipping fetch for outdated session:", sessionIdToGet);
+      }
+      return;
+    }
     try {
       const userInput = { "session_id": sessionIdToGet };
       const response = await apiMethods.triggerAPIRequest("api/db", "provider.db", "db_get_user_session", userInput);
@@ -42,34 +51,36 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
         });
 
         setShowCharacterSelection(false);
-
+        //TODO enable
         mScrollToBottom(currentSessionIndexRef.current, false);
       }
     } catch (error) {
       setErrorMsg("Problem with fetching data. Try again.");
       console.error('Failed to fetch chat content', error);
     }
-  }, [currentSessionIndexRef, setChatContent, navigate, setCurrentSessionId, setShowCharacterSelection, setErrorMsg, mScrollToBottom]);
+  }, [currentSessionId, currentSessionIndexRef, setChatContent, navigate, setCurrentSessionId, setShowCharacterSelection, setErrorMsg, mScrollToBottom]);
 
 
   // if new session created or if session is chosen or initially if session is set in URL - we will fetch session data
   useEffect(() => {
     if (config.VERBOSE_SUPERB === 1) {
-      console.log("useEffect fetchSessionId. Values of: fetchSessionId, currentSessionIndex: ", fetchSessionId, currentSessionIndexRef.current);
+      console.log("useEffect fetchSessionId. Values of: fetchSessionId, currentSessionId, currentSessionIndex: ", fetchSessionId, currentSessionId, currentSessionIndexRef.current);
     }
 
     // if there is sessionId - we fetch specific session data from DB
-    if (fetchSessionId) {
+    // (added later) - but only if we are supposed to fetch current chosen session Id
+    // due to async of useEffect - it was executed twice
+    if (fetchSessionId && fetchSessionId === currentSessionId) {
       fetchChatContent(fetchSessionId);
-    } else {
-      // if it is not provided - we just set empty array for future messages
+    } else if (fetchSessionId === null) {
+      // if fetchSessionId is not provided - we just set empty array for future messages
       setChatContent((prevChatContent) => {
         const updatedChatContent = [...prevChatContent];
         updatedChatContent[currentSessionIndexRef.current].messages = [];
         return updatedChatContent;
       });
     }
-  }, [fetchSessionId, currentSessionIndexRef, fetchChatContent, setChatContent]);
+  }, [fetchSessionId, currentSessionId, currentSessionIndexRef, fetchChatContent, setChatContent]);
 
   const handleCharacterSelect = (character) => {
     setShowCharacterSelection(false);

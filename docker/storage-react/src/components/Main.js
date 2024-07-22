@@ -18,6 +18,7 @@ import { getTextAICharacter, setTextAICharacter, getTextModelName } from '../uti
 const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessionIndexRef) => {
   console.log("EXecuting scroll")
   if (whichChat === currentSessionIndexRef.current) {
+    console.log("EXecuting scroll 2")
     // smooth not needed - for example when restoring session
     var behavior = 'auto';
     if (smooth)
@@ -115,8 +116,8 @@ const Main = () => {
       console.log("session selected: ", session)
     }
     setShouldSkipSessionFetching(false);
-    navigate(`/session/${session.session_id}`);
     setCurrentSessionId(session.session_id);
+    navigate(`/session/${session.session_id}`);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
   };
