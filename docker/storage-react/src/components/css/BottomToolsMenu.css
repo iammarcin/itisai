@@ -82,6 +82,13 @@
   margin-right: 0;
 }
 
+.send-button:hover,
+.attach-button:hover {
+  color: #007bff;
+  background: rgb(55, 54, 54);
+  border-radius: 50%;
+}
+
 .bottom-tools-menu .image-preview-container .placeholder {
   width: 100px;
   height: 100px;

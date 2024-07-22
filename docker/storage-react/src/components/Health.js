@@ -12,6 +12,7 @@ import {
   Filler
 } from 'chart.js';
 import apiMethods from '../services/api.methods';
+import FloatingChat from './FloatingChat';
 
 // Register Chart.js components
 ChartJS.register(
@@ -197,6 +198,7 @@ const Health = () => {
           }
         }}
       />
+      <FloatingChat />
     </div>
   );
 };
