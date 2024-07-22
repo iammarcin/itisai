@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Main from './components/Main';
 import Login from './components/Login';
 import Sleep from './components/Sleep';
+import Health from './components/Health';
 import Garmin from './components/Garmin';
 import PrivacyPolicy from './components/Privacy';
 import TermsAndConditions from './components/TermsConditions';
@@ -41,6 +42,7 @@ function App() {
             <Route path="/" element={<Main />} />
             <Route path="/session/:sessionId" element={<Main />} />
             <Route path="/sleep" element={<Sleep />} />
+            <Route path="/health" element={<Health />} />
             <Route path="/garmin" element={<Garmin />} />
           </>
         ) : (

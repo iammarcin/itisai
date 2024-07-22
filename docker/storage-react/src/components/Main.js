@@ -14,6 +14,43 @@ import config from '../config';
 
 import { getTextAICharacter, setTextAICharacter, getTextModelName } from '../utils/configuration';
 
+// function put outside of Main component - because it triggered re-renders from different places
+const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessionIndexRef) => {
+  console.log("EXecuting scroll")
+  if (whichChat === currentSessionIndexRef.current) {
+    // smooth not needed - for example when restoring session
+    var behavior = 'auto';
+    if (smooth)
+      behavior = 'smooth';
+    endOfMessagesRef.current.scrollIntoView({
+      behavior: behavior,
+    });
+  }
+  // i tried few different methods - didn't really work well
+  /*const chatWindowContainer = document.querySelector('.bottom-tools-menu');
+  const isAtBottom = chatWindowContainer.scrollHeight - chatWindowContainer.scrollTop <= chatWindowContainer.clientHeight + 70;
+  console.log("isAtBottom: ", isAtBottom);*/
+  /*if (isAtBottom) {
+    console.log("scrolling to bottom")
+
+    console.log(whichChat)
+    console.log(currentSessionIndexRef.current)
+    if (whichChat === currentSessionIndexRef.current) {
+      console.log("scrolling to bottom2")
+      //const scrollTargetPosition = botTextAreaContainer.getBoundingClientRect().top - window.innerHeight + botTextAreaContainer.offsetHeight;
+
+      // Scroll smoothly to the target position
+      /*window.scrollBy({
+        top: chatWindowContainer.getBoundingClientRect().bottom,
+        behavior: 'smooth',
+      });*/
+  /*endOfMessagesRef.current.scrollIntoView({
+    behavior: 'smooth',
+  });
+}
+}*/
+};
+
 const Main = () => {
   // to get sessionId from URL and load the session
   const { sessionId } = useParams();
@@ -184,36 +221,11 @@ const Main = () => {
     }
   }, [readyForRegenerate, handleSendClick]);
 
-  const scrollToBottom = (whichChat) => {
-    if (whichChat === currentSessionIndexRef.current) {
-      endOfMessagesRef.current.scrollIntoView({
-        behavior: 'smooth',
-      });
-    }
-    // i tried few different methods - didn't really work well
-    /*const chatWindowContainer = document.querySelector('.bottom-tools-menu');
-    const isAtBottom = chatWindowContainer.scrollHeight - chatWindowContainer.scrollTop <= chatWindowContainer.clientHeight + 70;
-    console.log("isAtBottom: ", isAtBottom);*/
-    /*if (isAtBottom) {
-      console.log("scrolling to bottom")
-
-      console.log(whichChat)
-      console.log(currentSessionIndexRef.current)
-      if (whichChat === currentSessionIndexRef.current) {
-        console.log("scrolling to bottom2")
-        //const scrollTargetPosition = botTextAreaContainer.getBoundingClientRect().top - window.innerHeight + botTextAreaContainer.offsetHeight;
-
-        // Scroll smoothly to the target position
-        /*window.scrollBy({
-          top: chatWindowContainer.getBoundingClientRect().bottom,
-          behavior: 'smooth',
-        });*/
-    /*endOfMessagesRef.current.scrollIntoView({
-      behavior: 'smooth',
-    });
-  }
-}*/
-  };
+  // a memoized version of scroll to bottom (not to trigger re-renders)
+  const mScrollToBottom = useCallback((whichChat, smooth = true) => {
+    console.log("Executing mScrollToBottom")
+    scrollToBottom(whichChat, smooth, endOfMessagesRef, currentSessionIndexRef);
+  }, [endOfMessagesRef, currentSessionIndexRef]);
 
   return (
     <div className="layout">
@@ -259,6 +271,7 @@ const Main = () => {
             setErrorMsg={setErrorMsg}
             setReadyForRegenerate={setReadyForRegenerate}
             manageProgressText={manageProgressText}
+            mScrollToBottom={mScrollToBottom}
           />
           {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}
           {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}

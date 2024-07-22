@@ -136,6 +136,8 @@ class AITextGenerator:
         chat_history = []
         chat_history.append({"role": "user", "content": userInput["prompt"]})
 
+        logger.info("Using model: %s", self.model_name)
+
         if isItAnthropicModel(self.model_name):
             response = self.llm.messages.create(
                 max_tokens=self.max_tokens,
