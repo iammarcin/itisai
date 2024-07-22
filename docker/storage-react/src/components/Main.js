@@ -16,9 +16,7 @@ import { getTextAICharacter, setTextAICharacter, getTextModelName } from '../uti
 
 // function put outside of Main component - because it triggered re-renders from different places
 const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessionIndexRef) => {
-  console.log("EXecuting scroll")
   if (whichChat === currentSessionIndexRef.current) {
-    console.log("EXecuting scroll 2")
     // smooth not needed - for example when restoring session
     var behavior = 'auto';
     if (smooth)
