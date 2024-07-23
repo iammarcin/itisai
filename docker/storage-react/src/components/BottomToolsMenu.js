@@ -175,6 +175,50 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
     });
   };
 
+  // when i'm in text area and i paste image - it should be uploaded as attached one
+  const handlePaste = async (e) => {
+    const items = e.clipboardData.items;
+    let imageFile = null;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        imageFile = items[i].getAsFile();
+        break;
+      }
+    }
+
+    if (imageFile) {
+      e.preventDefault();
+      setErrorMsg("");
+
+      // Display placeholder
+      const placeholder = { file: imageFile, url: '', placeholder: true };
+      setAttachedImages(prevImages => [...prevImages, placeholder]);
+
+      setUploading(true);
+      try {
+        const resizedFile = await resizeImage(imageFile);
+        const response = await apiMethods.uploadFileToS3("api/aws", "provider.s3", "s3_upload", resizedFile);
+
+        if (response.success) {
+          const newUrl = response.message.result;
+          setAttachedImages(prevImages => prevImages.map(img =>
+            img.file === imageFile ? { ...img, url: newUrl, placeholder: false } : img
+          ));
+        } else {
+          setErrorMsg("Problem with file upload. Try again.")
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setErrorMsg("Problem with file upload. Try again.")
+        setAttachedImages(prevImages => prevImages.filter(img => img.file !== imageFile));
+      }
+      setUploading(false);
+    }
+  };
+
+
   // setting height of user input (if more then 1 line)
   useEffect(() => {
     const input = userInputRef.current;
@@ -230,6 +274,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
           placeholder="Talk to me..."
           value={userInput}
           onChange={handleInputChange}
+          onPaste={handlePaste}
           onKeyPress={handleKeyPress}
           onKeyDown={handleKeyDown}
           rows={1}
