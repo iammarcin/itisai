@@ -52,6 +52,8 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
           return updatedChatContent;
         });
 
+        setTextAICharacter(response.message.result.ai_character_name);
+
         setShowCharacterSelection(false);
         // content loaded - so we can trigger scroll to bottom
         setContentLoaded(true);
