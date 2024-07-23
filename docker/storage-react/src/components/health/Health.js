@@ -103,10 +103,10 @@ const Health = () => {
         />
       </div>
       <div className="button-container">
-        <button onClick={() => setPresetRange('currentWeek')}>Current Week</button>
-        <button onClick={() => setPresetRange('previousWeek')}>Previous Week</button>
-        <button onClick={() => setPresetRange('currentMonth')}>Current Month</button>
-        <button onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
+        <button className="health-button-preset-date" onClick={() => setPresetRange('currentWeek')}>Current Week</button>
+        <button className="health-button-preset-date" onClick={() => setPresetRange('previousWeek')}>Previous Week</button>
+        <button className="health-button-preset-date" onClick={() => setPresetRange('currentMonth')}>Current Month</button>
+        <button className="health-button-preset-date" onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
       </div>
       <h4>Sleep timing</h4>
       <SleepStartEndChart data={data} />
