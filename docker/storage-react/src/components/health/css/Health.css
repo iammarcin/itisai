@@ -70,9 +70,9 @@
 .react-datepicker__day--selected,
 .react-datepicker__day--in-selecting-range,
 .react-datepicker__day--in-range {
-  background-color: #007bff;
+  background-color: #050606;
 }
 
 .react-datepicker__day--keyboard-selected {
-  background-color: #0056b3;
+  background-color: #080808;
 }
