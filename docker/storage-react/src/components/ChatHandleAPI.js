@@ -234,7 +234,7 @@ const ChatHandleAPI = async ({
           }
         }
       });
-    } else {
+    } else { // if its edited message
       // Only send the user message to DB if autoResponse is false
       const finalInputForDB = {
         "customer_id": 1,

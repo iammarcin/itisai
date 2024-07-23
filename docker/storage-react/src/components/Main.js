@@ -170,8 +170,6 @@ const Main = () => {
       const currentAICharacter = getTextAICharacter();
       const apiAIModelName = getTextModelName();
 
-      console.log("currentAICharacter: ", currentAICharacter)
-
       await ChatHandleAPI({
         userInput, editMessagePosition, attachedImages, attachedFiles,
         currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
