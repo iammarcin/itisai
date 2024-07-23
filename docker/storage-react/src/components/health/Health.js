@@ -6,6 +6,7 @@ import SleepStartEndChart from './charts/SleepStartEndChart';
 import SleepMetricsChart from './charts/SleepMetricsChart';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import './css/Health.css';
 
 const Health = () => {
   const [data, setData] = useState([]);
@@ -57,9 +58,29 @@ const Health = () => {
     }
   };
 
-  const setPresetRange = (days) => {
+  const setPresetRange = (type) => {
     const end = new Date();
-    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
+    let start = new Date();
+
+    switch (type) {
+      case 'currentWeek':
+        start.setDate(end.getDate() - 7);
+        break;
+      case 'previousWeek':
+        start.setDate(end.getDate() - 14);
+        end.setDate(end.getDate() - 7);
+        break;
+      case 'currentMonth':
+        start.setMonth(end.getMonth() - 1);
+        break;
+      case 'previousMonth':
+        end.setMonth(end.getMonth() - 1);
+        start.setMonth(end.getMonth() - 1);
+        break;
+      default:
+        break;
+    }
+
     setDateRange([start, end]);
     fetchData(start, end);
   };
@@ -71,18 +92,21 @@ const Health = () => {
   return (
     <div>
       <h2>Your Health stats</h2>
-      <div style={{ marginBottom: '20px' }}>
+      <div className="date-picker-container">
         <DatePicker
           selectsRange={true}
           startDate={startDate}
           endDate={endDate}
           onChange={handleDateChange}
           dateFormat="yyyy-MM-dd"
+          className="custom-datepicker"
         />
-        <button onClick={() => setPresetRange(7)}>Current Week</button>
-        <button onClick={() => setPresetRange(14)}>Previous Week</button>
-        <button onClick={() => setPresetRange(30)}>Current Month</button>
-        <button onClick={() => setPresetRange(60)}>Previous Month</button>
+      </div>
+      <div className="button-container">
+        <button onClick={() => setPresetRange('currentWeek')}>Current Week</button>
+        <button onClick={() => setPresetRange('previousWeek')}>Previous Week</button>
+        <button onClick={() => setPresetRange('currentMonth')}>Current Month</button>
+        <button onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
       </div>
       <h4>Sleep timing</h4>
       <SleepStartEndChart data={data} />

@@ -174,7 +174,7 @@ const Main = () => {
         userInput, editMessagePosition, attachedImages, attachedFiles,
         currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId,
         chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions,
-        setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+        setIsLoading, setErrorMsg, manageProgressText, mScrollToBottom
       });
 
       // reset edit message position

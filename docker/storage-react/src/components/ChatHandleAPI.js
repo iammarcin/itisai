@@ -12,7 +12,7 @@ import { formatDate } from '../utils/misc';
 // currentSessionIndex - also needed - as we're checking if currently generating in active session
 // apiAIModelName - model name that we are using for generating the message (sent to API). this will be recorded in order to show which model generated each message
 const ChatHandleAPI = async ({
-  userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, scrollToBottom
+  userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, mScrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -139,11 +139,11 @@ const ChatHandleAPI = async ({
           chunkBuffer += chunk;
           updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex].message = chunkBuffer;
           setChatContent([...updatedChatContent]);
-          scrollToBottom(sessionIndexForAPI);
+          mScrollToBottom(sessionIndexForAPI);
         },
         onStreamEnd: async (fullResponse) => {
           manageProgressText("hide", "Text");
-          scrollToBottom(sessionIndexForAPI);
+          mScrollToBottom(sessionIndexForAPI);
 
           // save to DB
           const currentUserMessage = updatedChatContent[sessionIndexForAPI].messages[aiMessageIndex - 1];
@@ -214,7 +214,7 @@ const ChatHandleAPI = async ({
                 setChatContent([...updatedChatContent]);
 
                 manageProgressText("hide", "Image");
-                scrollToBottom(sessionIndexForAPI);
+                mScrollToBottom(sessionIndexForAPI);
                 setFocusInput(true);
                 //db_update_session to DB 
                 await apiMethods.updateSessionInDB(chatContent[sessionIndexForAPI], sessionIdForAPI);

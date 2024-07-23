@@ -1,0 +1,74 @@
+/* Health.css */
+
+.health-container {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  padding: 20px;
+}
+
+.date-picker-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.custom-datepicker {
+  background-color: #2c2c2c;
+  color: #ffffff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.health-container button {
+  background-color: #3a3a3a;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.health-container button:hover {
+  background-color: #4a4a4a;
+}
+
+/* Override react-datepicker styles for dark theme */
+.react-datepicker {
+  background-color: #2c2c2c;
+  color: #ffffff;
+  border: 1px solid #444;
+}
+
+.react-datepicker__header {
+  background-color: #3a3a3a;
+  border-bottom: 1px solid #444;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: #ffffff;
+}
+
+.react-datepicker__day:hover {
+  background-color: #4a4a4a;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background-color: #007bff;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: #0056b3;
+}
