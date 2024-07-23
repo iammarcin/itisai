@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
-import { getColor } from '../../../utils/colorHelper'; // Assuming you move getColor to a helper file
+import { getColor } from '../../../utils/colorHelper';
 
 const SleepPhasesChart = ({ data }) => {
   const [chartData, setChartData] = useState({
@@ -25,7 +25,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'Overall Sleep Score',
           data: overallScores,
           backgroundColor: getColor("red"),
-          borderColor: getColor("red", "border"),
+          borderColor: getColor("red", 1),
           borderWidth: 1,
           yAxisID: 'y-right',
           fill: true,
@@ -34,7 +34,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'Total Sleep Time (hours)',
           data: sleepTimes,
           backgroundColor: getColor("violet"),
-          borderColor: getColor("violet", "border"),
+          borderColor: getColor("violet", 1),
           borderWidth: 1,
           yAxisID: 'y-left',
           fill: true,
@@ -43,7 +43,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'Deep Sleep Time (hours)',
           data: deepSleepTimes,
           backgroundColor: getColor("orange"),
-          borderColor: getColor("orange", "border"),
+          borderColor: getColor("orange", 1),
           borderWidth: 1,
           yAxisID: 'y-left',
           fill: true,
@@ -53,7 +53,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'Light Sleep Time (hours)',
           data: lightSleepTimes,
           backgroundColor: getColor("green_light"),
-          borderColor: getColor("green_light", "border"),
+          borderColor: getColor("green_light", 1),
           borderWidth: 1,
           yAxisID: 'y-left',
           fill: true,
@@ -63,7 +63,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'REM Sleep Time (hours)',
           data: remSleepTimes,
           backgroundColor: getColor("blue_dark"),
-          borderColor: getColor("blue_dark", "border"),
+          borderColor: getColor("blue_dark", 1),
           borderWidth: 1,
           yAxisID: 'y-left',
           fill: true,
@@ -73,7 +73,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'Awake Time (hours)',
           data: awakeSleepTimes,
           backgroundColor: getColor("green_dark"),
-          borderColor: getColor("green_dark", "border"),
+          borderColor: getColor("green_dark", 1),
           borderWidth: 1,
           yAxisID: 'y-left',
           fill: true,
@@ -83,7 +83,7 @@ const SleepPhasesChart = ({ data }) => {
           label: 'Nap time (hours)',
           data: napTimes,
           backgroundColor: getColor("yellow_dark"),
-          borderColor: getColor("yellow_dark", "border"),
+          borderColor: getColor("yellow_dark", 1),
           borderWidth: 1,
           yAxisID: 'y-left',
           fill: true,

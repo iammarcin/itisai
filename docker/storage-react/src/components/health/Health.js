@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import apiMethods from '../../services/api.methods';
 import FloatingChat from './FloatingChat';
 import SleepPhasesChart from './charts/SleepPhasesChart';
+import SleepPhasesChartAlt from './charts/SleepPhasesChartAlt';
 import SleepStartEndChart from './charts/SleepStartEndChart';
 import SleepMetricsChart from './charts/SleepMetricsChart';
 import DatePicker from 'react-datepicker';
@@ -63,6 +64,10 @@ const Health = () => {
     let start = new Date();
 
     switch (type) {
+      case 'YTD':
+        start.setMonth(0);
+        start.setDate(1);
+        break;
       case 'currentWeek':
         start.setDate(end.getDate() - 7);
         break;
@@ -103,6 +108,7 @@ const Health = () => {
         />
       </div>
       <div className="button-container">
+        <button className="health-button-preset-date" onClick={() => setPresetRange('YTD')}>YTD</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('currentWeek')}>Current Week</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('previousWeek')}>Previous Week</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('currentMonth')}>Current Month</button>
@@ -114,6 +120,8 @@ const Health = () => {
       <SleepMetricsChart data={data} />
       <h4>Sleep phases</h4>
       <SleepPhasesChart data={data} />
+      <h4>Sleep phases v2</h4>
+      <SleepPhasesChartAlt data={data} />
       <FloatingChat />
     </div>
   );

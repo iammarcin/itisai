@@ -3,6 +3,8 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
+import { getColor } from '../../../utils/colorHelper';
+
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const SleepStartEndChart = ({ data }) => {
@@ -30,14 +32,14 @@ const SleepStartEndChart = ({ data }) => {
         {
           label: 'Sleep Start',
           data: sleepStart,
-          borderColor: 'rgba(75, 192, 192, 1)',
+          borderColor: getColor("green_dark", 1),
           tension: 0.1,
           pointRadius: 3,
         },
         {
           label: 'Sleep End',
           data: sleepEnd,
-          borderColor: 'rgba(255, 99, 132, 1)',
+          borderColor: getColor("red", 1),
           tension: 0.1,
           pointRadius: 3,
         }
