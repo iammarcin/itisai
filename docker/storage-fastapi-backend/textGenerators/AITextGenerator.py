@@ -205,7 +205,7 @@ class AITextGenerator:
                         model=self.model_name
                     ) as stream:
                         for text in stream.text_stream:
-                            print(text, end="", flush=True)
+                            # print(text, end="", flush=True)
                             yield f"{text}"
                 else:
                     response = self.llm.messages.create(

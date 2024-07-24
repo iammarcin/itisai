@@ -264,3 +264,8 @@ a:-webkit-any-link {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+.chat-message pre code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
