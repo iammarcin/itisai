@@ -286,7 +286,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     let formattedContent = content.replace(codeBlockRegex, (match) => {
       const code = match.slice(3, -3).trim();
       const language = detectCodeLanguage(code);
-      return `\n\n\`\`\`${language}\n${code}\n\`\`\`\n\n`;
+      return `\n\`\`\`${language}\n${code}\n\`\`\`\n`;
     });
 
     formattedContent = formattedContent.replace(inlineCodeRegex, (match) => {
@@ -295,7 +295,6 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
 
     return formattedContent;
   };
-
   const formattedMessage = formatCodeBlocks(message.message);
 
   return (
