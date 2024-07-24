@@ -108,7 +108,7 @@ const Health = () => {
           className="custom-datepicker"
         />
       </div>
-      <div className="button-container">
+      <div className="health-button-container">
         <button className="health-button-preset-date" onClick={() => setPresetRange('YTD')}>YTD</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('currentWeek')}>Current Week</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('previousWeek')}>Previous Week</button>

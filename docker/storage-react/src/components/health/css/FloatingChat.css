@@ -34,31 +34,45 @@
   background-color: #444;
 }
 
-.floating-chat-inputContainer {
+
+/* */
+
+.floating-bottom-tools-menu .input-container {
   display: flex;
-  border-top: 1px solid #555;
+  align-items: center;
+  width: 100%;
+  margin: 0px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
 }
 
-.floating-chat-input {
+.floating-bottom-tools-menu .message-input {
   flex: 1;
-  padding: 8px;
   border-radius: 4px 0 0 4px;
   border: 1px solid #555;
-  background-color: #333;
+  background-color: #1e1e1e;
   color: #fff;
+  margin-right: 0px;
 }
 
-.floating-chat-button {
+.floating-bottom-tools-menu .button-container {
+  display: flex;
+  padding-top: 20px;
+  column-gap: 0px;
+  margin-bottom: 20px;
+}
+
+.floating-bottom-tools-menu .send-button,
+.floating-bottom-tools-menu .attach-button {
   background: none;
   border: none;
   color: white;
+  font-size: 0px;
   cursor: pointer;
+  margin-right: 0px;
 }
 
-.floating-chat-button:hover {
-  background: rgb(55, 54, 54);
-  border-radius: 50%;
-}
+/* */
 
 .floating-chat-minimizeButton {
   align-self: flex-end;

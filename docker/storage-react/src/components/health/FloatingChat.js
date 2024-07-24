@@ -1,22 +1,31 @@
 // FloatingChat.js
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import './css/FloatingChat.css';
 
+import BottomToolsMenu from '../BottomToolsMenu';
+import ChatMessage from '../ChatMessage';
+
 const FloatingChat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [isMinimized, setIsMinimized] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [previousSize, setPreviousSize] = useState({ width: 300, height: 400 });
 
-  const handleInputChange = (e) => setInput(e.target.value);
+  const [attachedImages, setAttachedImages] = useState([]);
+  const [attachedFiles, setAttachedFiles] = useState([]);
 
-  const handleSend = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef(null);
+  const endOfMessagesRef = useRef(null);
+
+  const handleSendClick = () => {
     if (input.trim()) {
-      setMessages([...messages, input]);
+      setMessages([...messages, { isUserMessage: true, message: input }]);
       setInput('');
+      // Handle sending message to API and receiving response
     }
   };
 
@@ -55,17 +64,20 @@ const FloatingChat = () => {
                 </div>
               ))}
             </div>
-            <div className="floating-chat-inputContainer">
-              <textarea
-                value={input}
-                onChange={handleInputChange}
-                className="floating-chat-input"
-                rows={1}
-              />
-              <button onClick={handleSend} className="floating-chat-button">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" /></svg>
-              </button>
-            </div>
+            <BottomToolsMenu
+              userInput={input}
+              setUserInput={setInput}
+              attachedImages={attachedImages}
+              setAttachedImages={setAttachedImages}
+              attachedFiles={attachedFiles}
+              setAttachedFiles={setAttachedFiles}
+              handleSendClick={handleSendClick}
+              focusInput={false}
+              setFocusInput={() => { }}
+              isLoading={false}
+              setErrorMsg={() => { }}
+              isFloating={true}
+            />
           </div>
         </ResizableBox>
       )}

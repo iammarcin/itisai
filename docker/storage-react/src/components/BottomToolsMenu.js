@@ -8,7 +8,7 @@ import { getTextAICharacter, setTextAICharacter, setOriginalAICharacter } from '
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, attachedFiles, setAttachedFiles, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg }) => {
+const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, attachedFiles, setAttachedFiles, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg, isFloating = false }) => {
   const userInputRef = useRef(null);
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
@@ -243,7 +243,7 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   }, [focusInput, setFocusInput]);
 
   return (
-    <div className="bottom-tools-menu">
+    <div className={`bottom-tools-menu ${isFloating ? 'floating-bottom-tools-menu' : ''}`}>
       <div className="bottom-tools-menu-characters">
         {showLocalCharacterSelect && <ChatCharacters onSelect={handleCharacterSelect} characters={displayedCharacters} selectedCharacterName={selectedCharacterName} />}
       </div>
