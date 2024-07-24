@@ -289,7 +289,6 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         <img src={avatarSrc} alt="avatar" />
       </div>
       <div className="message-content">
-
         <Markdown
           children={message.message}
           remarkPlugins={[remarkGfm]}

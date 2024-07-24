@@ -2,6 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 
+// this is to display the code properly in Markdown
+// and to be able to copy it
 const CodeBlock = ({ children, language }) => {
   const [copied, setCopied] = useState(false);
   const codeRef = useRef(null);
