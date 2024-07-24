@@ -73,6 +73,19 @@
 
 /* end of overwriting bottom tools stuff - for floating */
 
+/* overwriting chat message stuff - for floating */
+.floating-chat-message {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.floating-chat-message .date-ai-model-name {
+  right: 2px;
+  font-size: 0.5rem;
+}
+
+/* end of overwriting chat message stuff - for floating */
+
 .floating-chat-minimizeButton {
   align-self: flex-end;
   margin: 5px;
@@ -80,7 +93,7 @@
   color: white;
   border: none;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 0px;
   border-radius: 4px;
 }
 
@@ -96,4 +109,5 @@
 .floating-chat-minimizedButton:hover,
 .floating-chat-minimizeButton:hover {
   background-color: #555;
+  padding: 5px;
 }

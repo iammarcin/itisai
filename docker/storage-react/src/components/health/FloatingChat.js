@@ -105,6 +105,7 @@ const FloatingChat = () => {
                     isUserMessage={message.isUserMessage}
                     contextMenuIndex={contextMenuIndex}
                     setContextMenuIndex={setContextMenuIndex}
+                    isFloating={true}
                   />
                 ))
               ) : null}

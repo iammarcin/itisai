@@ -20,7 +20,7 @@ import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../uti
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, isFloating = false }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -292,7 +292,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   };
 
   return (
-    <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}
+    <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'} ${isFloating ? 'floating-chat-message' : ''}`}
       onContextMenu={handleRightClick}
       ref={messageRef}
     >
