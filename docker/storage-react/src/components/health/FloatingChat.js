@@ -1,6 +1,6 @@
 // FloatingChat.js
 
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 
 import { StateContext } from '../StateContextProvider';
 
@@ -10,9 +10,10 @@ import './css/FloatingChat.css';
 
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
-import apiMethods from '../../services/api.methods';
-import { setTextAICharacter } from '../../utils/configuration';
-import { characters } from '../ChatCharacters';
+//import apiMethods from '../../services/api.methods';
+//import { setTextAICharacter } from '../../utils/configuration';
+//import { characters } from '../ChatCharacters';
+//import CallChatAPI from '../services/call.chat.api';
 
 const FloatingChat = () => {
   const {
@@ -20,10 +21,12 @@ const FloatingChat = () => {
     attachedImages, setAttachedImages,
     attachedFiles, setAttachedFiles,
     editingMessage, setEditingMessage,
-    focusInput, setFocusInput,
-    readyForRegenerate, setReadyForRegenerate,
-    isLoading, setIsLoading,
-    errorMsg, setErrorMsg,
+    //focusInput, setFocusInput,
+    //readyForRegenerate, setReadyForRegenerate,
+    //isLoading, 
+    setIsLoading,
+    //errorMsg, 
+    setErrorMsg,
   } = useContext(StateContext);
 
   // if i right click on any message (to show context window) - we need to reset previous context window 
@@ -64,7 +67,7 @@ const FloatingChat = () => {
       try {
 
         // Assuming you're using a default AI character for the floating chat
-        const defaultCharacter = characters[0];
+        //const defaultCharacter = characters[0];
         /*
         setTextAICharacter(defaultCharacter.nameForAPI);
 

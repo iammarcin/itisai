@@ -1,8 +1,9 @@
-// ChatHandleAPI.js
+// services/call.chat.api.js
+
 import config from '../config';
-import apiMethods from '../services/api.methods';
+import apiMethods from './api.methods';
 import { setTextAICharacter, getOriginalAICharacter, setOriginalAICharacter, getImageArtgenShowPrompt, getImageAutoGenerateImage } from '../utils/configuration';
-import { characters } from './ChatCharacters';
+import { characters } from '../components/ChatCharacters';
 import { formatDate } from '../utils/misc';
 
 // to clarify some of params:
@@ -11,7 +12,7 @@ import { formatDate } from '../utils/misc';
 // setCurrentSessionId - those are needed because we need to set global session (for example when we save in DB and new session is generated)
 // currentSessionIndex - also needed - as we're checking if currently generating in active session
 // apiAIModelName - model name that we are using for generating the message (sent to API). this will be recorded in order to show which model generated each message
-const ChatHandleAPI = async ({
+const CallChatAPI = async ({
   userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, mScrollToBottom
 }) => {
   setIsLoading(true);
@@ -296,4 +297,4 @@ const ChatHandleAPI = async ({
   }
 }
 
-export default ChatHandleAPI;
+export default CallChatAPI;

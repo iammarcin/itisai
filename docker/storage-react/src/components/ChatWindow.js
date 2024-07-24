@@ -13,7 +13,7 @@ import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/configuration';
 
-const ChatWindow = ({ mScrollToBottom }) => {
+const ChatWindow = () => {
   const navigate = useNavigate();
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
@@ -27,7 +27,7 @@ const ChatWindow = ({ mScrollToBottom }) => {
     currentSessionId, setCurrentSessionId,
     fetchSessionId, endOfMessagesRef,
     showCharacterSelection, setShowCharacterSelection,
-    setErrorMsg,
+    mScrollToBottom, setErrorMsg,
   } = useContext(StateContext);
 
   // fetch chat content (for specific session)

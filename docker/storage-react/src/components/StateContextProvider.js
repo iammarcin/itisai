@@ -1,6 +1,6 @@
 // StateContextProvider.js
 
-import { createContext, useState, useRef } from "react";
+import { createContext, useState, useRef, useCallback } from "react";
 
 export const StateContext = createContext();
 
@@ -60,6 +60,70 @@ export const StateContextProvider = ({ children }) => {
     }
   }
 
+  const scrollToBottom = (whichChat, smooth = true) => {
+    if (whichChat === currentSessionIndexRef.current) {
+      // smooth not needed - for example when restoring session
+      var behavior = 'auto';
+      if (smooth) behavior = 'smooth';
+      if (endOfMessagesRef.current) {
+        endOfMessagesRef.current.scrollIntoView({
+          behavior: behavior,
+        });
+      }
+    }
+  };
+
+  // a memoized version of scroll to bottom (not to trigger re-renders)
+  const mScrollToBottom = useCallback((whichChat, smooth = true) => {
+    scrollToBottom(whichChat, smooth);
+  }, []);
+
+  /*
+  // function put outside of Main component - because it triggered re-renders from different places
+  const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessionIndexRef) => {
+    if (whichChat === currentSessionIndexRef.current) {
+      // smooth not needed - for example when restoring session
+      var behavior = 'auto';
+      if (smooth)
+        behavior = 'smooth';
+      endOfMessagesRef.current.scrollIntoView({
+        behavior: behavior,
+      });
+    }
+
+    // a memoized version of scroll to bottom (not to trigger re-renders)
+    const mScrollToBottom = useCallback((whichChat, smooth = true) => {
+      scrollToBottom(whichChat, smooth, endOfMessagesRef, currentSessionIndexRef);
+    }, [endOfMessagesRef, currentSessionIndexRef]);
+
+    */
+
+
+  // i tried few different methods - didn't really work well
+  /*const chatWindowContainer = document.querySelector('.bottom-tools-menu');
+  const isAtBottom = chatWindowContainer.scrollHeight - chatWindowContainer.scrollTop <= chatWindowContainer.clientHeight + 70;
+  console.log("isAtBottom: ", isAtBottom);*/
+  /*if (isAtBottom) {
+    console.log("scrolling to bottom")
+ 
+    console.log(whichChat)
+    console.log(currentSessionIndexRef.current)
+    if (whichChat === currentSessionIndexRef.current) {
+      console.log("scrolling to bottom2")
+      //const scrollTargetPosition = botTextAreaContainer.getBoundingClientRect().top - window.innerHeight + botTextAreaContainer.offsetHeight;
+ 
+      // Scroll smoothly to the target position
+      /*window.scrollBy({
+        top: chatWindowContainer.getBoundingClientRect().bottom,
+        behavior: 'smooth',
+      });*/
+  /*endOfMessagesRef.current.scrollIntoView({
+    behavior: 'smooth',
+  });
+}
+}
+};*/
+
   return (
     <StateContext.Provider value={{
       chatContent, setChatContent,
@@ -79,7 +143,7 @@ export const StateContextProvider = ({ children }) => {
       endOfMessagesRef, currentSessionIndexRef,
       isLoading, setIsLoading,
       errorMsg, setErrorMsg,
-      manageProgressText
+      manageProgressText, mScrollToBottom
     }}>
       {children}
     </StateContext.Provider>
