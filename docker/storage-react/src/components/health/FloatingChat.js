@@ -1,6 +1,6 @@
 // FloatingChat.js
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import { StateContext } from '../StateContextProvider';
 import useChatAPI from '../../hooks/useChatAPI';
@@ -13,12 +13,13 @@ import './css/FloatingChat.css';
 
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
+import config from '../../config';
 //import apiMethods from '../../services/api.methods';
 //import { setTextAICharacter } from '../../utils/configuration';
 //import { characters } from '../ChatCharacters';
 //import CallChatAPI from '../services/call.chat.api';
 
-const FloatingChat = () => {
+const FloatingChat = ({ data }) => {
   const {
     userInput, setUserInput, chatContent,
     attachedImages, setAttachedImages,
@@ -28,6 +29,9 @@ const FloatingChat = () => {
     //readyForRegenerate, setReadyForRegenerate, 
     errorMsg, setErrorMsg,
   } = useContext(StateContext);
+
+  // need to use useState - because before calling chat api - if we want to add more context with data (from Health) - then we need to wait until data is updated (ahh async react - love you )
+  const [triggerAPI, setTriggerAPI] = useState(false);
 
   // custom hook
   const { callChatAPI } = useChatAPI();
@@ -55,16 +59,32 @@ const FloatingChat = () => {
       return;
     }
 
-    if (editingMessage !== null) {
-      callChatAPI(editingMessage);
-    } else {
-      callChatAPI();
+    // if it's first message - attach context (data)
+    if (chatContent[currentSessionIndex].messages.length === 0) {
+      const fullMessage = data ? `${JSON.stringify(data)}\n${userInput}` : userInput;
+      setUserInput(fullMessage);
+      if (config.VERBOSE_SUPERB === 1)
+        console.log("full health data: ", fullMessage)
     }
 
-    setUserInput("");
-    setAttachedImages([]);
-    setAttachedFiles([]);
+    // Set the trigger to call API
+    setTriggerAPI(true);
   };
+
+  useEffect(() => {
+    if (triggerAPI) {
+      if (editingMessage !== null) {
+        callChatAPI(editingMessage);
+      } else {
+        callChatAPI();
+      }
+      setTriggerAPI(false); // Reset the trigger
+
+      setUserInput("");
+      setAttachedImages([]);
+      setAttachedFiles([]);
+    }
+  }, [userInput, triggerAPI, callChatAPI, editingMessage]);
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);

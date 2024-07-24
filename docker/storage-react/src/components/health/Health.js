@@ -121,7 +121,7 @@ const Health = () => {
       <SleepMetricsChart data={data} />
       <h4>Sleep phases</h4>
       <SleepPhasesChart data={data} />
-      <FloatingChat />
+      <FloatingChat data={data} />
     </div>
   );
 };
