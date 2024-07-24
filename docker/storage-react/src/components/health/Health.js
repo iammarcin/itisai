@@ -1,3 +1,5 @@
+// Health.js
+
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import apiMethods from '../../services/api.methods';
 import FloatingChat from './FloatingChat';
