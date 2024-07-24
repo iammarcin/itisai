@@ -1,12 +1,15 @@
 // Sidebar.js
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
+
+import { StateContext } from './StateContextProvider';
+
 import './css/Sidebar.css';
 import apiMethods from '../services/api.methods';
 import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
-const Sidebar = ({ onSelectSession, chatContent, currentSessionIndex, currentSessionId, setCurrentSessionId, refreshChatSessions, setRefreshChatSessions, setErrorMsg }) => {
+const Sidebar = ({ onSelectSession }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -20,6 +23,13 @@ const Sidebar = ({ onSelectSession, chatContent, currentSessionIndex, currentSes
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const renameInputRef = useRef(null);
+
+  const {
+    chatContent, currentSessionIndex,
+    currentSessionId, setCurrentSessionId,
+    refreshChatSessions, setRefreshChatSessions,
+    setErrorMsg
+  } = useContext(StateContext);
 
   // get the list of user's sessions (for general first load and search mode)
   const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {

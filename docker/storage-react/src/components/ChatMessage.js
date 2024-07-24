@@ -1,5 +1,8 @@
 // ChatMessage.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+
+import { StateContext } from './StateContextProvider';
+
 import ChatImageModal from './ChatImageModal';
 import './css/ChatMessage.css';
 import Markdown from 'react-markdown';
@@ -17,7 +20,7 @@ import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../uti
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setAttachedFiles, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setErrorMsg }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -32,6 +35,16 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
   const [validFileLocations, setValidFileLocations] = useState(
     message.fileNames ? message.fileNames.filter(src => src.endsWith('.pdf') || src.endsWith('.txt')) : []
   );
+
+  const {
+    chatContent, setChatContent,
+    contextMenuIndex, setContextMenuIndex,
+    currentSessionIndex, currentSessionId, setCurrentSessionId,
+    setAttachedImages, setAttachedFiles, setEditingMessage,
+    setUserInput, setFocusInput,
+    setReadyForRegenerate, setErrorMsg,
+    manageProgressText
+  } = useContext(StateContext);
 
   // get current character and determine value of autoResponse 
   const currentAICharacter = characters.find(char => char.nameForAPI === chatContent[currentSessionIndex].ai_character_name);

@@ -1,7 +1,10 @@
 // ChatWindow.js
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { StateContext } from './StateContextProvider';
+
 import ChatMessage from './ChatMessage';
 import ChatCharacters from './ChatCharacters';
 import apiMethods from '../services/api.methods';
@@ -10,13 +13,25 @@ import './css/ChatWindow.css';
 
 import { setTextAICharacter } from '../utils/configuration';
 
-const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttachedFiles, currentSessionIndex, currentSessionIndexRef, currentSessionId, setCurrentSessionId, fetchSessionId, endOfMessagesRef, showCharacterSelection, setShowCharacterSelection, setEditingMessage, setUserInput, setFocusInput, setErrorMsg, setReadyForRegenerate, manageProgressText, mScrollToBottom }) => {
+const ChatWindow = ({ mScrollToBottom }) => {
   const navigate = useNavigate();
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
   // chat content loaded - so we can scroll to bottom (and we need to separate it to make sure that scroll is executed AFTER chat content is loaded)
   const [contentLoaded, setContentLoaded] = useState(false);
+
+  const {
+    chatContent, setChatContent,
+    setAttachedImages, setAttachedFiles,
+    currentSessionIndex, currentSessionIndexRef,
+    currentSessionId, setCurrentSessionId,
+    fetchSessionId, endOfMessagesRef,
+    showCharacterSelection, setShowCharacterSelection,
+    setEditingMessage, setUserInput,
+    setFocusInput, setErrorMsg, setReadyForRegenerate,
+    manageProgressText
+  } = useContext(StateContext);
 
   // fetch chat content (for specific session)
   // useCallback in use to ensure that execution is done only once
@@ -137,21 +152,6 @@ const ChatWindow = ({ chatContent, setChatContent, setAttachedImages, setAttache
               message={message}
               isLastMessage={isLastMessage(index, message)}
               isUserMessage={message.isUserMessage}
-              contextMenuIndex={contextMenuIndex}
-              setContextMenuIndex={setContextMenuIndex}
-              currentSessionIndex={currentSessionIndex}
-              currentSessionId={currentSessionId}
-              setCurrentSessionId={setCurrentSessionId}
-              chatContent={chatContent}
-              setChatContent={setChatContent}
-              setAttachedImages={setAttachedImages}
-              setAttachedFiles={setAttachedFiles}
-              setEditingMessage={setEditingMessage}
-              setUserInput={setUserInput}
-              setFocusInput={setFocusInput}
-              manageProgressText={manageProgressText}
-              setReadyForRegenerate={setReadyForRegenerate}
-              setErrorMsg={setErrorMsg}
             />
           ))
         ) : null}

@@ -1,5 +1,8 @@
 // BottomToolsMenu.js
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+
+import { StateContext } from './StateContextProvider';
+
 import './css/BottomToolsMenu.css';
 import apiMethods from '../services/api.methods';
 import ChatCharacters, { filterCharacters, characters } from './ChatCharacters';
@@ -8,7 +11,7 @@ import { getTextAICharacter, setTextAICharacter, setOriginalAICharacter } from '
 
 import { resizeImage } from '../utils/image.utils';
 
-const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedImages, attachedFiles, setAttachedFiles, handleSendClick, focusInput, setFocusInput, isLoading, setErrorMsg, isFloating = false }) => {
+const BottomToolsMenu = ({ handleSendClick, isFloating = false }) => {
   const userInputRef = useRef(null);
   // to control UI while images are being uploaded
   const [uploading, setUploading] = useState(false);
@@ -17,6 +20,14 @@ const BottomToolsMenu = ({ userInput, setUserInput, attachedImages, setAttachedI
   const [displayedCharacters, setDisplayedCharacters] = useState(characters);
   // when filtering characters - one will be selected by default - this was done because when hitting enter (when character select view was visible) it was submitting message and not choosing character
   const [selectedCharacterName, setSelectedCharacterName] = useState("Assistant");
+
+  const {
+    userInput, setUserInput,
+    attachedImages, setAttachedImages,
+    attachedFiles, setAttachedFiles,
+    focusInput, setFocusInput,
+    isLoading, setErrorMsg
+  } = useContext(StateContext);
 
   const handleSendButtonClick = () => {
     setShowLocalCharacterSelect(false);

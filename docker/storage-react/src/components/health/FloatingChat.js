@@ -7,6 +7,9 @@ import './css/FloatingChat.css';
 
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
+import apiMethods from '../../services/api.methods';
+import { setTextAICharacter } from '../../utils/configuration';
+import { characters } from '../ChatCharacters';
 
 const FloatingChat = () => {
   const [messages, setMessages] = useState([]);
@@ -18,14 +21,79 @@ const FloatingChat = () => {
   const [attachedFiles, setAttachedFiles] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [focusInput, setFocusInput] = useState(false);
+  const [readyForRegenerate, setReadyForRegenerate] = useState(false);
+
   const inputRef = useRef(null);
   const endOfMessagesRef = useRef(null);
 
-  const handleSendClick = () => {
-    if (input.trim()) {
-      setMessages([...messages, { isUserMessage: true, message: input }]);
+  const [contextMenuIndex, setContextMenuIndex] = useState(null);
+
+  // Assuming you're using a single session in the floating chat
+  const currentSessionIndex = 0;
+  const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [chatContent, setChatContent] = useState([{ messages: [] }]);
+
+  const handleSendClick = async () => {
+    if (input.trim() || attachedImages.length > 0 || attachedFiles.length > 0) {
+      setIsLoading(true);
+      const newUserMessage = {
+        isUserMessage: true,
+        message: input,
+        imageLocations: attachedImages.map(img => img.preview),
+        fileNames: attachedFiles.map(file => file.name),
+      };
+
+      let updatedMessages;
+      if (editingMessage) {
+        updatedMessages = [...messages];
+        updatedMessages[editingMessage.index] = newUserMessage;
+        // Remove the next AI message if it exists
+        if (editingMessage.index + 1 < updatedMessages.length && !updatedMessages[editingMessage.index + 1].isUserMessage) {
+          updatedMessages.splice(editingMessage.index + 1, 1);
+        }
+      } else {
+        updatedMessages = [...messages, newUserMessage];
+      }
+
+      setMessages(updatedMessages);
       setInput('');
-      // Handle sending message to API and receiving response
+      setAttachedImages([]);
+      setAttachedFiles([]);
+      setEditingMessage(null);
+
+      try {
+
+        // Assuming you're using a default AI character for the floating chat
+        const defaultCharacter = characters[0];
+        /*
+        setTextAICharacter(defaultCharacter.nameForAPI);
+
+        const response = await apiMethods.sendMessageToAPI(input, attachedImages, attachedFiles, defaultCharacter.nameForAPI);
+
+        const newAIMessage = {
+          isUserMessage: false,
+          message: response.message,
+          imageLocations: response.imageLocations || [],
+          fileNames: response.fileNames || [],
+          aiCharacterName: defaultCharacter.nameForAPI,
+          apiAIModelName: response.apiAIModelName,
+          dateGenerate: new Date().toLocaleString(),
+        };
+
+        setMessages([...updatedMessages, newAIMessage]);
+
+        // Update chatContent for consistency with the main chat
+        setChatContent([{ messages: [...updatedMessages, newAIMessage] }]);
+        */
+      } catch (error) {
+        setErrorMsg("Error in sending message. Please try again.");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -35,6 +103,10 @@ const FloatingChat = () => {
 
   const handleResizeStop = (event, { size }) => {
     setPreviousSize(size);
+  };
+
+  const manageProgressText = (action, type) => {
+    // Implement if needed
   };
 
   return (
@@ -59,9 +131,28 @@ const FloatingChat = () => {
             </button>
             <div className="floating-chat-messages">
               {messages.map((msg, index) => (
-                <div key={index} className="floating-chat-message">
-                  {msg}
-                </div>
+                <ChatMessage
+                  key={index}
+                  index={index}
+                  message={msg}
+                  isLastMessage={index === messages.length - 1}
+                  isUserMessage={msg.isUserMessage}
+                  contextMenuIndex={contextMenuIndex}
+                  setContextMenuIndex={setContextMenuIndex}
+                  currentSessionIndex={currentSessionIndex}
+                  currentSessionId={currentSessionId}
+                  setCurrentSessionId={setCurrentSessionId}
+                  chatContent={chatContent}
+                  setChatContent={setChatContent}
+                  setAttachedImages={setAttachedImages}
+                  setAttachedFiles={setAttachedFiles}
+                  setEditingMessage={setEditingMessage}
+                  setUserInput={setInput}
+                  setFocusInput={setFocusInput}
+                  manageProgressText={manageProgressText}
+                  setReadyForRegenerate={setReadyForRegenerate}
+                  setErrorMsg={setErrorMsg}
+                />
               ))}
             </div>
             <BottomToolsMenu

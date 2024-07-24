@@ -1,13 +1,15 @@
 // TopMenu.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StateContext } from './StateContextProvider';
+
 import OptionsWindow from './OptionsWindow';
 import './css/TopMenu.css';
 
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName, setTextAICharacter } from '../utils/configuration';
 
-const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex, setCurrentSessionId, setShouldSkipSessionFetching, chatContent, setChatContent, setShowCharacterSelection, setErrorMsg }) => {
+const TopMenu = ({ onNewChatClicked }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -18,6 +20,13 @@ const TopMenu = ({ onNewChatClicked, currentSessionIndex, setCurrentSessionIndex
   // this is different then environment
   // this is to hide the dropdown menu in prod (behind nginx)
   const isProduction = process.env.NODE_ENV === 'production';
+
+  const {
+    chatContent, setChatContent,
+    currentSessionIndex, setCurrentSessionIndex,
+    setCurrentSessionId, setShouldSkipSessionFetching,
+    setShowCharacterSelection, setErrorMsg
+  } = useContext(StateContext);
 
   const handleTextModelChange = (event) => {
     setTextModelName(event.target.value);

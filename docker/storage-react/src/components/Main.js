@@ -1,7 +1,10 @@
 // Main.js
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+
+import { StateContext } from './StateContextProvider';
+
 import TopMenu from './TopMenu';
 import BottomToolsMenu from './BottomToolsMenu';
 import Sidebar from './Sidebar';
@@ -16,7 +19,7 @@ import { getTextAICharacter, setTextAICharacter, getTextModelName } from '../uti
 
 // function put outside of Main component - because it triggered re-renders from different places
 const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessionIndexRef) => {
-  if (whichChat === currentSessionIndexRef.current) {
+  /*if (whichChat === currentSessionIndexRef.current) {
     // smooth not needed - for example when restoring session
     var behavior = 'auto';
     if (smooth)
@@ -24,7 +27,9 @@ const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessi
     endOfMessagesRef.current.scrollIntoView({
       behavior: behavior,
     });
-  }
+    }
+    */
+
   // i tried few different methods - didn't really work well
   /*const chatWindowContainer = document.querySelector('.bottom-tools-menu');
   const isAtBottom = chatWindowContainer.scrollHeight - chatWindowContainer.scrollTop <= chatWindowContainer.clientHeight + 70;
@@ -54,43 +59,24 @@ const Main = () => {
   // to get sessionId from URL and load the session
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const [showCharacterSelection, setShowCharacterSelection] = useState(true);
-  // chat content from chat window
-  const [chatContent, setChatContent] = useState([
-    {
-      id: 0,
-      messages: [] // Each session starts with an empty array of messages
-    }
-  ]);
-  // this is index of sessions on top menu (in circle buttons) - to identify which button is currently active etc
-  const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
-  // this is to track current session Id - from DB
-  const [currentSessionId, setCurrentSessionId] = useState(null);
-  // this is to trigger fetch session in ChatWindow - this together with shouldSkipSessionFetching - will determine if we should fetchChatContent or not
-  const [fetchSessionId, setFetchSessionId] = useState(null);
-  // used in tandem with above - it will be set to false in most cases (by default so when user just provides URL, or when we click on Sidebar and we want session to be fetched) 
-  // but sometimes will be set to true (for example in TopMenu when clicking between sessions) - because then we just want to navigate to URL but don't want sessions to be fetched (because they are already there)
-  const [shouldSkipSessionFetching, setShouldSkipSessionFetching] = useState(false);
-  // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions) - IMPORTANT! 
-  // and also for scrollToBottom function (to be sure that we're scrolling if we are generating data from APIs in active session only)
-  const currentSessionIndexRef = useRef(currentSessionIndex);
-  // used for editing messages
-  const [editingMessage, setEditingMessage] = useState(null);
-  // user input (text + images) from bottom menu
-  const [userInput, setUserInput] = useState('');
-  const [attachedImages, setAttachedImages] = useState([]);
-  const [attachedFiles, setAttachedFiles] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [progressBarMessage, setProgressBarMessage] = useState('');
-  // this will be used to focus (make active) userInput text area from BottomToolsMenu - so i don't need to click on it to start typing
-  const [focusInput, setFocusInput] = useState(false);
-  // this is when we click regenerate in ChatMessage - we have to use useEffect here - because other way async data is not set before sending to API
-  const [readyForRegenerate, setReadyForRegenerate] = useState(false);
-  // this will be used to force refresh of chat sessions in Sidebar (when new session is created)
-  const [refreshChatSessions, setRefreshChatSessions] = useState(false);
+
   // (from ChatWindow) this is used for scrollToBottom
   const endOfMessagesRef = useRef(null);
+
+  const {
+    chatContent, setChatContent, currentSessionIndex,
+    currentSessionId, setCurrentSessionId, setFetchSessionId,
+    shouldSkipSessionFetching, setShouldSkipSessionFetching,
+    setShowCharacterSelection, setFocusInput,
+    readyForRegenerate, setReadyForRegenerate,
+    setRefreshChatSessions, progressBarMessage,
+    userInput, setUserInput,
+    editingMessage, setEditingMessage,
+    attachedImages, setAttachedImages,
+    attachedFiles, setAttachedFiles, currentSessionIndexRef,
+    setIsLoading, errorMsg, setErrorMsg,
+    manageProgressText
+  } = useContext(StateContext);
 
   // if URL consists of sessionId
   useEffect(() => {
@@ -144,21 +130,6 @@ const Main = () => {
   const mScrollToBottom = useCallback((whichChat, smooth = true) => {
     scrollToBottom(whichChat, smooth, endOfMessagesRef, currentSessionIndexRef);
   }, [endOfMessagesRef, currentSessionIndexRef]);
-
-  // this is showProgress, hideProgress merged in one place
-  // accepting method - "show" and "hide"
-  // and then adding or removing specific text
-  const manageProgressText = (method, text) => {
-    if (method === 'show') {
-      setProgressBarMessage((prevMessage) => prevMessage ? `${prevMessage} ${text}` : text);
-    } else if (method === 'hide') {
-      setProgressBarMessage((prevMessage) => {
-        const messages = prevMessage.split(' ');
-        const filteredMessages = messages.filter((msg) => msg !== text);
-        return filteredMessages.join(' ');
-      });
-    }
-  }
 
   // generate text API call (and potentially image)
   // if editMessagePosition is not null - it means it is edited message
@@ -229,62 +200,19 @@ const Main = () => {
     <div className="layout">
       <TopMenu
         onNewChatClicked={handleOnNewChatClicked}
-        currentSessionIndex={currentSessionIndex}
-        setCurrentSessionIndex={setCurrentSessionIndex}
-        setCurrentSessionId={setCurrentSessionId}
-        setShouldSkipSessionFetching={setShouldSkipSessionFetching}
-        chatContent={chatContent}
-        setChatContent={setChatContent}
-        setShowCharacterSelection={setShowCharacterSelection}
-        setErrorMsg={setErrorMsg}
       />
       <div className="main-content">
         <Sidebar
           onSelectSession={handleSelectSession}
-          chatContent={chatContent}
-          currentSessionIndex={currentSessionIndex}
-          currentSessionId={currentSessionId}
-          setCurrentSessionId={setCurrentSessionId}
-          refreshChatSessions={refreshChatSessions}
-          setRefreshChatSessions={setRefreshChatSessions}
-          setErrorMsg={setErrorMsg}
         />
         <div className="chat-area">
           <ChatWindow
-            chatContent={chatContent}
-            setChatContent={setChatContent}
-            setAttachedImages={setAttachedImages}
-            setAttachedFiles={setAttachedFiles}
-            currentSessionIndex={currentSessionIndex}
-            currentSessionIndexRef={currentSessionIndexRef}
-            currentSessionId={currentSessionId}
-            setCurrentSessionId={setCurrentSessionId}
-            fetchSessionId={fetchSessionId}
-            endOfMessagesRef={endOfMessagesRef}
-            showCharacterSelection={showCharacterSelection}
-            setShowCharacterSelection={setShowCharacterSelection}
-            setEditingMessage={setEditingMessage}
-            setUserInput={setUserInput}
-            setFocusInput={setFocusInput}
-            setErrorMsg={setErrorMsg}
-            setReadyForRegenerate={setReadyForRegenerate}
-            manageProgressText={manageProgressText}
             mScrollToBottom={mScrollToBottom}
           />
           {progressBarMessage && <ProgressIndicator message={progressBarMessage} />}
           {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}
           <BottomToolsMenu
-            userInput={userInput}
-            setUserInput={setUserInput}
-            attachedImages={attachedImages}
-            setAttachedImages={setAttachedImages}
-            attachedFiles={attachedFiles}
-            setAttachedFiles={setAttachedFiles}
             handleSendClick={handleSendClick}
-            focusInput={focusInput}
-            setFocusInput={setFocusInput}
-            isLoading={isLoading}
-            setErrorMsg={setErrorMsg}
           />
         </div>
       </div>

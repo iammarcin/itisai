@@ -1,6 +1,7 @@
 // App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { StateContextProvider } from "./components/StateContextProvider";
 import Main from './components/Main';
 import Login from './components/Login';
 import Health from './components/health/Health';
@@ -34,22 +35,24 @@ function App() {
   };
 
   return (
-    <Router>
-      <Routes>
-        {isAuthenticated ? (
-          <>
-            <Route path="/" element={<Main />} />
-            <Route path="/session/:sessionId" element={<Main />} />
-            <Route path="/health" element={<Health />} />
-            <Route path="/garmin" element={<Garmin />} />
-          </>
-        ) : (
-          <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-        )}
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsAndConditions />} />
-      </Routes>
-    </Router>
+    <StateContextProvider>
+      <Router>
+        <Routes>
+          {isAuthenticated ? (
+            <>
+              <Route path="/" element={<Main />} />
+              <Route path="/session/:sessionId" element={<Main />} />
+              <Route path="/health" element={<Health />} />
+              <Route path="/garmin" element={<Garmin />} />
+            </>
+          ) : (
+            <Route path="/" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+          )}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+        </Routes>
+      </Router>
+    </StateContextProvider>
   );
 }
 
