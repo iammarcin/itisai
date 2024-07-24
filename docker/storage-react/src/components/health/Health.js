@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import apiMethods from '../../services/api.methods';
 import FloatingChat from './FloatingChat';
 import SleepPhasesChart from './charts/SleepPhasesChart';
-import SleepPhasesChartAlt from './charts/SleepPhasesChartAlt';
 import SleepStartEndChart from './charts/SleepStartEndChart';
 import SleepMetricsChart from './charts/SleepMetricsChart';
 import DatePicker from 'react-datepicker';
@@ -120,8 +119,6 @@ const Health = () => {
       <SleepMetricsChart data={data} />
       <h4>Sleep phases</h4>
       <SleepPhasesChart data={data} />
-      <h4>Sleep phases v2</h4>
-      <SleepPhasesChartAlt data={data} />
       <FloatingChat />
     </div>
   );

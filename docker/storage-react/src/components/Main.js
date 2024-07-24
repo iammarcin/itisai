@@ -140,6 +140,11 @@ const Main = () => {
     setTextAICharacter('assistant');
   }
 
+  // a memoized version of scroll to bottom (not to trigger re-renders)
+  const mScrollToBottom = useCallback((whichChat, smooth = true) => {
+    scrollToBottom(whichChat, smooth, endOfMessagesRef, currentSessionIndexRef);
+  }, [endOfMessagesRef, currentSessionIndexRef]);
+
   // this is showProgress, hideProgress merged in one place
   // accepting method - "show" and "hide"
   // and then adding or removing specific text
@@ -184,7 +189,7 @@ const Main = () => {
     } catch (e) {
       setIsLoading(false);
     }
-  }, [userInput, attachedImages, attachedFiles, currentSessionId, currentSessionIndex, chatContent]);
+  }, [userInput, attachedImages, attachedFiles, currentSessionId, currentSessionIndex, chatContent, mScrollToBottom]);
 
   const handleSendClick = useCallback(() => {
     setErrorMsg('');
@@ -219,11 +224,6 @@ const Main = () => {
       setReadyForRegenerate(false);
     }
   }, [readyForRegenerate, handleSendClick]);
-
-  // a memoized version of scroll to bottom (not to trigger re-renders)
-  const mScrollToBottom = useCallback((whichChat, smooth = true) => {
-    scrollToBottom(whichChat, smooth, endOfMessagesRef, currentSessionIndexRef);
-  }, [endOfMessagesRef, currentSessionIndexRef]);
 
   return (
     <div className="layout">

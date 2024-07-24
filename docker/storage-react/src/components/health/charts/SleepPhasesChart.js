@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
 import { getColor } from '../../../utils/colorHelper';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 const SleepPhasesChart = ({ data }) => {
   const [chartData, setChartData] = useState({
@@ -11,7 +15,6 @@ const SleepPhasesChart = ({ data }) => {
   const processData = useCallback(() => {
     const dates = data.map(entry => entry.calendar_date);
     const overallScores = data.map(entry => entry.overall_score_value);
-    const sleepTimes = data.map(entry => entry.sleep_time_seconds / 3600);
     const deepSleepTimes = data.map(entry => entry.deep_sleep_seconds / 3600);
     const lightSleepTimes = data.map(entry => entry.light_sleep_seconds / 3600);
     const remSleepTimes = data.map(entry => entry.rem_sleep_seconds / 3600);
@@ -22,72 +25,51 @@ const SleepPhasesChart = ({ data }) => {
       labels: dates,
       datasets: [
         {
+          type: 'bar',
+          label: 'Deep Sleep',
+          data: deepSleepTimes,
+          backgroundColor: getColor("violet", 0.8),
+          stack: 'Stack 0',
+        },
+        {
+          type: 'bar',
+          label: 'REM Sleep',
+          data: remSleepTimes,
+          backgroundColor: getColor("blue_dark", 0.8),
+          stack: 'Stack 0',
+        },
+        {
+          type: 'bar',
+          label: 'Light Sleep',
+          data: lightSleepTimes,
+          backgroundColor: getColor("green_mid", 0.8),
+          stack: 'Stack 0',
+        },
+        {
+          type: 'bar',
+          label: 'Awake',
+          data: awakeSleepTimes,
+          backgroundColor: getColor("yellow_dark", 0.8),
+          stack: 'Stack 0',
+        },
+        {
+          type: 'bar',
+          label: 'Naps',
+          data: napTimes,
+          backgroundColor: getColor("pink", 0.8),
+          stack: 'Stack 0',
+          hidden: true,
+        },
+        {
+          type: 'line',
           label: 'Overall Sleep Score',
           data: overallScores,
+          borderColor: getColor("red", 0.8),
           backgroundColor: getColor("red"),
-          borderColor: getColor("red", 1),
-          borderWidth: 1,
+          borderWidth: 2,
+          fill: false,
           yAxisID: 'y-right',
-          fill: true,
-        },
-        {
-          label: 'Total Sleep Time (hours)',
-          data: sleepTimes,
-          backgroundColor: getColor("violet"),
-          borderColor: getColor("violet", 1),
-          borderWidth: 1,
-          yAxisID: 'y-left',
-          fill: true,
-        },
-        {
-          label: 'Deep Sleep Time (hours)',
-          data: deepSleepTimes,
-          backgroundColor: getColor("orange"),
-          borderColor: getColor("orange", 1),
-          borderWidth: 1,
-          yAxisID: 'y-left',
-          fill: true,
-          hidden: true,
-        },
-        {
-          label: 'Light Sleep Time (hours)',
-          data: lightSleepTimes,
-          backgroundColor: getColor("green_light"),
-          borderColor: getColor("green_light", 1),
-          borderWidth: 1,
-          yAxisID: 'y-left',
-          fill: true,
-          hidden: true,
-        },
-        {
-          label: 'REM Sleep Time (hours)',
-          data: remSleepTimes,
-          backgroundColor: getColor("blue_dark"),
-          borderColor: getColor("blue_dark", 1),
-          borderWidth: 1,
-          yAxisID: 'y-left',
-          fill: true,
-          hidden: true,
-        },
-        {
-          label: 'Awake Time (hours)',
-          data: awakeSleepTimes,
-          backgroundColor: getColor("green_dark"),
-          borderColor: getColor("green_dark", 1),
-          borderWidth: 1,
-          yAxisID: 'y-left',
-          fill: true,
-          hidden: true,
-        },
-        {
-          label: 'Nap time (hours)',
-          data: napTimes,
-          backgroundColor: getColor("yellow_dark"),
-          borderColor: getColor("yellow_dark", 1),
-          borderWidth: 1,
-          yAxisID: 'y-left',
-          fill: true,
-          hidden: true,
+          pointRadius: 0,
         },
       ]
     });
@@ -97,46 +79,60 @@ const SleepPhasesChart = ({ data }) => {
     processData();
   }, [processData]);
 
-  return (
-    <Line
-      data={chartData}
-      options={{
-        responsive: true,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Date'
-            },
-            type: 'category'
-          },
-          'y-left': {
-            type: 'linear',
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Sleep hours'
-            },
-            beginAtZero: true
-          },
-          'y-right': {
-            type: 'linear',
-            position: 'right',
-            title: {
-              display: true,
-              text: 'Overall Sleep Score'
-            },
-            beginAtZero: true,
-            min: 0,
-            max: 100,
-            grid: {
-              drawOnChartArea: false // only want the grid lines for one axis to show up
-            }
-          }
+  const options = {
+    responsive: true,
+    scales: {
+      x: {
+        stacked: true,
+        title: {
+          display: true,
+          text: 'Date'
+        },
+        grid: {
+          display: false
         }
-      }}
-    />
-  );
+      },
+      y: {
+        stacked: true,
+        title: {
+          display: true,
+          text: 'Hours'
+        },
+        min: 0,
+        max: 15,
+        ticks: {
+          stepSize: 2
+        }
+      },
+      'y-right': {
+        type: 'linear',
+        position: 'right',
+        title: {
+          display: true,
+          text: 'Overall Sleep Score'
+        },
+        min: 0,
+        max: 100,
+        ticks: {
+          stepSize: 20
+        },
+        grid: {
+          drawOnChartArea: false
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Daily Sleep Stages',
+      },
+    },
+  };
+
+  return <Bar data={chartData} options={options} />;
 };
 
 export default SleepPhasesChart;

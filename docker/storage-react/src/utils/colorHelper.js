@@ -1,9 +1,11 @@
-export const getColor = (color, colorOpacity = 0) => {
 
+export const getColor = (color, colorOpacity = 0) => {
+  // https://htmlcolorcodes.com/
   const colors = {
     "red": "rgba(255,0,0," + colorOpacity + ")",
     "green_dark": "rgba(0,102,51," + colorOpacity + ")",
     "green_light": "rgba(0,255,0," + colorOpacity + ")",
+    "green_mid": "rgba(46, 204, 113," + colorOpacity + ")",
     "blue_dark": "rgba(0,102,204," + colorOpacity + ")",
     "blue_light": "rgba(153,255,255," + colorOpacity + ")",
     "violet": "rgba(102,0,204," + colorOpacity + ")",
