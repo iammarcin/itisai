@@ -3,6 +3,9 @@
 import React, { useState, useContext } from 'react';
 
 import { StateContext } from '../StateContextProvider';
+import useChatAPI from '../../hooks/useChatAPI';
+
+import { setTextAICharacter, getTextModelName } from '../../utils/configuration';
 
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
@@ -17,84 +20,50 @@ import ChatMessage from '../ChatMessage';
 
 const FloatingChat = () => {
   const {
-    userInput, setUserInput,
+    userInput, setUserInput, chatContent,
     attachedImages, setAttachedImages,
-    attachedFiles, setAttachedFiles,
-    editingMessage, setEditingMessage,
+    setAttachedFiles,
+    editingMessage,
     //focusInput, setFocusInput,
-    //readyForRegenerate, setReadyForRegenerate,
-    //isLoading, 
-    setIsLoading,
-    //errorMsg, 
-    setErrorMsg,
+    //readyForRegenerate, setReadyForRegenerate, 
+    errorMsg, setErrorMsg,
   } = useContext(StateContext);
+
+  // custom hook
+  const { callChatAPI } = useChatAPI();
 
   // if i right click on any message (to show context window) - we need to reset previous context window 
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const currentSessionIndex = 0;
   const [isMinimized, setIsMinimized] = useState(false);
   const [previousSize, setPreviousSize] = useState({ width: 300, height: 400 });
 
-  const handleSendClick = async () => {
-    if (userInput.trim() || attachedImages.length > 0 || attachedFiles.length > 0) {
-      setIsLoading(true);
-      const newUserMessage = {
-        isUserMessage: true,
-        message: userInput,
-        imageLocations: attachedImages.map(img => img.preview),
-        fileNames: attachedFiles.map(file => file.name),
-      };
+  const handleSendClick = () => {
+    setErrorMsg('');
+    const modelName = getTextModelName();
+    // TODO - change!
+    setTextAICharacter('dietetist');
 
-      let updatedMessages;
-      if (editingMessage) {
-        updatedMessages = [...messages];
-        updatedMessages[editingMessage.index] = newUserMessage;
-        // Remove the next AI message if it exists
-        if (editingMessage.index + 1 < updatedMessages.length && !updatedMessages[editingMessage.index + 1].isUserMessage) {
-          updatedMessages.splice(editingMessage.index + 1, 1);
-        }
-      } else {
-        updatedMessages = [...messages, newUserMessage];
-      }
-
-      setMessages(updatedMessages);
-      setUserInput('');
-      setAttachedImages([]);
-      setAttachedFiles([]);
-      setEditingMessage(null);
-
-      try {
-
-        // Assuming you're using a default AI character for the floating chat
-        //const defaultCharacter = characters[0];
-        /*
-        setTextAICharacter(defaultCharacter.nameForAPI);
-
-        const response = await apiMethods.sendMessageToAPI(input, attachedImages, attachedFiles, defaultCharacter.nameForAPI);
-
-        const newAIMessage = {
-          isUserMessage: false,
-          message: response.message,
-          imageLocations: response.imageLocations || [],
-          fileNames: response.fileNames || [],
-          aiCharacterName: defaultCharacter.nameForAPI,
-          apiAIModelName: response.apiAIModelName,
-          dateGenerate: new Date().toLocaleString(),
-        };
-
-        setMessages([...updatedMessages, newAIMessage]);
-
-        // Update chatContent for consistency with the main chat
-        setChatContent([{ messages: [...updatedMessages, newAIMessage] }]);
-        */
-      } catch (error) {
-        setErrorMsg("Error in sending message. Please try again.");
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
+    if (userInput.trim() === '') {
+      setErrorMsg("Please provide your input");
+      return;
     }
+
+    if (attachedImages.length > 0 && modelName !== 'GPT-4o' && modelName !== 'GPT-4o-mini' && modelName !== 'GPT-4' && modelName !== 'Claude-3.5') {
+      setErrorMsg("Currently chosen model does not support images. Remove image or change the model");
+      return;
+    }
+
+    if (editingMessage !== null) {
+      callChatAPI(editingMessage);
+    } else {
+      callChatAPI();
+    }
+
+    setUserInput("");
+    setAttachedImages([]);
+    setAttachedFiles([]);
   };
 
   const toggleMinimize = () => {
@@ -126,18 +95,21 @@ const FloatingChat = () => {
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="m136-80-56-56 264-264H160v-80h320v320h-80v-184L136-80Zm344-400v-320h80v184l264-264 56 56-264 264h184v80H480Z" /></svg>
             </button>
             <div className="floating-chat-messages">
-              {messages.map((msg, index) => (
-                <ChatMessage
-                  key={index}
-                  index={index}
-                  message={msg}
-                  isLastMessage={index === messages.length - 1}
-                  isUserMessage={msg.isUserMessage}
-                  contextMenuIndex={contextMenuIndex}
-                  setContextMenuIndex={setContextMenuIndex}
-                />
-              ))}
+              {chatContent[currentSessionIndex] && chatContent[currentSessionIndex].messages ? (
+                chatContent[currentSessionIndex].messages.map((message, index) => (
+                  <ChatMessage
+                    key={index}
+                    index={index}
+                    message={message}
+                    isLastMessage={index === chatContent[currentSessionIndex].messages.length - 1}
+                    isUserMessage={message.isUserMessage}
+                    contextMenuIndex={contextMenuIndex}
+                    setContextMenuIndex={setContextMenuIndex}
+                  />
+                ))
+              ) : null}
             </div>
+            {errorMsg && <div className="bot-error-msg">{errorMsg}</div>}
             <BottomToolsMenu
               handleSendClick={handleSendClick}
               isFloating={true}

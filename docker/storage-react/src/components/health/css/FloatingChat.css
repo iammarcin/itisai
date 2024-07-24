@@ -35,8 +35,7 @@
 }
 
 
-/* */
-
+/* overwriting bottom tools stuff - for floating */
 .floating-bottom-tools-menu .input-container {
   display: flex;
   align-items: center;
@@ -72,7 +71,7 @@
   margin-right: 0px;
 }
 
-/* */
+/* end of overwriting bottom tools stuff - for floating */
 
 .floating-chat-minimizeButton {
   align-self: flex-end;
