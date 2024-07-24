@@ -1,6 +1,6 @@
 // Main.js
 
-import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
+import React, { useEffect, useRef, useCallback, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { StateContext } from './StateContextProvider';
