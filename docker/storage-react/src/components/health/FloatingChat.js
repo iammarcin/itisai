@@ -14,19 +14,12 @@ import './css/FloatingChat.css';
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
 import config from '../../config';
-//import apiMethods from '../../services/api.methods';
-//import { setTextAICharacter } from '../../utils/configuration';
-//import { characters } from '../ChatCharacters';
-//import CallChatAPI from '../services/call.chat.api';
 
 const FloatingChat = ({ data }) => {
   const {
     userInput, setUserInput, chatContent,
     attachedImages, setAttachedImages,
-    setAttachedFiles,
-    editingMessage,
-    //focusInput, setFocusInput,
-    //readyForRegenerate, setReadyForRegenerate, 
+    setAttachedFiles, editingMessage,
     errorMsg, setErrorMsg,
   } = useContext(StateContext);
 
@@ -40,8 +33,8 @@ const FloatingChat = ({ data }) => {
   // if i clicked 2 time on 2 diff messages - two diff context menu were shown
   const [contextMenuIndex, setContextMenuIndex] = useState(null);
   const currentSessionIndex = 0;
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [previousSize, setPreviousSize] = useState({ width: 300, height: 400 });
+  const [isMinimized, setIsMinimized] = useState(true);
+  const [previousSize, setPreviousSize] = useState({ width: 500, height: 300 });
 
   const handleSendClick = () => {
     setErrorMsg('');
