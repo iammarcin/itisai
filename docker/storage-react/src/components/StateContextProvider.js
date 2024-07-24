@@ -37,6 +37,8 @@ export const StateContextProvider = ({ children }) => {
   const [editingMessage, setEditingMessage] = useState(null);
   const [attachedImages, setAttachedImages] = useState([]);
   const [attachedFiles, setAttachedFiles] = useState([]);
+  // (from ChatWindow) this is used for scrollToBottom
+  const endOfMessagesRef = useRef(null);
   // this is to avoid fetchChatContent on changing of currentSessionIndex (when switching top menu sessions) - IMPORTANT! 
   // and also for scrollToBottom function (to be sure that we're scrolling if we are generating data from APIs in active session only)
   const currentSessionIndexRef = useRef(currentSessionIndex);
@@ -74,7 +76,7 @@ export const StateContextProvider = ({ children }) => {
       editingMessage, setEditingMessage,
       attachedImages, setAttachedImages,
       attachedFiles, setAttachedFiles,
-      currentSessionIndexRef,
+      endOfMessagesRef, currentSessionIndexRef,
       isLoading, setIsLoading,
       errorMsg, setErrorMsg,
       manageProgressText

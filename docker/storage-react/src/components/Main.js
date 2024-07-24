@@ -19,7 +19,7 @@ import { getTextAICharacter, setTextAICharacter, getTextModelName } from '../uti
 
 // function put outside of Main component - because it triggered re-renders from different places
 const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessionIndexRef) => {
-  /*if (whichChat === currentSessionIndexRef.current) {
+  if (whichChat === currentSessionIndexRef.current) {
     // smooth not needed - for example when restoring session
     var behavior = 'auto';
     if (smooth)
@@ -27,8 +27,8 @@ const scrollToBottom = (whichChat, smooth = true, endOfMessagesRef, currentSessi
     endOfMessagesRef.current.scrollIntoView({
       behavior: behavior,
     });
-    }
-    */
+  }
+
 
   // i tried few different methods - didn't really work well
   /*const chatWindowContainer = document.querySelector('.bottom-tools-menu');
@@ -60,9 +60,6 @@ const Main = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
 
-  // (from ChatWindow) this is used for scrollToBottom
-  const endOfMessagesRef = useRef(null);
-
   const {
     chatContent, setChatContent, currentSessionIndex,
     currentSessionId, setCurrentSessionId, setFetchSessionId,
@@ -73,7 +70,8 @@ const Main = () => {
     userInput, setUserInput,
     editingMessage, setEditingMessage,
     attachedImages, setAttachedImages,
-    attachedFiles, setAttachedFiles, currentSessionIndexRef,
+    attachedFiles, setAttachedFiles,
+    endOfMessagesRef, currentSessionIndexRef,
     setIsLoading, errorMsg, setErrorMsg,
     manageProgressText
   } = useContext(StateContext);

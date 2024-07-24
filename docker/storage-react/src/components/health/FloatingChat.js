@@ -33,11 +33,6 @@ const FloatingChat = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [previousSize, setPreviousSize] = useState({ width: 300, height: 400 });
 
-  const inputRef = useRef(null);
-
-  // Assuming you're using a single session in the floating chat
-  const currentSessionIndex = 0;
-
   const handleSendClick = async () => {
     if (userInput.trim() || attachedImages.length > 0 || attachedFiles.length > 0) {
       setIsLoading(true);
