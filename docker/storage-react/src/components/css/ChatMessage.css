@@ -229,6 +229,12 @@
   /* Bold style for strong text */
 }
 
+a:-webkit-any-link {
+  color: #bd93f9;
+  /* Purple color for links */
+
+}
+
 /* copy button stuff */
 .code-block-wrapper {
   position: relative;
@@ -255,4 +261,6 @@
 
 .code-block-wrapper pre {
   margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
