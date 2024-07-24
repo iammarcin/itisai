@@ -17,7 +17,7 @@ RUN npm install
 COPY storage-react ./
 
 # Build the app for production
-RUN npm run build
+RUN NODE_OPTIONS="--max_old_space_size=1024" npm run build
 
 # Use an official Nginx runtime as a parent image
 FROM nginx:stable-alpine
