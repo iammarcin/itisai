@@ -23,14 +23,11 @@ const ChatWindow = ({ mScrollToBottom }) => {
 
   const {
     chatContent, setChatContent,
-    setAttachedImages, setAttachedFiles,
     currentSessionIndex, currentSessionIndexRef,
     currentSessionId, setCurrentSessionId,
     fetchSessionId, endOfMessagesRef,
     showCharacterSelection, setShowCharacterSelection,
-    setEditingMessage, setUserInput,
-    setFocusInput, setErrorMsg, setReadyForRegenerate,
-    manageProgressText
+    setErrorMsg,
   } = useContext(StateContext);
 
   // fetch chat content (for specific session)
@@ -152,6 +149,8 @@ const ChatWindow = ({ mScrollToBottom }) => {
               message={message}
               isLastMessage={isLastMessage(index, message)}
               isUserMessage={message.isUserMessage}
+              contextMenuIndex={contextMenuIndex}
+              setContextMenuIndex={setContextMenuIndex}
             />
           ))
         ) : null}

@@ -1,6 +1,9 @@
 // FloatingChat.js
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
+
+import { StateContext } from '../StateContextProvider';
+
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import './css/FloatingChat.css';
@@ -12,36 +15,35 @@ import { setTextAICharacter } from '../../utils/configuration';
 import { characters } from '../ChatCharacters';
 
 const FloatingChat = () => {
+  const {
+    userInput, setUserInput,
+    attachedImages, setAttachedImages,
+    attachedFiles, setAttachedFiles,
+    editingMessage, setEditingMessage,
+    focusInput, setFocusInput,
+    readyForRegenerate, setReadyForRegenerate,
+    isLoading, setIsLoading,
+    errorMsg, setErrorMsg,
+  } = useContext(StateContext);
+
+  // if i right click on any message (to show context window) - we need to reset previous context window 
+  // if i clicked 2 time on 2 diff messages - two diff context menu were shown
+  const [contextMenuIndex, setContextMenuIndex] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
   const [previousSize, setPreviousSize] = useState({ width: 300, height: 400 });
 
-  const [attachedImages, setAttachedImages] = useState([]);
-  const [attachedFiles, setAttachedFiles] = useState([]);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [editingMessage, setEditingMessage] = useState(null);
-  const [focusInput, setFocusInput] = useState(false);
-  const [readyForRegenerate, setReadyForRegenerate] = useState(false);
-
   const inputRef = useRef(null);
-  const endOfMessagesRef = useRef(null);
-
-  const [contextMenuIndex, setContextMenuIndex] = useState(null);
 
   // Assuming you're using a single session in the floating chat
   const currentSessionIndex = 0;
-  const [currentSessionId, setCurrentSessionId] = useState(null);
-  const [chatContent, setChatContent] = useState([{ messages: [] }]);
 
   const handleSendClick = async () => {
-    if (input.trim() || attachedImages.length > 0 || attachedFiles.length > 0) {
+    if (userInput.trim() || attachedImages.length > 0 || attachedFiles.length > 0) {
       setIsLoading(true);
       const newUserMessage = {
         isUserMessage: true,
-        message: input,
+        message: userInput,
         imageLocations: attachedImages.map(img => img.preview),
         fileNames: attachedFiles.map(file => file.name),
       };
@@ -59,7 +61,7 @@ const FloatingChat = () => {
       }
 
       setMessages(updatedMessages);
-      setInput('');
+      setUserInput('');
       setAttachedImages([]);
       setAttachedFiles([]);
       setEditingMessage(null);
@@ -105,10 +107,6 @@ const FloatingChat = () => {
     setPreviousSize(size);
   };
 
-  const manageProgressText = (action, type) => {
-    // Implement if needed
-  };
-
   return (
     <div className="floating-chat-container">
       {isMinimized ? (
@@ -139,34 +137,11 @@ const FloatingChat = () => {
                   isUserMessage={msg.isUserMessage}
                   contextMenuIndex={contextMenuIndex}
                   setContextMenuIndex={setContextMenuIndex}
-                  currentSessionIndex={currentSessionIndex}
-                  currentSessionId={currentSessionId}
-                  setCurrentSessionId={setCurrentSessionId}
-                  chatContent={chatContent}
-                  setChatContent={setChatContent}
-                  setAttachedImages={setAttachedImages}
-                  setAttachedFiles={setAttachedFiles}
-                  setEditingMessage={setEditingMessage}
-                  setUserInput={setInput}
-                  setFocusInput={setFocusInput}
-                  manageProgressText={manageProgressText}
-                  setReadyForRegenerate={setReadyForRegenerate}
-                  setErrorMsg={setErrorMsg}
                 />
               ))}
             </div>
             <BottomToolsMenu
-              userInput={input}
-              setUserInput={setInput}
-              attachedImages={attachedImages}
-              setAttachedImages={setAttachedImages}
-              attachedFiles={attachedFiles}
-              setAttachedFiles={setAttachedFiles}
               handleSendClick={handleSendClick}
-              focusInput={false}
-              setFocusInput={() => { }}
-              isLoading={false}
-              setErrorMsg={() => { }}
               isFloating={true}
             />
           </div>

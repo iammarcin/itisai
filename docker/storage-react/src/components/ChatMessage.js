@@ -20,7 +20,7 @@ import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../uti
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
 
-const ChatMessage = ({ index, message, isLastMessage, isUserMessage }) => {
+const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -38,7 +38,6 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage }) => {
 
   const {
     chatContent, setChatContent,
-    contextMenuIndex, setContextMenuIndex,
     currentSessionIndex, currentSessionId, setCurrentSessionId,
     setAttachedImages, setAttachedFiles, setEditingMessage,
     setUserInput, setFocusInput,
