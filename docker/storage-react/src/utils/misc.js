@@ -23,4 +23,13 @@ const convertFileAndImageLocationsToAttached = (imageLocations) => {
   }));
 };
 
-export { formatDate, convertFileAndImageLocationsToAttached };
+const detectCodeLanguage = (code) => {
+  // Simple language detection based on keywords or file extensions
+  if (code.includes('import React') || code.includes('const') || code.includes('function')) return 'javascript';
+  if (code.includes('def ') || code.includes('import ')) return 'python';
+  if (code.includes('public class') || code.includes('System.out.println')) return 'java';
+  // Add more language detection rules as needed
+  return '';
+};
+
+export { formatDate, convertFileAndImageLocationsToAttached, detectCodeLanguage };

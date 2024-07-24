@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import CodeBlock from './CodeBlock';
 
-import { convertFileAndImageLocationsToAttached } from '../utils/misc';
+import { convertFileAndImageLocationsToAttached, detectCodeLanguage } from '../utils/misc';
 
 import { characters } from './ChatCharacters';
 
@@ -279,6 +279,25 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
     }
   };
 
+  const formatCodeBlocks = (content) => {
+    const codeBlockRegex = /```[\s\S]*?```/g;
+    const inlineCodeRegex = /`[^`\n]+`/g;
+
+    let formattedContent = content.replace(codeBlockRegex, (match) => {
+      const code = match.slice(3, -3).trim();
+      const language = detectCodeLanguage(code);
+      return `\n\n\`\`\`${language}\n${code}\n\`\`\`\n\n`;
+    });
+
+    formattedContent = formattedContent.replace(inlineCodeRegex, (match) => {
+      return match.replace(/\n/g, ' ');
+    });
+
+    return formattedContent;
+  };
+
+  const formattedMessage = formatCodeBlocks(message.message);
+
   return (
     <div className={`chat-message ${message.isUserMessage ? 'user' : 'ai'}`}
       onContextMenu={handleRightClick}
@@ -291,7 +310,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
       <div className="message-content">
 
         <Markdown
-          children={message.message}
+          children={formattedMessage}
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}
           components={{
