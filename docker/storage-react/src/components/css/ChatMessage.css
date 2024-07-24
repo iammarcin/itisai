@@ -116,3 +116,143 @@
 .date-ai-model-name .generated-info {
   margin-left: 5px;
 }
+
+/* General styles for code highlighting */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+  background: #000000;
+  /* Dark background */
+  color: #ffffff;
+  /* Default text color */
+  border-radius: 5px;
+  /* Optional: add rounded corners */
+}
+
+/* Styles for different types of code elements */
+.hljs-comment,
+.hljs-quote {
+  color: #999999;
+  /* Grey color for comments and quotes */
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #ff79c6;
+  /* Pink color for keywords and tags */
+  font-weight: bold;
+}
+
+.hljs-literal,
+.hljs-number,
+.hljs-tag .hljs-attr {
+  color: #bd93f9;
+  /* Purple color for literals and numbers */
+}
+
+.hljs-doctag,
+.hljs-string {
+  color: #50fa7b;
+  /* Green color for strings */
+}
+
+.hljs-section,
+.hljs-selector-id {
+  color: #8be9fd;
+  /* Cyan color for sections and IDs */
+  font-weight: bold;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #ffb86c;
+  /* Orange color for types and class titles */
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #ff5555;
+  /* Red color for tags and attributes */
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #f1fa8c;
+  /* Yellow color for regex and links */
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #bd93f9;
+  /* Purple color for symbols and bullets */
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #8be9fd;
+  /* Cyan color for built-in names */
+}
+
+.hljs-meta {
+  color: #f8f8f2;
+  /* Slightly off-white color for meta information */
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #ff5555;
+  /* Red background for deletions */
+  color: #ffffff;
+  /* White text for deletions */
+}
+
+.hljs-addition {
+  background: #50fa7b;
+  /* Green background for additions */
+  color: #000000;
+  /* Black text for additions */
+}
+
+.hljs-emphasis {
+  font-style: italic;
+  /* Italic style for emphasis */
+}
+
+.hljs-strong {
+  font-weight: bold;
+  /* Bold style for strong text */
+}
+
+/* copy button stuff */
+.code-block-wrapper {
+  position: relative;
+}
+
+.copy-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 5px 10px;
+  background-color: #3a3a3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.code-block-wrapper {
+  position: relative;
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+}

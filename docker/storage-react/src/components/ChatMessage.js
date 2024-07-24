@@ -5,6 +5,7 @@ import './css/ChatMessage.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+//import CodeBlock from './CodeBlock';
 
 import { convertFileAndImageLocationsToAttached } from '../utils/misc';
 
@@ -15,6 +16,33 @@ import { setTextAICharacter, getGeneralShowMessageInfoBottomRight } from '../uti
 
 // TODO MOVE TO CONFIG LATER
 const ERROR_MESSAGE_FOR_TEXT_GEN = "Error in Text Generator. Try again!";
+
+const CodeBlock = ({ children, language }) => {
+  const [copied, setCopied] = useState(false);
+  const codeRef = useRef(null);
+
+  const handleCopy = () => {
+    if (codeRef.current) {
+      const code = codeRef.current.textContent;
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div className="code-block-wrapper">
+      <pre>
+        <code ref={codeRef} className={`language-${language}`}>
+          {children}
+        </code>
+      </pre>
+      <button onClick={handleCopy} className="copy-button">
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+    </div>
+  );
+};
 
 const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenuIndex, setContextMenuIndex, currentSessionIndex, currentSessionId, setCurrentSessionId, chatContent, setChatContent, setAttachedImages, setAttachedFiles, setEditingMessage, setUserInput, setFocusInput, manageProgressText, setReadyForRegenerate, setErrorMsg }) => {
   const [contextMenu, setContextMenu] = useState(null);
@@ -288,6 +316,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         <img src={avatarSrc} alt="avatar" />
       </div>
       <div className="message-content">
+
         <Markdown
           children={message.message}
           remarkPlugins={[remarkGfm]}
@@ -299,7 +328,20 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
               return <p {...props} />;
             },
             pre: ({ node, ...props }) => <pre {...props} />,
-            code: ({ node, ...props }) => <code {...props} />
+            //ode: ({ node, ...props }) => <code {...props} />
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '');
+              return !inline && match ? (
+                <CodeBlock language={match[1]} {...props}>
+                  {children}
+                </CodeBlock>
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            }
+
           }}
         />
         {message.aiCharacterName === 'tools_artgen' && !message.isUserMessage ? (
