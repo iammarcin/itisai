@@ -1,13 +1,11 @@
 from helperUploadDownload import saveContentToFile
 from openai import OpenAI
+from groq import Groq
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 import logconfig
 import traceback
-import re
-import json
-import os
 logger = logconfig.logger
 
 
@@ -47,6 +45,11 @@ class OpenAISpeechRecognitionGenerator:
 
             if "optional_prompt" in user_settings:
                 self.optional_prompt = user_settings["optional_prompt"]
+
+            if "use_groq" in user_settings:
+                self.use_groq = user_settings["use_groq"]
+                if self.use_groq:
+                    self.client = Groq()
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS
