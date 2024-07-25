@@ -150,7 +150,7 @@ const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
         }
       },
       title: {
-        display: isMobile ? false : true,
+        display: false,
         text: 'Daily Sleep Stages',
       },
     },

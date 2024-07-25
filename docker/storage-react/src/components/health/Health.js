@@ -28,9 +28,9 @@ const Health = () => {
   } = useContext(StateContext);
 
   const charts = [
-    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="sleepPhases" isMobile={isMobile} />,
-    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="sleepStartEnd" isMobile={isMobile} />,
-    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="sleepMetrics" isMobile={isMobile} />
+    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} />,
+    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} />,
+    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} />
   ];
 
   const fetchData = useCallback(async (start, end) => {
@@ -161,8 +161,11 @@ const Health = () => {
       )}
       <div className={`charts-container ${isFullWidth ? 'full-width' : 'small-graphs'}`}>
         {charts.map((chart, index) => (
-          <div key={index} className="chart-wrapper" onClick={() => openModal(index)}>
-            {chart}
+          <div key={index + "m"}>
+            <h4 key={index + "n"} className="chart-title">{chart.key}</h4>
+            <div key={index} className="chart-wrapper" onClick={() => openModal(index)}>
+              {chart}
+            </div>
           </div>
         ))}
       </div>

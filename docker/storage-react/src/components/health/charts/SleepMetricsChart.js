@@ -126,7 +126,7 @@ const SleepMetricsChart = ({ data, isFullWidth, isMobile }) => {
         }
       },
       title: {
-        display: isMobile ? false : true,
+        display: false,
         text: 'Sleep metrics',
       },
     }
