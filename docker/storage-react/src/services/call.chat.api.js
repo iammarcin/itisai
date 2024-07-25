@@ -18,9 +18,6 @@ const CallChatAPI = async ({
   setIsLoading(true);
   manageProgressText("show", "Text");
 
-  console.log("THTIUHTIUHTIU 345")
-  console.log(userInput)
-
   attachedImages.map(image => image.url)
 
   // Add the user message to chat content

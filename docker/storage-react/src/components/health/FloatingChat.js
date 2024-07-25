@@ -77,7 +77,7 @@ const FloatingChat = ({ data }) => {
       setAttachedImages([]);
       setAttachedFiles([]);
     }
-  }, [userInput, triggerAPI, callChatAPI, editingMessage]);
+  }, [userInput, triggerAPI, callChatAPI, editingMessage, setUserInput, setAttachedImages, setAttachedFiles]);
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
