@@ -70,10 +70,10 @@ const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, onChartClick }) 
           data: overallScores,
           borderColor: getColor("red", 0.8),
           backgroundColor: getColor("red"),
-          borderWidth: 2,
+          tension: 0.1,
+          pointRadius: 1,
           fill: true,
           yAxisID: 'y-right',
-          pointRadius: 1,
           pointStyle: 'circle',
         },
       ]
