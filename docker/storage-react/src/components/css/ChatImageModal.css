@@ -96,3 +96,28 @@
 .next:hover {
   background-color: rgba(47, 45, 45, 0.8);
 }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .image-modal-content {
+    width: 99%;
+    padding: 0px;
+    min-height: 200px;
+  }
+
+  .close {
+    top: 0px;
+    right: 5px;
+    font-size: 25px;
+  }
+
+  .prev,
+  .next {
+    width: auto;
+    padding: 10px;
+    margin-top: -22px;
+    font-size: 15px;
+  }
+
+
+}

@@ -34,7 +34,6 @@
   background-color: #444;
 }
 
-
 /* overwriting bottom tools stuff - for floating */
 .floating-bottom-tools-menu .input-container {
   display: flex;
@@ -111,4 +110,14 @@
 .floating-chat-minimizeButton:hover {
   background-color: #555;
   padding: 5px;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+  .floating-chat-messages {
+    padding: 0px;
+    padding-right: 2px;
+  }
+
 }

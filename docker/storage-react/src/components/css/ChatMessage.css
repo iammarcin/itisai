@@ -266,3 +266,26 @@ a:-webkit-any-link {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .file-placeholder {
+    width: 60px;
+    height: 80px;
+  }
+
+  .chat-message .image-container img {
+    max-width: 192px;
+    max-height: 192px;
+  }
+
+  .chat-message .avatar img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .chat-message .message-content {
+    max-width: 90%;
+  }
+
+}

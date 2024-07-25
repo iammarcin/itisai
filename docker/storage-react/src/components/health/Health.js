@@ -16,7 +16,7 @@ import './css/Health.css';
 const Health = () => {
   const [data, setData] = useState([]);
   const [isError, setIsError] = useState(false);
-  const [dateRange, setDateRange] = useState([new Date(2024, 0, 1), new Date()]);
+  const [dateRange, setDateRange] = useState([new Date(2024, 6, 1), new Date()]);
   const [startDate, endDate] = dateRange;
   const hasFetchedData = useRef(false);
   const [isFullWidth, setIsFullWidth] = useState(true);
