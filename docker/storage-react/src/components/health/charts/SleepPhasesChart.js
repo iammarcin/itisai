@@ -8,7 +8,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepPhasesChart = ({ data, isFullWidth }) => {
+const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -94,6 +94,7 @@ const SleepPhasesChart = ({ data, isFullWidth }) => {
     responsive: true,
     scales: {
       x: {
+        display: isMobile ? false : true,
         stacked: true,
         title: {
           display: true,
@@ -106,26 +107,34 @@ const SleepPhasesChart = ({ data, isFullWidth }) => {
       y: {
         stacked: true,
         title: {
-          display: true,
+          display: isMobile ? false : true,
           text: 'Hours'
         },
         min: 0,
         max: 15,
         ticks: {
-          stepSize: 2
+          stepSize: 2,
+          font: {
+            size: isMobile ? 8 : 12,
+          },
+          padding: isMobile ? 0 : 5,
         }
       },
       'y-right': {
         type: 'linear',
         position: 'right',
         title: {
-          display: true,
+          display: isMobile ? false : true,
           text: 'Overall Sleep Score'
         },
         min: 0,
         max: 100,
         ticks: {
-          stepSize: 20
+          stepSize: 20,
+          font: {
+            size: isMobile ? 8 : 12,
+          },
+          padding: isMobile ? 0 : 5,
         },
         grid: {
           drawOnChartArea: false
@@ -134,10 +143,14 @@ const SleepPhasesChart = ({ data, isFullWidth }) => {
     },
     plugins: {
       legend: {
-        position: 'top',
+        position: isMobile ? 'bottom' : 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 10
+        }
       },
       title: {
-        display: true,
+        display: isMobile ? false : true,
         text: 'Daily Sleep Stages',
       },
     },

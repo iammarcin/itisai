@@ -9,7 +9,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepStartEndChart = ({ data, isFullWidth }) => {
+const SleepStartEndChart = ({ data, isFullWidth, isMobile }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -66,6 +66,7 @@ const SleepStartEndChart = ({ data, isFullWidth }) => {
     responsive: true,
     scales: {
       x: {
+        display: isMobile ? false : true,
         type: 'category',
         title: {
           display: true,
@@ -77,19 +78,34 @@ const SleepStartEndChart = ({ data, isFullWidth }) => {
         min: 19,
         max: 34, // 10 AM next day
         ticks: {
-          stepSize: 1,
+          font: {
+            size: isMobile ? 8 : 12,
+          },
+          padding: isMobile ? 0 : 5,
+          stepSize: isMobile ? 2 : 1,
           callback: function (value) {
             value = value % 24;
             return value.toString().padStart(2, '0') + ':00';
           }
         },
         title: {
-          display: true,
+          display: isMobile ? false : true,
           text: 'Time of Day'
         }
       }
     },
     plugins: {
+      legend: {
+        position: isMobile ? 'bottom' : 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 10
+        }
+      },
+      title: {
+        display: isMobile ? false : true,
+        text: 'Sleep start / end',
+      },
       tooltip: {
         callbacks: {
           label: function (context) {

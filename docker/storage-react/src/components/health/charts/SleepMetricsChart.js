@@ -7,7 +7,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepMetricsChart = ({ data, isFullWidth }) => {
+const SleepMetricsChart = ({ data, isFullWidth, isMobile }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -94,6 +94,7 @@ const SleepMetricsChart = ({ data, isFullWidth }) => {
     responsive: true,
     scales: {
       x: {
+        display: isMobile ? false : true,
         title: {
           display: true,
           text: 'Date'
@@ -104,11 +105,30 @@ const SleepMetricsChart = ({ data, isFullWidth }) => {
         type: 'linear',
         position: 'left',
         title: {
-          display: true,
+          display: isMobile ? false : true,
           text: 'Metrics'
+        },
+        ticks: {
+          font: {
+            size: isMobile ? 8 : 12,
+          },
+          padding: isMobile ? 0 : 5,
         },
         beginAtZero: true
       }
+    },
+    plugins: {
+      legend: {
+        position: isMobile ? 'bottom' : 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 10
+        }
+      },
+      title: {
+        display: isMobile ? false : true,
+        text: 'Sleep metrics',
+      },
     }
   }
 

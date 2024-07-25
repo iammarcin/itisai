@@ -60,7 +60,7 @@
 }
 
 .chart-wrapper {
-  width: 95%;
+  width: 100%;
   cursor: pointer;
 }
 
@@ -100,4 +100,21 @@
 
 .react-datepicker__day--keyboard-selected {
   background-color: #080808;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+  .health-container {
+    padding: 0px;
+  }
+
+  .health-button-container {
+    padding: 10px;
+  }
+
+  .chart-wrapper {
+    /*height: 400px;*/
+    width: 100%;
+  }
 }

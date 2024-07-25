@@ -28,9 +28,9 @@ const Health = () => {
   } = useContext(StateContext);
 
   const charts = [
-    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="sleepPhases" />,
-    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="sleepStartEnd" />,
-    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="sleepMetrics" />
+    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="sleepPhases" isMobile={isMobile} />,
+    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="sleepStartEnd" isMobile={isMobile} />,
+    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="sleepMetrics" isMobile={isMobile} />
   ];
 
   const fetchData = useCallback(async (start, end) => {
@@ -152,11 +152,13 @@ const Health = () => {
         <button className="health-button-preset-date" onClick={() => setPresetRange('currentMonth')}>Current Month</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
       </div>
-      <div className="health-button-container">
-        <button className="health-button-toggle" onClick={toggleChartSize}>
-          {isFullWidth ? 'Small Graphs' : 'Full Width'}
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="health-button-container">
+          <button className="health-button-toggle" onClick={toggleChartSize}>
+            {isFullWidth ? 'Small Graphs' : 'Full Width'}
+          </button>
+        </div>
+      )}
       <div className={`charts-container ${isFullWidth ? 'full-width' : 'small-graphs'}`}>
         {charts.map((chart, index) => (
           <div key={index} className="chart-wrapper" onClick={() => openModal(index)}>
