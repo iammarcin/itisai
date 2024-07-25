@@ -50,6 +50,7 @@ class OpenAISpeechRecognitionGenerator:
                 self.use_groq = user_settings["use_groq"]
                 if self.use_groq:
                     self.client = Groq()
+                    self.model_name = "whisper-large-v3"
 
     async def process_job_request(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
         # OPTIONS
