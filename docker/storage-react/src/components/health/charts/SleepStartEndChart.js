@@ -1,6 +1,6 @@
 // SleepStartEndChart.js
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import 'chartjs-adapter-date-fns';
@@ -9,11 +9,13 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepStartEndChart = ({ data }) => {
+const SleepStartEndChart = ({ data, isFullWidth }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
   });
+
+  const chartRef = useRef(null);
 
   const processData = useCallback(() => {
     const dates = data.map(entry => entry.calendar_date);
@@ -52,6 +54,13 @@ const SleepStartEndChart = ({ data }) => {
   useEffect(() => {
     processData();
   }, [processData]);
+
+  // depending of choice of full width in Health.js (do we want small or big charts), resize the chart
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.resize();
+    }
+  }, [isFullWidth]);
 
   const options = {
     responsive: true,
@@ -94,7 +103,7 @@ const SleepStartEndChart = ({ data }) => {
     }
   };
 
-  return <Line data={chartData} options={options} />;
+  return <Line ref={chartRef} data={chartData} options={options} />;
 };
 
 export default SleepStartEndChart;

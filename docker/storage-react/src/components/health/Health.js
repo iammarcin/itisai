@@ -6,6 +6,8 @@ import FloatingChat from './FloatingChat';
 import SleepPhasesChart from './charts/SleepPhasesChart';
 import SleepStartEndChart from './charts/SleepStartEndChart';
 import SleepMetricsChart from './charts/SleepMetricsChart';
+import ChatImageModal from '../ChatImageModal';
+
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './css/Health.css';
@@ -16,6 +18,15 @@ const Health = () => {
   const [dateRange, setDateRange] = useState([new Date(2024, 0, 1), new Date()]);
   const [startDate, endDate] = dateRange;
   const hasFetchedData = useRef(false);
+  const [isFullWidth, setIsFullWidth] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentChartIndex, setCurrentChartIndex] = useState(0);
+
+  const charts = [
+    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="sleepPhases" />,
+    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="sleepStartEnd" />,
+    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="sleepMetrics" />
+  ];
 
   const fetchData = useCallback(async (start, end) => {
     try {
@@ -91,12 +102,33 @@ const Health = () => {
     fetchData(start, end);
   };
 
+  const toggleChartSize = () => {
+    setIsFullWidth(!isFullWidth);
+  };
+
+  const openModal = (index) => {
+    setCurrentChartIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const nextChart = () => {
+    setCurrentChartIndex((currentChartIndex + 1) % charts.length);
+  };
+
+  const prevChart = () => {
+    setCurrentChartIndex((currentChartIndex - 1 + charts.length) % charts.length);
+  };
+
   if (isError) {
     return <div>Error fetching data.</div>;
   }
 
   return (
-    <div>
+    <div className="health-container">
       <h2>Your Health stats</h2>
       <div className="date-picker-container">
         <DatePicker
@@ -115,12 +147,27 @@ const Health = () => {
         <button className="health-button-preset-date" onClick={() => setPresetRange('currentMonth')}>Current Month</button>
         <button className="health-button-preset-date" onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
       </div>
-      <h4>Sleep timing</h4>
-      <SleepStartEndChart data={data} />
-      <h4>Sleep metrics</h4>
-      <SleepMetricsChart data={data} />
-      <h4>Sleep phases</h4>
-      <SleepPhasesChart data={data} />
+      <div className="health-button-container">
+        <button className="health-button-toggle" onClick={toggleChartSize}>
+          {isFullWidth ? 'Small Graphs' : 'Full Width'}
+        </button>
+      </div>
+      <div className={`charts-container ${isFullWidth ? 'full-width' : 'small-graphs'}`}>
+        {charts.map((chart, index) => (
+          <div key={index} className="chart-wrapper" onClick={() => openModal(index)}>
+            {chart}
+          </div>
+        ))}
+      </div>
+      {isModalOpen && (
+        <ChatImageModal
+          images={charts}
+          currentIndex={currentChartIndex}
+          onClose={closeModal}
+          onNext={nextChart}
+          onPrev={prevChart}
+        />
+      )}
       <FloatingChat data={data} />
     </div>
   );

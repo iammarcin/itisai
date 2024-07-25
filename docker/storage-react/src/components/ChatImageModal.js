@@ -6,6 +6,8 @@ import './css/ChatImageModal.css';
 const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, characterName, characterDescription }) => {
   if (!images || images.length === 0) return null;
 
+  console.log("images: ", images);
+
   return (
     <div className="image-modal">
       <div className="image-modal-content">

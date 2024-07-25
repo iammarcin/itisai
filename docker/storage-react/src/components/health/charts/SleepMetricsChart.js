@@ -1,14 +1,16 @@
 // SleepMetricsChart.js
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { getColor } from '../../../utils/colorHelper'; // Assuming you move getColor to a helper file
 
-const SleepMetricsChart = ({ data }) => {
+const SleepMetricsChart = ({ data, isFullWidth }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
   });
+
+  const chartRef = useRef(null);
 
   const processData = useCallback(() => {
     const dates = data.map(entry => entry.calendar_date);
@@ -78,32 +80,36 @@ const SleepMetricsChart = ({ data }) => {
     processData();
   }, [processData]);
 
-  return (
-    <Line
-      data={chartData}
-      options={{
-        responsive: true,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Date'
-            },
-            type: 'category'
-          },
-          'y-left': {
-            type: 'linear',
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Metrics'
-            },
-            beginAtZero: true
-          }
-        }
-      }}
-    />
-  );
+  // depending of choice of full width in Health.js (do we want small or big charts), resize the chart
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.resize();
+    }
+  }, [isFullWidth]);
+
+  const options = {
+    responsive: true,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Date'
+        },
+        type: 'category'
+      },
+      'y-left': {
+        type: 'linear',
+        position: 'left',
+        title: {
+          display: true,
+          text: 'Metrics'
+        },
+        beginAtZero: true
+      }
+    }
+  }
+
+  return <Line ref={chartRef} data={chartData} options={options} />;
 };
 
 export default SleepMetricsChart;

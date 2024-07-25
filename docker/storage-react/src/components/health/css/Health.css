@@ -29,7 +29,8 @@
   width: 180px;
 }
 
-.health-button-preset-date {
+.health-button-preset-date,
+.health-button-toggle {
   background-color: #3a3a3a;
   color: #ffffff;
   border: none;
@@ -41,9 +42,33 @@
 }
 
 
-.health-button-preset-date:hover {
+.health-button-preset-date:hover,
+.health-button-toggle:hover {
   background-color: #444;
 }
+
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.charts-container.small-graphs {
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.chart-wrapper {
+  width: 95%;
+  cursor: pointer;
+}
+
+.charts-container.small-graphs .chart-wrapper {
+  width: 45%;
+  margin: 10px;
+}
+
 
 /* Override react-datepicker styles for dark theme */
 .react-datepicker {

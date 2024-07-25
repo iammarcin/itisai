@@ -1,6 +1,6 @@
 // SleepPhasesChart.js
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -8,11 +8,13 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepPhasesChart = ({ data }) => {
+const SleepPhasesChart = ({ data, isFullWidth }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
   });
+
+  const chartRef = useRef(null);
 
   const processData = useCallback(() => {
     const dates = data.map(entry => entry.calendar_date);
@@ -81,6 +83,13 @@ const SleepPhasesChart = ({ data }) => {
     processData();
   }, [processData]);
 
+  // depending of choice of full width in Health.js (do we want small or big charts), resize the chart
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.resize();
+    }
+  }, [isFullWidth]);
+
   const options = {
     responsive: true,
     scales: {
@@ -134,7 +143,7 @@ const SleepPhasesChart = ({ data }) => {
     },
   };
 
-  return <Bar data={chartData} options={options} />;
+  return <Bar ref={chartRef} data={chartData} options={options} />;
 };
 
 export default SleepPhasesChart;
