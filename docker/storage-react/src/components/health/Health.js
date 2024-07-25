@@ -166,6 +166,7 @@ const Health = () => {
           onClose={closeModal}
           onNext={nextChart}
           onPrev={prevChart}
+          isChart={true}
         />
       )}
       <FloatingChat data={data} />

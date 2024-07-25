@@ -2,7 +2,10 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
-import { getColor } from '../../../utils/colorHelper'; // Assuming you move getColor to a helper file
+import { Chart as ChartJS, TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { getColor } from '../../../utils/colorHelper';
+
+ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const SleepMetricsChart = ({ data, isFullWidth }) => {
   const [chartData, setChartData] = useState({
