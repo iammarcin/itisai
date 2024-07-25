@@ -191,7 +191,7 @@ const TopMenu = ({ onNewChatClicked }) => {
             <option value="GPT-4o">GPT-4o</option>
             <option value="GPT-4o-mini">GPT-4o-mini</option>
             <option value="Claude-3.5">Claude-3.5</option>
-            <option value="LLama 3 70b">LLama 3 70b</option>
+            <option value="LLama 3.1 70b">LLama 3.1 70b</option>
           </select>
         </div>
         <button className="new-chat-button" onClick={handleNewChatClick}>

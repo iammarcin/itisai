@@ -62,6 +62,14 @@ class AITextGenerator:
                     self.model_name = "gpt-4o"
                     self.support_image_input = True
                     self.llm = OpenAI()
+                elif user_settings["model"] == "LLama 3.1 405b":
+                    self.model_name = "llama-3.1-405b-reasoning"
+                    self.support_image_input = False
+                    self.llm = Groq()
+                elif user_settings["model"] == "LLama 3.1 70b":
+                    self.model_name = "llama-3.1-70b-versatile"
+                    self.support_image_input = False
+                    self.llm = Groq()
                 elif user_settings["model"] == "LLama 3 70b":
                     self.model_name = "llama3-70b-8192"
                     self.support_image_input = False
@@ -193,7 +201,7 @@ class AITextGenerator:
                 yield f"Test response from Text generator (streaming)"
                 return
 
-            logger.debug("Using model: %s", self.model_name)
+            logger.info("Using model: %s", self.model_name)
 
             if isItAnthropicModel(self.model_name):
                 if self.streaming:
