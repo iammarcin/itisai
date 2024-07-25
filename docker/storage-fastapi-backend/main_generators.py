@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from textGenerators.AITextGenerator import AITextGenerator
-from speechRecognition.OpenAISpeechRecognition import OpenAISpeechRecognitionGenerator
+from speechRecognition.SpeechRecognition import SpeechRecognitionGenerator
 from imageGenerators.OpenAIImageGenerator import OpenAIImageGenerator
 from tts.OpenAITTS import OpenAITTSGenerator
 from tts.ElevenLabsTTS import ElevenLabsTTSGenerator, availableVoices
@@ -26,7 +26,7 @@ def initialize_garmin_provider():
 # it's better to use dependency injection to avoid tight coupling between the classes.
 async def startup_event_generators(app: FastAPI):
     app.dependency_overrides[AITextGenerator] = get_text_generator
-    app.dependency_overrides[OpenAISpeechRecognitionGenerator] = get_speech_generator
+    app.dependency_overrides[SpeechRecognitionGenerator] = get_speech_generator
 
     # Initialize and login Garmin provider
     garmin_provider = initialize_garmin_provider()
@@ -34,7 +34,7 @@ async def startup_event_generators(app: FastAPI):
     app.state.garmin_provider = garmin_provider
 
 def get_speech_generator():
-    return OpenAISpeechRecognitionGenerator()
+    return SpeechRecognitionGenerator()
 
 def get_tts_generator(userSettings):
     voice = userSettings.get('voice')

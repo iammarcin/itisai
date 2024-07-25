@@ -9,7 +9,7 @@ import traceback
 logger = logconfig.logger
 
 
-class OpenAISpeechRecognitionGenerator:
+class SpeechRecognitionGenerator:
     def __init__(self):
         self.save_to_file = True
         self.save_to_file_iterator = 0
@@ -66,7 +66,7 @@ class OpenAISpeechRecognitionGenerator:
                 status_code=500, detail="Error processing speech request")
 
     async def whisper(self, action: str, userInput: dict, assetInput: dict, customerId: int = None, userSettings: dict = {}):
-        logger.debug("OpenAISpeechGenerator whisper - start")
+        logger.debug("SpeechGenerator whisper - start")
 
         if self.use_test_data:
             return {'code': 200, 'success': True, 'message': {"status": "completed", "result": "Hello! (TEST transcribed)"}}
@@ -86,6 +86,8 @@ class OpenAISpeechRecognitionGenerator:
                 audio_file = open(
                     "/storage/testApi/20230419_391sa2_output_1.mp3", "rb")
 
+            logger.info("Using model: %s", self.model_name)
+
             if action == "translate":
                 response = self.client.audio.translations.create(
                     model=self.model_name,
@@ -102,24 +104,21 @@ class OpenAISpeechRecognitionGenerator:
                     temperature=self.temperature,
                     language=self.language)
 
-            response_text = response.text if hasattr(
-                response, 'text') else response
+            response_text = response.text if hasattr(response, 'text') else response
 
-            logger.info("OpenAISpeechGenerator whisper - response: %s" %
-                        response_text)
-            logger.debug("OpenAISpeechGenerator whisper - success")
+            logger.debug("SpeechGenerator whisper - response: %s" % response_text)
 
             return JSONResponse(content={"success": True, "code": 200, "message": {"status": "completed", "result": response_text}}, status_code=200)
 
         except HTTPException as e:
             logger.error(
-                "Error while making speech API call to OpenAI - HTTPException ")
+                "Error while making speech API call to Speech - HTTPException ")
             logger.error(e)
             raise HTTPException(
                 status_code=500, detail="Error generating speech")
         except Exception as e:
             logger.error(
-                "Error while making speech API call to OpenAI - exception ")
+                "Error while making speech API call to Speech - exception ")
             logger.error(e)
             traceback.print_exc()
             raise HTTPException(
