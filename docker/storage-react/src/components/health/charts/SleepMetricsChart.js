@@ -1,3 +1,5 @@
+// SleepMetricsChart.js
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { getColor } from '../../../utils/colorHelper'; // Assuming you move getColor to a helper file
