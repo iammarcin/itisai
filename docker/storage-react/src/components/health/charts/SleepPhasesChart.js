@@ -71,9 +71,10 @@ const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, onChartClick }) 
           borderColor: getColor("red", 0.8),
           backgroundColor: getColor("red"),
           borderWidth: 2,
-          fill: false,
+          fill: true,
           yAxisID: 'y-right',
-          pointRadius: 0,
+          pointRadius: 1,
+          pointStyle: 'circle',
         },
       ]
     });
@@ -102,7 +103,8 @@ const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, onChartClick }) 
         },
         grid: {
           display: false
-        }
+        },
+        type: 'category'
       },
       y: {
         stacked: true,

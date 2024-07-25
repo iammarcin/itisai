@@ -38,14 +38,14 @@ const SleepStartEndChart = ({ index, data, isFullWidth, isMobile, onChartClick }
           data: sleepStart,
           borderColor: getColor("green_dark", 1),
           tension: 0.1,
-          pointRadius: 3,
+          pointRadius: 1,
         },
         {
           label: 'Sleep End',
           data: sleepEnd,
           borderColor: getColor("red", 1),
           tension: 0.1,
-          pointRadius: 3,
+          pointRadius: 1,
         }
       ]
     });
