@@ -7,7 +7,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepMetricsChart = ({ data, isFullWidth, isMobile, onChartClick }) => {
+const SleepMetricsChart = ({ index, data, isFullWidth, isMobile, onChartClick }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -90,19 +90,6 @@ const SleepMetricsChart = ({ data, isFullWidth, isMobile, onChartClick }) => {
     }
   }, [isFullWidth]);
 
-  const click1 = function (e, legendItem, legend) {
-    console.log(e)
-    console.log("bfdsbfdsj")
-    ChartJS.defaults.plugins.legend.onClick(e, legendItem, legend);
-    //e.stopPropagation()
-
-    //if (onLegendClick) {
-    //e.target.setAttribute('data-legend-click', 'true');
-    // Your existing legend click logic here
-    //onLegendClick(e);
-    //}
-  }
-
   const options = {
     responsive: true,
     scales: {
@@ -130,14 +117,8 @@ const SleepMetricsChart = ({ data, isFullWidth, isMobile, onChartClick }) => {
         beginAtZero: true
       }
     },
-    onClick: (event, elements, chart) => {
-      if (elements.length > 0) {
-        // Clicked on a data point
-        onChartClick('datapoint', event);
-      } else {
-        // Clicked on the chart area
-        onChartClick('chart', event);
-      }
+    onClick: () => { // important to differentiate if legend was clicked or not
+      onChartClick('chart', index);
     },
     plugins: {
       legend: {
@@ -146,10 +127,10 @@ const SleepMetricsChart = ({ data, isFullWidth, isMobile, onChartClick }) => {
           boxWidth: 12,
           padding: 10
         },
-        onClick: (event, legendItem, legend) => {
+        onClick: (event, legendItem, legend) => { // important to differentiate if legend was clicked or not
           // Custom legend click handler
           ChartJS.defaults.plugins.legend.onClick(event, legendItem, legend);
-          onChartClick('legend', event, legendItem);
+          onChartClick('legend', index);
         },
       },
       title: {

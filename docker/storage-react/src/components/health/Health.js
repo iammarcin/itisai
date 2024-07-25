@@ -22,7 +22,6 @@ const Health = () => {
   const [isFullWidth, setIsFullWidth] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentChartIndex, setCurrentChartIndex] = useState(0);
-  const [isLegendClicked, setIsLegendClicked] = useState(false);
 
   const {
     isMobile
@@ -111,14 +110,13 @@ const Health = () => {
     setIsModalOpen(true);
   };
 
-  const handleChartClick = (clickType, event, legendItem = null) => {
-    if (clickType === 'legend') {
-      // Legend was clicked
-      // Your legend click logic here
-      console.log('Legend clicked:', legendItem);
-    } else if (clickType === 'chart' || clickType === 'datapoint') {
+  // this is to differentiate if legend was click (so for example Deep sleep in sleep phases)
+  // because then we don't want to open modal - we just want to enable/disable this element
+  // for any other place in chart - we want to open modal
+  const handleChartClick = (clickType, index = 0) => {
+    if (clickType !== 'legend') {
       // Chart area or data point was clicked
-      openModal(currentChartIndex);
+      openModal(index);
     }
   };
 
@@ -139,9 +137,9 @@ const Health = () => {
   }
 
   const charts = [
-    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} />,
-    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} />,
-    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} onChartClick={handleChartClick} />
+    <SleepPhasesChart index={0} data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} onChartClick={handleChartClick} />,
+    <SleepStartEndChart index={1} data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} onChartClick={handleChartClick} />,
+    <SleepMetricsChart index={2} data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} onChartClick={handleChartClick} />
   ];
 
   return (

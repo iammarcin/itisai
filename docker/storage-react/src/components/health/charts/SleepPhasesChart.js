@@ -8,7 +8,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
+const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, onChartClick }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -90,21 +90,6 @@ const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
     }
   }, [isFullWidth]);
 
-
-  const handleLegendClick = (e, legendItem, legend) => {
-    e.native.stopImmediatePropagation(); // Prevent the modal from opening
-    const index = legendItem.datasetIndex;
-    const ci = legend.chart;
-    if (ci.isDatasetVisible(index)) {
-      ci.hide(index);
-      legendItem.hidden = true;
-    } else {
-      ci.show(index);
-      legendItem.hidden = false;
-    }
-    ci.update();
-  };
-
   const options = {
     responsive: true,
     scales: {
@@ -156,6 +141,9 @@ const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
         },
       },
     },
+    onClick: () => { // important to differentiate if legend was clicked or not
+      onChartClick('chart', index);
+    },
     plugins: {
       legend: {
         position: isMobile ? 'bottom' : 'top',
@@ -163,7 +151,11 @@ const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
           boxWidth: 12,
           padding: 10
         },
-        onClick: handleLegendClick
+        onClick: (event, legendItem, legend) => { // important to differentiate if legend was clicked or not
+          // Custom legend click handler
+          ChartJS.defaults.plugins.legend.onClick(event, legendItem, legend);
+          onChartClick('legend', index);
+        },
       },
       title: {
         display: false,

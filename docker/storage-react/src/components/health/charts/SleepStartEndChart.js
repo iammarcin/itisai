@@ -9,7 +9,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepStartEndChart = ({ data, isFullWidth, isMobile }) => {
+const SleepStartEndChart = ({ index, data, isFullWidth, isMobile, onChartClick }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -94,13 +94,21 @@ const SleepStartEndChart = ({ data, isFullWidth, isMobile }) => {
         }
       }
     },
+    onClick: () => { // important to differentiate if legend was clicked or not
+      onChartClick('chart', index);
+    },
     plugins: {
       legend: {
         position: isMobile ? 'bottom' : 'top',
         labels: {
           boxWidth: 12,
           padding: 10
-        }
+        },
+        onClick: (event, legendItem, legend) => { // important to differentiate if legend was clicked or not
+          // Custom legend click handler
+          ChartJS.defaults.plugins.legend.onClick(event, legendItem, legend);
+          onChartClick('legend', index);
+        },
       },
       title: {
         display: false,
