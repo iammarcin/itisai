@@ -22,16 +22,11 @@ const Health = () => {
   const [isFullWidth, setIsFullWidth] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentChartIndex, setCurrentChartIndex] = useState(0);
+  const [isLegendClicked, setIsLegendClicked] = useState(false);
 
   const {
     isMobile
   } = useContext(StateContext);
-
-  const charts = [
-    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} />,
-    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} />,
-    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} />
-  ];
 
   const fetchData = useCallback(async (start, end) => {
     try {
@@ -116,6 +111,17 @@ const Health = () => {
     setIsModalOpen(true);
   };
 
+  const handleChartClick = (clickType, event, legendItem = null) => {
+    if (clickType === 'legend') {
+      // Legend was clicked
+      // Your legend click logic here
+      console.log('Legend clicked:', legendItem);
+    } else if (clickType === 'chart' || clickType === 'datapoint') {
+      // Chart area or data point was clicked
+      openModal(currentChartIndex);
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -131,6 +137,12 @@ const Health = () => {
   if (isError) {
     return <div>Error fetching data.</div>;
   }
+
+  const charts = [
+    <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} />,
+    <SleepStartEndChart data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} />,
+    <SleepMetricsChart data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} onChartClick={handleChartClick} />
+  ];
 
   return (
     <div className="health-container">
@@ -163,7 +175,7 @@ const Health = () => {
         {charts.map((chart, index) => (
           <div key={index + "m"}>
             <h4 key={index + "n"} className="chart-title">{chart.key}</h4>
-            <div key={index} className="chart-wrapper" onClick={() => openModal(index)}>
+            <div key={index} className="chart-wrapper">
               {chart}
             </div>
           </div>

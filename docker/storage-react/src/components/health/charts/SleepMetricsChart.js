@@ -7,7 +7,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepMetricsChart = ({ data, isFullWidth, isMobile }) => {
+const SleepMetricsChart = ({ data, isFullWidth, isMobile, onChartClick }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -90,6 +90,19 @@ const SleepMetricsChart = ({ data, isFullWidth, isMobile }) => {
     }
   }, [isFullWidth]);
 
+  const click1 = function (e, legendItem, legend) {
+    console.log(e)
+    console.log("bfdsbfdsj")
+    ChartJS.defaults.plugins.legend.onClick(e, legendItem, legend);
+    //e.stopPropagation()
+
+    //if (onLegendClick) {
+    //e.target.setAttribute('data-legend-click', 'true');
+    // Your existing legend click logic here
+    //onLegendClick(e);
+    //}
+  }
+
   const options = {
     responsive: true,
     scales: {
@@ -117,13 +130,27 @@ const SleepMetricsChart = ({ data, isFullWidth, isMobile }) => {
         beginAtZero: true
       }
     },
+    onClick: (event, elements, chart) => {
+      if (elements.length > 0) {
+        // Clicked on a data point
+        onChartClick('datapoint', event);
+      } else {
+        // Clicked on the chart area
+        onChartClick('chart', event);
+      }
+    },
     plugins: {
       legend: {
         position: isMobile ? 'bottom' : 'top',
         labels: {
           boxWidth: 12,
           padding: 10
-        }
+        },
+        onClick: (event, legendItem, legend) => {
+          // Custom legend click handler
+          ChartJS.defaults.plugins.legend.onClick(event, legendItem, legend);
+          onChartClick('legend', event, legendItem);
+        },
       },
       title: {
         display: false,

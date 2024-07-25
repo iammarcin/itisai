@@ -90,6 +90,21 @@ const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
     }
   }, [isFullWidth]);
 
+
+  const handleLegendClick = (e, legendItem, legend) => {
+    e.native.stopImmediatePropagation(); // Prevent the modal from opening
+    const index = legendItem.datasetIndex;
+    const ci = legend.chart;
+    if (ci.isDatasetVisible(index)) {
+      ci.hide(index);
+      legendItem.hidden = true;
+    } else {
+      ci.show(index);
+      legendItem.hidden = false;
+    }
+    ci.update();
+  };
+
   const options = {
     responsive: true,
     scales: {
@@ -147,7 +162,8 @@ const SleepPhasesChart = ({ data, isFullWidth, isMobile }) => {
         labels: {
           boxWidth: 12,
           padding: 10
-        }
+        },
+        onClick: handleLegendClick
       },
       title: {
         display: false,
