@@ -1,6 +1,7 @@
 // Health.js
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
+import { StateContext } from '../StateContextProvider';
 import apiMethods from '../../services/api.methods';
 import FloatingChat from './FloatingChat';
 import SleepPhasesChart from './charts/SleepPhasesChart';
@@ -21,6 +22,10 @@ const Health = () => {
   const [isFullWidth, setIsFullWidth] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentChartIndex, setCurrentChartIndex] = useState(0);
+
+  const {
+    isMobile
+  } = useContext(StateContext);
 
   const charts = [
     <SleepPhasesChart data={data} isFullWidth={isFullWidth} key="sleepPhases" />,

@@ -1,6 +1,6 @@
 // StateContextProvider.js
 
-import { createContext, useState, useRef, useCallback } from "react";
+import { createContext, useState, useEffect, useRef, useCallback } from "react";
 
 export const StateContext = createContext();
 
@@ -44,6 +44,8 @@ export const StateContextProvider = ({ children }) => {
   const currentSessionIndexRef = useRef(currentSessionIndex);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  // to control UI depending if its mobile or not
+  const [isMobile, setIsMobile] = useState(false);
 
   // this is showProgress, hideProgress merged in one place
   // accepting method - "show" and "hide"
@@ -72,6 +74,13 @@ export const StateContextProvider = ({ children }) => {
       }
     }
   };
+
+  useEffect(() => {
+    // check if mobile - to arrange UI
+    if (window.innerWidth <= 768) {
+      setIsMobile(true);
+    }
+  }, []);
 
   // a memoized version of scroll to bottom (not to trigger re-renders)
   const mScrollToBottom = useCallback((whichChat, smooth = true) => {
@@ -143,7 +152,8 @@ export const StateContextProvider = ({ children }) => {
       endOfMessagesRef, currentSessionIndexRef,
       isLoading, setIsLoading,
       errorMsg, setErrorMsg,
-      manageProgressText, mScrollToBottom
+      isMobile,
+      manageProgressText, mScrollToBottom,
     }}>
       {children}
     </StateContext.Provider>
