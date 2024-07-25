@@ -23,7 +23,21 @@ const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, charact
     resizeCanvas();
   }, [currentIndex]);
 
-  // click outside / hit escape button listener
+  // resize upon displaying the chart
+  useEffect(() => {
+    if (isChart) {
+      window.dispatchEvent(new Event('resize'));
+    }
+  }, [isChart, currentIndex]);
+
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowRight') onNext();
+    if (e.key === 'ArrowLeft') onPrev();
+  };
+
+  // click outside / hit keyboard listener
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -31,17 +45,11 @@ const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, charact
       }
     };
 
-    const handleEscapePress = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscapePress);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscapePress);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose]);
 
