@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import './css/ChatImageModal.css';
 
 // this will be used to display images (attached to chat or image of AI character) or charts (from Health section)
@@ -21,7 +21,7 @@ const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, charact
     };
 
     resizeCanvas();
-  }, [currentIndex]);
+  }, [currentIndex, isChart]);
 
   // resize upon displaying the chart
   useEffect(() => {
@@ -31,11 +31,11 @@ const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, charact
   }, [isChart, currentIndex]);
 
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') onClose();
     if (e.key === 'ArrowRight') onNext();
     if (e.key === 'ArrowLeft') onPrev();
-  };
+  }, [onClose, onNext, onPrev]);
 
   // click outside / hit keyboard listener
   useEffect(() => {
@@ -51,7 +51,7 @@ const ChatImageModal = ({ images, currentIndex, onClose, onNext, onPrev, charact
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, handleKeyDown]);
 
   if (!images || images.length === 0) return null;
 
