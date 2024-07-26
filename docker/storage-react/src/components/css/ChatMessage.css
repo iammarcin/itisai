@@ -267,6 +267,27 @@ a:-webkit-any-link {
   word-wrap: break-word;
 }
 
+/* there was problem with table display - it didn't fit into message properly */
+.chat-message .message-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.chat-message .message-content th,
+.chat-message .message-content td {
+  border: 1px solid #444;
+  padding: 6px;
+  text-align: left;
+  word-break: break-word;
+}
+
+.chat-message .message-content th {
+  background-color: #333;
+}
+
+/* end of table */
+
+
 /* MOBILE */
 @media (max-width: 768px) {
   .file-placeholder {
@@ -286,6 +307,15 @@ a:-webkit-any-link {
 
   .chat-message .message-content {
     max-width: 90%;
+  }
+
+  .chat-message .message-content table {
+    font-size: 0.8rem;
+  }
+
+  .chat-message .message-content th,
+  .chat-message .message-content td {
+    padding: 4px;
   }
 
 }

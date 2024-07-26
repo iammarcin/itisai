@@ -312,6 +312,11 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
               return <p {...props} />;
             },
             pre: ({ node, ...props }) => <pre {...props} />,
+            table: ({ children }) => (
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table>{children}</table>
+              </div>
+            ),
             //ode: ({ node, ...props }) => <code {...props} />
             code({ node, inline, className, children, ...props }) {
               const match = /language-(\w+)/.exec(className || '');
