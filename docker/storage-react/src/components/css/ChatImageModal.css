@@ -115,6 +115,8 @@
   .next {
     width: auto;
     padding: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
     margin-top: -22px;
     font-size: 15px;
   }

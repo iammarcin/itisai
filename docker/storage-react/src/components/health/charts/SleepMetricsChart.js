@@ -7,7 +7,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepMetricsChart = ({ index, data, isFullWidth, isMobile, onChartClick }) => {
+const SleepMetricsChart = ({ index, data, isFullWidth, isMobile, isModalOpen, onChartClick }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -100,7 +100,8 @@ const SleepMetricsChart = ({ index, data, isFullWidth, isMobile, onChartClick })
     maintainAspectRatio: isMobile ? false : true,
     scales: {
       x: {
-        display: isMobile ? false : true,
+        // display the x axis only on mobile if modal is open (or of course always when not on mobile)
+        display: isMobile ? isModalOpen ? true : false : true,
         stacked: true,
         title: {
           display: true,

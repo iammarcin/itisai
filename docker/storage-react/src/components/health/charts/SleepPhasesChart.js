@@ -96,7 +96,7 @@ const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, isModalOpen, onC
     maintainAspectRatio: isMobile ? false : true,
     scales: {
       x: {
-        // display the x axis only on mobile if modal is open
+        // display the x axis only on mobile if modal is open (or of course always when not on mobile)
         display: isMobile ? isModalOpen ? true : false : true,
         stacked: true,
         title: {

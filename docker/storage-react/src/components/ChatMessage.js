@@ -210,7 +210,7 @@ const ChatMessage = ({ index, message, isLastMessage, isUserMessage, contextMenu
         {(isUserMessage && (isLastMessage || autoResponseIsFalse)) && (
           <div className="context-menu-item" onClick={handleEdit}>Edit</div>
         )}
-        {isUserMessage && !isLastMessage && (
+        {isUserMessage && (
           <div className="context-menu-item" onClick={handleRemove}>Remove</div>
         )}
         {!isUserMessage && (
