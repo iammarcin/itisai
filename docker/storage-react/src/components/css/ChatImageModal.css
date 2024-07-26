@@ -99,6 +99,10 @@
 
 /* MOBILE */
 @media (max-width: 768px) {
+  .modal-chart {
+    height: 70vh;
+  }
+
   .image-modal-content {
     width: 99%;
     padding: 0px;
