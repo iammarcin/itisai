@@ -101,7 +101,8 @@ const SleepMetricsChart = ({ index, data, isFullWidth, isMobile, isModalOpen, on
     scales: {
       x: {
         // display the x axis only on mobile if modal is open (or of course always when not on mobile)
-        display: isMobile ? isModalOpen ? true : false : true,
+        // not on mobile - when is full width (with small graphs we don't want it)
+        display: isMobile ? isModalOpen ? true : false : isFullWidth ? true : isModalOpen ? true : false,
         stacked: true,
         title: {
           display: true,

@@ -67,8 +67,9 @@ const SleepStartEndChart = ({ index, data, isFullWidth, isMobile, isModalOpen, o
     maintainAspectRatio: isMobile ? false : true,
     scales: {
       x: {
-        // display the x axis only on mobile if modal is open (or of course always when not on mobile)
-        display: isMobile ? isModalOpen ? true : false : true,
+        // display the x axis on mobile only if modal is open 
+        // not on mobile - when is full width (with small graphs we don't want it)
+        display: isMobile ? isModalOpen ? true : false : isFullWidth ? true : isModalOpen ? true : false,
         type: 'category',
         title: {
           display: true,
