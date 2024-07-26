@@ -4,7 +4,9 @@ import sys
 from datetime import datetime, timedelta
 
 
-API_URL = "http://localhost:8000/api"
+# API_URL = "https://localhost:8000/api"
+API_URL = "https://www.goodtogreat.life/api/api"
+
 authToken = os.getenv("MY_AUTH_BEARER_TOKEN")
 
 DEBUG = 0
