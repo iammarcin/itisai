@@ -4,6 +4,7 @@
   background-color: #1e1e1e;
   color: #ffffff;
   padding: 20px;
+  max-width: 100%;
 }
 
 .date-picker-container {
@@ -106,7 +107,7 @@
 
 @media (max-width: 768px) {
   .health-container {
-    padding: 0px;
+    padding: 1px;
   }
 
   .health-button-container {

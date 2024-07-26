@@ -137,9 +137,9 @@ const Health = () => {
   }
 
   const charts = [
-    <SleepPhasesChart index={0} data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} onChartClick={handleChartClick} />,
-    <SleepStartEndChart index={1} data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} onChartClick={handleChartClick} />,
-    <SleepMetricsChart index={2} data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} onChartClick={handleChartClick} />
+    <SleepPhasesChart index={0} data={data} isFullWidth={isFullWidth} key="Daily Sleep Stages" isMobile={isMobile} isModalOpen={isModalOpen} onChartClick={handleChartClick} />,
+    <SleepStartEndChart index={1} data={data} isFullWidth={isFullWidth} key="Sleep start / end" isMobile={isMobile} isModalOpen={isModalOpen} onChartClick={handleChartClick} />,
+    <SleepMetricsChart index={2} data={data} isFullWidth={isFullWidth} key="Sleep metrics" isMobile={isMobile} isModalOpen={isModalOpen} onChartClick={handleChartClick} />
   ];
 
   return (

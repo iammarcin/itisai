@@ -64,6 +64,7 @@ const SleepStartEndChart = ({ index, data, isFullWidth, isMobile, onChartClick }
 
   const options = {
     responsive: true,
+    maintainAspectRatio: isMobile ? false : true,
     scales: {
       x: {
         display: isMobile ? false : true,

@@ -8,7 +8,7 @@ import { getColor } from '../../../utils/colorHelper';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, onChartClick }) => {
+const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, isModalOpen, onChartClick }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: []
@@ -93,9 +93,11 @@ const SleepPhasesChart = ({ index, data, isFullWidth, isMobile, onChartClick }) 
 
   const options = {
     responsive: true,
+    maintainAspectRatio: isMobile ? false : true,
     scales: {
       x: {
-        display: isMobile ? false : true,
+        // display the x axis only on mobile if modal is open
+        display: isMobile ? isModalOpen ? true : false : true,
         stacked: true,
         title: {
           display: true,
