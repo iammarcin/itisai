@@ -29,7 +29,7 @@ const Main = () => {
     setShowCharacterSelection, readyForRegenerate, setReadyForRegenerate,
     progressBarMessage, userInput, setUserInput,
     editingMessage, attachedImages, setAttachedImages,
-    attachedFiles, setAttachedFiles,
+    attachedFiles, setAttachedFiles, setFocusInput,
     currentSessionIndexRef,
     setIsLoading, errorMsg, setErrorMsg,
   } = useContext(StateContext);
@@ -63,6 +63,7 @@ const Main = () => {
     navigate(`/session/${session.session_id}`);
     setShowCharacterSelection(false);
     setTextAICharacter(session.ai_character_name);
+    setFocusInput(true);
   };
 
   // new chat session (in top menu) clicked - pretty much reset
@@ -83,6 +84,7 @@ const Main = () => {
     setIsLoading(false);
     setErrorMsg('');
     setTextAICharacter('assistant');
+    setFocusInput(true);
   }
 
   const handleSendClick = useCallback(() => {
@@ -108,7 +110,8 @@ const Main = () => {
     setUserInput("");
     setAttachedImages([]);
     setAttachedFiles([]);
-  }, [attachedImages, attachedFiles, userInput, editingMessage, callChatAPI, setAttachedFiles, setAttachedImages, setErrorMsg, setUserInput]);
+    setFocusInput(true);
+  }, [attachedImages, attachedFiles, userInput, editingMessage, callChatAPI, setAttachedFiles, setAttachedImages, setErrorMsg, setUserInput, setFocusInput]);
 
 
   // we monitor if handleRegenerate in ChatMessage was used

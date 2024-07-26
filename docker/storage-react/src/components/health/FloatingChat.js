@@ -10,6 +10,7 @@ import { setTextAICharacter, getTextModelName } from '../../utils/configuration'
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import './css/FloatingChat.css';
+import config from '../../config';
 
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
@@ -55,12 +56,12 @@ const FloatingChat = ({ data }) => {
 
     // if it's first message - attach context (data)
     // TODO ADD BUT IN BETTER FORMAT
-    /*if (chatContent[currentSessionIndex].messages.length === 0) {
+    if (chatContent[currentSessionIndex].messages.length === 0) {
       const fullMessage = data ? `${JSON.stringify(data)}\n${userInput}` : userInput;
       setUserInput(fullMessage);
       if (config.VERBOSE_SUPERB === 1)
         console.log("full health data: ", fullMessage)
-    } */
+    }
 
     // Set the trigger to call API
     setTriggerAPI(true);

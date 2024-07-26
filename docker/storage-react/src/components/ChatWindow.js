@@ -27,7 +27,7 @@ const ChatWindow = () => {
     currentSessionId, setCurrentSessionId,
     fetchSessionId, endOfMessagesRef,
     showCharacterSelection, setShowCharacterSelection,
-    mScrollToBottom, setErrorMsg,
+    mScrollToBottom, setErrorMsg, setFocusInput,
   } = useContext(StateContext);
 
   // fetch chat content (for specific session)
@@ -109,6 +109,7 @@ const ChatWindow = () => {
   const handleCharacterSelect = (character) => {
     setShowCharacterSelection(false);
     setTextAICharacter(character.nameForAPI);
+    setFocusInput(true);
   };
 
   // to check if its last message
