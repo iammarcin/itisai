@@ -63,15 +63,10 @@ export const StateContextProvider = ({ children }) => {
   }
 
   const scrollToBottom = (whichChat, smooth = true) => {
-    if (whichChat === currentSessionIndexRef.current) {
-      // smooth not needed - for example when restoring session
-      var behavior = 'auto';
-      if (smooth) behavior = 'smooth';
-      if (endOfMessagesRef.current) {
-        endOfMessagesRef.current.scrollIntoView({
-          behavior: behavior,
-        });
-      }
+    if (whichChat === currentSessionIndexRef.current && endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({
+        behavior: smooth ? 'smooth' : 'auto',
+      });
     }
   };
 
