@@ -14,18 +14,18 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './css/Health.css';
 
 const Health = () => {
+  const {
+    isMobile
+  } = useContext(StateContext);
+
   const [data, setData] = useState([]);
   const [isError, setIsError] = useState(false);
   const [dateRange, setDateRange] = useState([new Date(2024, 6, 1), new Date()]);
   const [startDate, endDate] = dateRange;
   const hasFetchedData = useRef(false);
-  const [isFullWidth, setIsFullWidth] = useState(true);
+  const [isFullWidth, setIsFullWidth] = useState(isMobile ? true : false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentChartIndex, setCurrentChartIndex] = useState(0);
-
-  const {
-    isMobile
-  } = useContext(StateContext);
 
   const fetchData = useCallback(async (start, end) => {
     try {
