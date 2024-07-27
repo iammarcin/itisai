@@ -91,6 +91,15 @@ const Sidebar = ({ onSelectSession }) => {
     fetchChatSessions(offset, debouncedSearchText);
   }, [offset, fetchChatSessions, debouncedSearchText]);
 
+  const handleSearch = useCallback((term) => {
+    setSidebarSearchText(term);
+    setOffset(0);
+    fetchedSessionIds.current.clear();
+    setChatSessions([]);
+    setIsSearchMode(term !== '');
+    setHasMoreSessions(true); // Reset hasMoreSessions on new search
+  }, [setSidebarSearchText]);
+
   // if refreshChatSessions is set in initial few messages (via ChatHandleAPI) - we want to refresh list of sessions (so new one appears)
   useEffect(() => {
     if (refreshChatSessions) {
@@ -98,16 +107,7 @@ const Sidebar = ({ onSelectSession }) => {
       setOffset(0);
       fetchChatSessions(0, debouncedSearchText);
     }
-  }, [refreshChatSessions, debouncedSearchText, fetchChatSessions]);
-
-  const handleSearch = (term) => {
-    setSidebarSearchText(term);
-    setOffset(0);
-    fetchedSessionIds.current.clear();
-    setChatSessions([]);
-    setIsSearchMode(term !== '');
-    setHasMoreSessions(true); // Reset hasMoreSessions on new search
-  };
+  }, [refreshChatSessions, debouncedSearchText, fetchChatSessions, handleSearch]);
 
   const handleSearchInputChange = (event) => {
     handleSearch(event.target.value);
