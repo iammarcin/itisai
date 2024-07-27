@@ -30,11 +30,12 @@ const optimizeHealthDataForAPICall = (data) => {
   // Define columns to keep
   const columnsToKeep = [
     'calendar_date', 'sleep_time_seconds', 'sleep_start', 'sleep_end',
-    'deep_sleep_seconds', 'light_sleep_seconds', 'rem_sleep_seconds',
-    'awake_sleep_seconds', 'average_respiration_value', 'avg_sleep_stress',
-    'overall_score_value', 'overall_score_qualifier', 'rem_percentage_value',
+    'nap_time_seconds', 'deep_sleep_seconds', 'light_sleep_seconds', 'rem_sleep_seconds',
+    'awake_sleep_seconds', 'average_respiration_value', 'awake_count', 'avg_sleep_stress',
+    'sleep_score_feedback', 'overall_score_value', 'overall_score_qualifier',
+    'stress_qualifier', 'rem_percentage_value',
     'light_percentage_value', 'deep_percentage_value', 'avg_overnight_hrv',
-    'resting_heart_rate', 'body_battery_change'
+    'resting_heart_rate', 'body_battery_change', 'restless_moments_count'
   ];
 
   // Create CSV-like structure
