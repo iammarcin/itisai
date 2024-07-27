@@ -9,7 +9,7 @@ import './css/TopMenu.css';
 
 import { getIsProdMode, setIsProdMode, setURLForAPICalls, getTextModelName, setTextModelName, setTextAICharacter } from '../utils/configuration';
 
-const TopMenu = ({ onNewChatClicked }) => {
+const TopMenu = ({ onNewChatClicked, isHealthSection = false }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -153,31 +153,33 @@ const TopMenu = ({ onNewChatClicked }) => {
           <div className="dropdown-item" onClick={handleOptionsClick}>Options</div>
         </div>
       )}
-      <div className="session-buttons">
-        {Object.keys(chatContent).map((sessionId, index) => (
-          <div key={sessionId} className={`session-button-container ${currentSessionIndex === index ? 'active' : ''}`}>
-            <button
-              className={`session-button ${currentSessionIndex === index ? 'active' : ''}`}
-              onClick={() => handleSessionClick(index)}
-            >
-              {chatContent[sessionId].ai_character_name ? (
-                <img
-                  src={`/imgs/${chatContent[sessionId].ai_character_name}.png`}
-                  alt="avatar"
-                  className="session-avatar"
-                />
-              ) : (
-                index + 1
-              )}
-            </button>
-            <button className="close-button" onClick={() => handleSessionClose(index)}>×</button>
-          </div>
-        ))}
-        {Object.keys(chatContent).length < 5 && (
-          <button className="session-button add-session" onClick={handleSessionAdd}>+</button>
-        )}
-      </div>
-      <div className="menu-right">
+      {!isHealthSection && (
+        <div className="session-buttons">
+          {Object.keys(chatContent).map((sessionId, index) => (
+            <div key={sessionId} className={`session-button-container ${currentSessionIndex === index ? 'active' : ''}`}>
+              <button
+                className={`session-button ${currentSessionIndex === index ? 'active' : ''}`}
+                onClick={() => handleSessionClick(index)}
+              >
+                {chatContent[sessionId].ai_character_name ? (
+                  <img
+                    src={`/imgs/${chatContent[sessionId].ai_character_name}.png`}
+                    alt="avatar"
+                    className="session-avatar"
+                  />
+                ) : (
+                  index + 1
+                )}
+              </button>
+              <button className="close-button" onClick={() => handleSessionClose(index)}>×</button>
+            </div>
+          ))}
+          {Object.keys(chatContent).length < 5 && (
+            <button className="session-button add-session" onClick={handleSessionAdd}>+</button>
+          )}
+        </div>
+      )}
+      <div className={`menu-right ${isHealthSection ? 'health-section-top-menu-right' : ''}`}>
         {!isProduction && (
           <div className="environment-selector">
             <select id="environment" value={environment} onChange={handleEnvironmentChange}>
@@ -194,20 +196,24 @@ const TopMenu = ({ onNewChatClicked }) => {
             <option value="LLama 3.1 70b">LLama 3.1 70b</option>
           </select>
         </div>
-        <button className="new-chat-button" onClick={handleNewChatClick}>
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" /></svg>
-        </button>
+        {!isHealthSection && (
+          <button className="new-chat-button" onClick={handleNewChatClick}>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" /></svg>
+          </button>
+        )}
       </div>
 
-      {isPopupVisible && (
-        <>
-          <div className="overlay" onClick={handleClosePopup}></div>
-          <div className="popup">
-            <OptionsWindow />
-          </div>
-        </>
-      )}
-    </div>
+      {
+        isPopupVisible && (
+          <>
+            <div className="overlay" onClick={handleClosePopup}></div>
+            <div className="popup">
+              <OptionsWindow />
+            </div>
+          </>
+        )
+      }
+    </div >
   );
 };
 

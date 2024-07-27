@@ -46,6 +46,12 @@
   background-color: #3a3a3a;
 }
 
+.health-section-top-menu-right .environment-selector,
+.health-section-top-menu-right .model-selector {
+  margin-right: 10px;
+
+}
+
 .dropdown-menu {
   position: absolute;
   top: 40px;

@@ -8,6 +8,7 @@ import SleepPhasesChart from './charts/SleepPhasesChart';
 import SleepStartEndChart from './charts/SleepStartEndChart';
 import SleepMetricsChart from './charts/SleepMetricsChart';
 import ChatImageModal from '../ChatImageModal';
+import TopMenu from '../TopMenu';
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -143,53 +144,59 @@ const Health = () => {
   ];
 
   return (
-    <div className="health-container">
-      <h2>Your Health stats</h2>
-      <div className="date-picker-container">
-        <DatePicker
-          selectsRange={true}
-          startDate={startDate}
-          endDate={endDate}
-          onChange={handleDateChange}
-          dateFormat="yyyy-MM-dd"
-          className="custom-datepicker"
-        />
-      </div>
-      <div className="health-button-container">
-        <button className="health-button-preset-date" onClick={() => setPresetRange('YTD')}>YTD</button>
-        <button className="health-button-preset-date" onClick={() => setPresetRange('currentWeek')}>Current Week</button>
-        <button className="health-button-preset-date" onClick={() => setPresetRange('previousWeek')}>Previous Week</button>
-        <button className="health-button-preset-date" onClick={() => setPresetRange('currentMonth')}>Current Month</button>
-        <button className="health-button-preset-date" onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
-      </div>
-      {!isMobile && (
-        <div className="health-button-container">
-          <button className="health-button-toggle" onClick={toggleChartSize}>
-            {isFullWidth ? 'Small Graphs' : 'Full Width'}
-          </button>
+    <div className="layout">
+      <TopMenu
+        isHealthSection={true}
+      />
+      <div className="health-container">
+
+        <h2>Your Health stats</h2>
+        <div className="date-picker-container">
+          <DatePicker
+            selectsRange={true}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={handleDateChange}
+            dateFormat="yyyy-MM-dd"
+            className="custom-datepicker"
+          />
         </div>
-      )}
-      <div className={`charts-container ${isFullWidth ? 'full-width' : 'small-graphs'}`}>
-        {charts.map((chart, index) => (
-          <div key={index + "m"}>
-            <h4 key={index + "n"} className="chart-title">{chart.key}</h4>
-            <div key={index} className="chart-wrapper">
-              {chart}
-            </div>
+        <div className="health-button-container">
+          <button className="health-button-preset-date" onClick={() => setPresetRange('YTD')}>YTD</button>
+          <button className="health-button-preset-date" onClick={() => setPresetRange('currentWeek')}>Current Week</button>
+          <button className="health-button-preset-date" onClick={() => setPresetRange('previousWeek')}>Previous Week</button>
+          <button className="health-button-preset-date" onClick={() => setPresetRange('currentMonth')}>Current Month</button>
+          <button className="health-button-preset-date" onClick={() => setPresetRange('previousMonth')}>Previous Month</button>
+        </div>
+        {!isMobile && (
+          <div className="health-button-container">
+            <button className="health-button-toggle" onClick={toggleChartSize}>
+              {isFullWidth ? 'Small Graphs' : 'Full Width'}
+            </button>
           </div>
-        ))}
+        )}
+        <div className={`charts-container ${isFullWidth ? 'full-width' : 'small-graphs'}`}>
+          {charts.map((chart, index) => (
+            <div key={index + "m"}>
+              <h4 key={index + "n"} className="chart-title">{chart.key}</h4>
+              <div key={index} className="chart-wrapper">
+                {chart}
+              </div>
+            </div>
+          ))}
+        </div>
+        {isModalOpen && (
+          <ChatImageModal
+            images={charts}
+            currentIndex={currentChartIndex}
+            onClose={closeModal}
+            onNext={nextChart}
+            onPrev={prevChart}
+            isChart={true}
+          />
+        )}
+        <FloatingChat data={data} />
       </div>
-      {isModalOpen && (
-        <ChatImageModal
-          images={charts}
-          currentIndex={currentChartIndex}
-          onClose={closeModal}
-          onNext={nextChart}
-          onPrev={prevChart}
-          isChart={true}
-        />
-      )}
-      <FloatingChat data={data} />
     </div>
   );
 };
