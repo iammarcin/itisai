@@ -10,36 +10,36 @@ import useDebounce from '../hooks/useDebounce';
 import { formatDate } from '../utils/misc';
 
 const Sidebar = ({ onSelectSession }) => {
+  const {
+    chatContent, currentSessionIndex,
+    currentSessionId, setCurrentSessionId,
+    refreshChatSessions, setRefreshChatSessions,
+    sidebarSearchText, setSidebarSearchText,
+    setErrorMsg
+  } = useContext(StateContext);
+
   const [chatSessions, setChatSessions] = useState([]);
   const [offset, setOffset] = useState(0);
   const limit = 20;
-  const [searchText, setSearchText] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [hasMoreSessions, setHasMoreSessions] = useState(true);
   const isFetchingRef = useRef(false);
   const fetchedSessionIds = useRef(new Set());
-  const debouncedSearchText = useDebounce(searchText, 500);
+  const debouncedSearchText = useDebounce(sidebarSearchText, 500);
   const observer = useRef();
   const [contextMenu, setContextMenu] = useState(null);
   const [renamePopup, setRenamePopup] = useState(null);
   const renameInputRef = useRef(null);
 
-  const {
-    chatContent, currentSessionIndex,
-    currentSessionId, setCurrentSessionId,
-    refreshChatSessions, setRefreshChatSessions,
-    setErrorMsg
-  } = useContext(StateContext);
-
   // get the list of user's sessions (for general first load and search mode)
-  const fetchChatSessions = useCallback(async (newOffset, searchText = '') => {
+  const fetchChatSessions = useCallback(async (newOffset, sidebarSearchText = '') => {
     isFetchingRef.current = true;
     try {
-      const userInput = { limit, offset: newOffset, search_text: searchText };
+      const userInput = { limit, offset: newOffset, search_text: sidebarSearchText };
       const response = await apiMethods.triggerAPIRequest(
         "api/db",
         "provider.db",
-        searchText ? "db_search_messages" : "db_all_sessions_for_user",
+        sidebarSearchText ? "db_search_messages" : "db_all_sessions_for_user",
         userInput
       );
 
@@ -101,7 +101,7 @@ const Sidebar = ({ onSelectSession }) => {
   }, [refreshChatSessions, debouncedSearchText, fetchChatSessions]);
 
   const handleSearch = (term) => {
-    setSearchText(term);
+    setSidebarSearchText(term);
     setOffset(0);
     fetchedSessionIds.current.clear();
     setChatSessions([]);
@@ -260,6 +260,7 @@ const Sidebar = ({ onSelectSession }) => {
     <div className="sidebar">
       <input
         type="text"
+        value={sidebarSearchText}
         className="search-bar"
         placeholder="Search sessions..."
         onChange={handleSearchInputChange}

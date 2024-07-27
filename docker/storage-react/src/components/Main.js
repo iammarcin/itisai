@@ -27,7 +27,7 @@ const Main = () => {
     setCurrentSessionId, setFetchSessionId,
     shouldSkipSessionFetching, setShouldSkipSessionFetching,
     setShowCharacterSelection, readyForRegenerate, setReadyForRegenerate,
-    progressBarMessage, userInput, setUserInput,
+    progressBarMessage, userInput, setUserInput, setSidebarSearchText,
     editingMessage, attachedImages, setAttachedImages,
     attachedFiles, setAttachedFiles, setFocusInput,
     currentSessionIndexRef,
@@ -85,6 +85,7 @@ const Main = () => {
     setErrorMsg('');
     setTextAICharacter('assistant');
     setFocusInput(true);
+    setSidebarSearchText('');
   }
 
   const handleSendClick = useCallback(() => {

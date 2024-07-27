@@ -46,6 +46,9 @@ export const StateContextProvider = ({ children }) => {
   const [errorMsg, setErrorMsg] = useState('');
   // to control UI depending if its mobile or not
   const [isMobile, setIsMobile] = useState(false);
+  // used in Sidebar - search text is what we put into search text input in sidebar
+  // it is also reset when new chat is clicked
+  const [sidebarSearchText, setSidebarSearchText] = useState('');
 
   // this is showProgress, hideProgress merged in one place
   // accepting method - "show" and "hide"
@@ -148,6 +151,7 @@ export const StateContextProvider = ({ children }) => {
       isLoading, setIsLoading,
       errorMsg, setErrorMsg,
       isMobile,
+      sidebarSearchText, setSidebarSearchText,
       manageProgressText, mScrollToBottom,
     }}>
       {children}
