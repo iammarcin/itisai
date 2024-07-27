@@ -37,9 +37,6 @@ const optimizeHealthDataForAPICall = (data) => {
     'resting_heart_rate', 'body_battery_change'
   ];
 
-  // Sort data by date (descending) and take last 7 days
-  //const sortedData = data.sort((a, b) => new Date(b.calendar_date) - new Date(a.calendar_date)).slice(0, 7);
-
   // Create CSV-like structure
   let csvData = columnsToKeep.join(',') + '\n';
 

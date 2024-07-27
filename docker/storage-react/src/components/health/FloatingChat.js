@@ -61,7 +61,7 @@ const FloatingChat = ({ data }) => {
     // In handleSendClick:
     if (chatContent[currentSessionIndex].messages.length === 0) {
       const optimizedData = optimizeHealthDataForAPICall(data);
-      const fullMessage = data ? `Here's your health data for the last 7 days:\n${optimizedData}\n\n${userInput}` : userInput;
+      const fullMessage = data ? `Here's my health data:\n${optimizedData}\n\n${userInput}` : userInput;
       setUserInput(fullMessage);
       if (config.VERBOSE_SUPERB === 1)
         console.log("Optimized health data:", fullMessage);
