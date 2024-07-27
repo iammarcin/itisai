@@ -12,6 +12,8 @@ import 'react-resizable/css/styles.css';
 import './css/FloatingChat.css';
 import config from '../../config';
 
+import { optimizeHealthDataForAPICall } from '../../utils/misc';
+
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
 
@@ -56,11 +58,13 @@ const FloatingChat = ({ data }) => {
 
     // if it's first message - attach context (data)
     // TODO ADD BUT IN BETTER FORMAT
+    // In handleSendClick:
     if (chatContent[currentSessionIndex].messages.length === 0) {
-      const fullMessage = data ? `${JSON.stringify(data)}\n${userInput}` : userInput;
+      const optimizedData = optimizeHealthDataForAPICall(data);
+      const fullMessage = data ? `Here's your health data for the last 7 days:\n${optimizedData}\n\n${userInput}` : userInput;
       setUserInput(fullMessage);
       if (config.VERBOSE_SUPERB === 1)
-        console.log("full health data: ", fullMessage)
+        console.log("Optimized health data:", fullMessage);
     }
 
     // Set the trigger to call API
