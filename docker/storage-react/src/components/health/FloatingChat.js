@@ -10,16 +10,13 @@ import { setTextAICharacter, getTextModelName } from '../../utils/configuration'
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import './css/FloatingChat.css';
-import config from '../../config';
-
-import { optimizeHealthDataForAPICall } from '../../utils/misc';
 
 import BottomToolsMenu from '../BottomToolsMenu';
 import ChatMessage from '../ChatMessage';
 
 const FloatingChat = ({ data }) => {
   const {
-    userInput, setUserInput, chatContent,
+    userInput, setUserInput, chatContent, setAssetInput,
     attachedImages, setAttachedImages, endOfMessagesRef,
     setAttachedFiles, editingMessage,
     errorMsg, setErrorMsg, isMobile,
@@ -56,16 +53,8 @@ const FloatingChat = ({ data }) => {
       return;
     }
 
-    // if it's first message - attach context (data)
-    // TODO ADD BUT IN BETTER FORMAT
-    // In handleSendClick:
-    if (chatContent[currentSessionIndex].messages.length === 0) {
-      const optimizedData = optimizeHealthDataForAPICall(data);
-      const fullMessage = data ? `Here's my health data:\n${optimizedData}\n\n${userInput}` : userInput;
-      setUserInput(fullMessage);
-      if (config.VERBOSE_SUPERB === 1)
-        console.log("Optimized health data:", fullMessage);
-    }
+    // attach context (data)
+    setAssetInput(data)
 
     // Set the trigger to call API
     setTriggerAPI(true);
@@ -81,10 +70,11 @@ const FloatingChat = ({ data }) => {
       setTriggerAPI(false); // Reset the trigger
 
       setUserInput("");
+      setAssetInput([]);
       setAttachedImages([]);
       setAttachedFiles([]);
     }
-  }, [userInput, triggerAPI, callChatAPI, editingMessage, setUserInput, setAttachedImages, setAttachedFiles]);
+  }, [userInput, triggerAPI, callChatAPI, editingMessage, setUserInput, setAssetInput, setAttachedImages, setAttachedFiles]);
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);

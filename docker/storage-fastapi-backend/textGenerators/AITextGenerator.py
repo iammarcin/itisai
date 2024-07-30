@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, truncate_image_urls_from_history, isItAnthropicModel
+from textGenerators.ChatHelpers import prepare_chat_history, prepare_message_content, prepare_message_content_with_asset_input, truncate_image_urls_from_history, isItAnthropicModel
 import json
 from openai import OpenAI
 from groq import Groq
@@ -175,14 +175,21 @@ class AITextGenerator:
         try:
             chat_history = userInput.get('chat_history') if userInput.get('chat_history') is not None else []
             latest_user_message = userInput.get('prompt')
+            asset_input = assetInput
 
-            # if it's more complex message - we need to process it (because there are differences between generator - especially if there are images)
+            # process user message (because there are differences in messages format between generators - especially if there are images)
             if isinstance(latest_user_message, list):
                 latest_user_message = prepare_message_content(latest_user_message, self.model_name, self.use_base64)
+
+            # if asset input is there - let's attach it to user message
+            if isinstance(asset_input, list) and len(asset_input) > 0:
+                latest_user_message = prepare_message_content_with_asset_input(latest_user_message, asset_input)
+
             # fail on purpose
             # test = userInput['test']
+
             # Trim messages to fit within the memory token limit
-            chat_history = prepare_chat_history(chat_history, assetInput, self.memory_token_limit, self.model_name, self.support_image_input,
+            chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input,
                                                 use_base64=self.use_base64, file_attached_message_limit=self.file_attached_message_limit)
 
             # Add system prompt and latest user message to chat history

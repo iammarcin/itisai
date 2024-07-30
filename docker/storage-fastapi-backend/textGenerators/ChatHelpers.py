@@ -4,6 +4,8 @@ import mimetypes
 import base64
 import copy
 import json
+import csv
+import io
 # import asyncio
 
 import pypdfium2 as pdfium
@@ -30,7 +32,7 @@ class FileWithFilename:
 # file_attached_message_limit - how many user messages can be sent before we start trimming image or files URLs / base64
 # goal is to feed openai API with file/image URLs only when necessary (for few messages, later for sure topic will change)
 # support_image_input some model support images (and files - because in the end pdfs are for files) as input, some not
-def prepare_chat_history(chat_history, assetInput, memory_token_limit, model_name, support_image_input, use_base64=True, file_attached_message_limit=3):
+def prepare_chat_history(chat_history, memory_token_limit, model_name, support_image_input, use_base64=True, file_attached_message_limit=3):
     total_tokens = 0
     trimmed_messages = []
     user_message_count = 0
@@ -238,6 +240,8 @@ def prepare_message_content(message, model, use_base64):
 
     return message_content
 
+# process attached files - for the moment only supports pdf
+# if pdf - transform it to images which later be sent to API
 def process_attached_files(file_urls):
     logger.debug("File urls: %s", file_urls)
     final_urls = []
@@ -259,6 +263,55 @@ def process_attached_files(file_urls):
 
     logger.debug("Final URLs: %s", final_urls)
     return final_urls
+
+# if asset input is attached (for example in Health) - we need to include it in messages
+# maybe it's not perfect - but for this i don't take into account what user set as memory_token_limit
+# because (as of now at least) it is intended to add important data - so it's crucial that it is attached fully without any cutting
+def prepare_message_content_with_asset_input(message, asset_input):
+    # if assetInput is empty - we don't need to do anything
+    if isinstance(asset_input, list) and len(asset_input) == 0:
+        return message
+
+    logger.info("prepare_messages_with_asset_input")
+    existing_text = message['content'][0]['text']
+    optimized_data_text = optimize_health_data(asset_input, "csv")
+    new_text = f"{existing_text}...\nhere is data:\n{optimized_data_text}"
+
+    # Overwrite the existing content with the new text
+    message['content'][0]['text'] = new_text
+
+    return message
+
+# we receive data from DB in json format
+# and sometimes we can keep it in json, but mostly we want to move it to CSV
+def optimize_health_data(data, format="json") -> str:
+    # Define columns to keep
+    columns_to_keep = [
+        'calendar_date', 'sleep_time_seconds', 'sleep_start', 'sleep_end',
+        'nap_time_seconds', 'deep_sleep_seconds', 'light_sleep_seconds', 'rem_sleep_seconds',
+        'awake_sleep_seconds', 'average_respiration_value', 'awake_count', 'avg_sleep_stress',
+        'sleep_score_feedback', 'overall_score_value', 'overall_score_qualifier',
+        'stress_qualifier', 'rem_percentage_value',
+        'light_percentage_value', 'deep_percentage_value', 'avg_overnight_hrv',
+        'resting_heart_rate', 'body_battery_change', 'restless_moments_count'
+    ]
+
+    # Filter data to keep only specified columns
+    filtered_data = [{col: day.get(col, '') for col in columns_to_keep} for day in data]
+
+    if format == "json":
+        return json.dumps(filtered_data, indent=4)
+
+    # Create CSV-like structure
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=columns_to_keep)
+    writer.writeheader()
+
+    for row in filtered_data:
+        writer.writerow(row)
+
+    return output.getvalue().strip()
+
 
 async def async_s3_upload(file_with_filename):
     s3_response = await awsProvider.s3_upload(

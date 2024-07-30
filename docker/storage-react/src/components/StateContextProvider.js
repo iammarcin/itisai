@@ -12,7 +12,7 @@ export const StateContextProvider = ({ children }) => {
       messages: [] // Each session starts with an empty array of messages
     }
   ]);
-  // optional assetInput - used for example in Health
+  // optional assetInput - used for example in Health - it is separated from chatContent - because we don't necessarily want it to be displayed for user in chat messages (it's long etc)
   const [assetInput, setAssetInput] = useState([]);
   // this is index of sessions on top menu (in circle buttons) - to identify which button is currently active etc
   const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
