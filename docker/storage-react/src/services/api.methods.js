@@ -47,13 +47,14 @@ const triggerAPIRequest = async (endpoint, category, action, userInput) => {
   }
 }
 
-const triggerStreamingAPIRequest = async (endpoint, category, action, userInput, { onChunkReceived, onStreamEnd, onError }) => {
+const triggerStreamingAPIRequest = async (endpoint, category, action, userInput, assetInput, { onChunkReceived, onStreamEnd, onError }) => {
   const API_BASE_URL = `${config.apiEndpoint}/${endpoint}`;
 
   const apiBody = {
     category: category,
     action: action,
     userInput: userInput,
+    assetInput: assetInput,
     userSettings: getSettingsDict(),
     customerId: 1,
   };

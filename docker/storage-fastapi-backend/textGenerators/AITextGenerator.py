@@ -173,19 +173,16 @@ class AITextGenerator:
     def chat(self, userInput: dict, assetInput: dict, customerId: int = None):
 
         try:
-            chat_history = userInput.get('chat_history') if userInput.get(
-                'chat_history') is not None else []
-
+            chat_history = userInput.get('chat_history') if userInput.get('chat_history') is not None else []
             latest_user_message = userInput.get('prompt')
 
             # if it's more complex message - we need to process it (because there are differences between generator - especially if there are images)
             if isinstance(latest_user_message, list):
-                latest_user_message = prepare_message_content(
-                    latest_user_message, self.model_name, self.use_base64)
+                latest_user_message = prepare_message_content(latest_user_message, self.model_name, self.use_base64)
             # fail on purpose
             # test = userInput['test']
             # Trim messages to fit within the memory token limit
-            chat_history = prepare_chat_history(chat_history, self.memory_token_limit, self.model_name, self.support_image_input,
+            chat_history = prepare_chat_history(chat_history, assetInput, self.memory_token_limit, self.model_name, self.support_image_input,
                                                 use_base64=self.use_base64, file_attached_message_limit=self.file_attached_message_limit)
 
             # Add system prompt and latest user message to chat history

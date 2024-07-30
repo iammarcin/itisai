@@ -30,7 +30,7 @@ class FileWithFilename:
 # file_attached_message_limit - how many user messages can be sent before we start trimming image or files URLs / base64
 # goal is to feed openai API with file/image URLs only when necessary (for few messages, later for sure topic will change)
 # support_image_input some model support images (and files - because in the end pdfs are for files) as input, some not
-def prepare_chat_history(chat_history, memory_token_limit, model_name, support_image_input, use_base64=True, file_attached_message_limit=3):
+def prepare_chat_history(chat_history, assetInput, memory_token_limit, model_name, support_image_input, use_base64=True, file_attached_message_limit=3):
     total_tokens = 0
     trimmed_messages = []
     user_message_count = 0

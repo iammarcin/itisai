@@ -13,7 +13,7 @@ import { formatDate } from '../utils/misc';
 // currentSessionIndex - also needed - as we're checking if currently generating in active session
 // apiAIModelName - model name that we are using for generating the message (sent to API). this will be recorded in order to show which model generated each message
 const CallChatAPI = async ({
-  userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, mScrollToBottom
+  userInput, assetInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex, sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent, currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg, manageProgressText, mScrollToBottom
 }) => {
   setIsLoading(true);
   manageProgressText("show", "Text");
@@ -131,7 +131,7 @@ const CallChatAPI = async ({
 
       setChatContent(updatedChatContent);
 
-      await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, {
+      await apiMethods.triggerStreamingAPIRequest("chat", "text", "chat", finalUserInput, assetInput, {
         onChunkReceived: (chunk) => {
           // if it's artgen and user disabled show prompt - don't show it
           if (currentAICharacter === "tools_artgen" && getImageArtgenShowPrompt() === false) {
@@ -235,7 +235,7 @@ const CallChatAPI = async ({
           }
         }
       });
-    } else { // if its edited message
+    } else { // if its message for AI character without autoResponse
       // Only send the user message to DB if autoResponse is false
       const finalInputForDB = {
         "customer_id": 1,

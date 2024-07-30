@@ -9,7 +9,7 @@ import { getTextAICharacter, getTextModelName } from '../utils/configuration';
 // if editMessagePosition is not null - it means it is edited message
 const useChatAPI = () => {
   const {
-    chatContent, setChatContent, attachedImages, attachedFiles, currentSessionIndex, currentSessionId,
+    chatContent, setChatContent, assetInput, attachedImages, attachedFiles, currentSessionIndex, currentSessionId,
     setCurrentSessionId, userInput, setFocusInput, setRefreshChatSessions, setIsLoading, setErrorMsg,
     setShowCharacterSelection, manageProgressText, mScrollToBottom
   } = useContext(StateContext);
@@ -25,7 +25,7 @@ const useChatAPI = () => {
       const apiAIModelName = getTextModelName();
 
       await CallChatAPI({
-        userInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex,
+        userInput, assetInput, editMessagePosition, attachedImages, attachedFiles, currentSessionIndex,
         sessionIndexForAPI, sessionIdForAPI, setCurrentSessionId, chatContent, setChatContent,
         currentAICharacter, apiAIModelName, setFocusInput, setRefreshChatSessions, setIsLoading,
         setErrorMsg, manageProgressText, mScrollToBottom
@@ -33,7 +33,7 @@ const useChatAPI = () => {
     } catch (error) {
       setErrorMsg(error.message);
     }
-  }, [userInput, attachedFiles, attachedImages, chatContent, currentSessionId, currentSessionIndex, manageProgressText, mScrollToBottom, setChatContent, setCurrentSessionId, setErrorMsg, setFocusInput, setIsLoading, setRefreshChatSessions, setShowCharacterSelection]);
+  }, [userInput, assetInput, attachedFiles, attachedImages, chatContent, currentSessionId, currentSessionIndex, manageProgressText, mScrollToBottom, setChatContent, setCurrentSessionId, setErrorMsg, setFocusInput, setIsLoading, setRefreshChatSessions, setShowCharacterSelection]);
 
   return { callChatAPI };
 };

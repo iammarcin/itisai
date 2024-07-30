@@ -12,6 +12,8 @@ export const StateContextProvider = ({ children }) => {
       messages: [] // Each session starts with an empty array of messages
     }
   ]);
+  // optional assetInput - used for example in Health
+  const [assetInput, setAssetInput] = useState([]);
   // this is index of sessions on top menu (in circle buttons) - to identify which button is currently active etc
   const [currentSessionIndex, setCurrentSessionIndex] = useState(0);
   // this is to track current session Id - from DB
@@ -134,6 +136,7 @@ export const StateContextProvider = ({ children }) => {
   return (
     <StateContext.Provider value={{
       chatContent, setChatContent,
+      assetInput, setAssetInput,
       currentSessionIndex, setCurrentSessionIndex,
       currentSessionId, setCurrentSessionId,
       fetchSessionId, setFetchSessionId,
