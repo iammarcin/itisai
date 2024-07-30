@@ -171,7 +171,7 @@ const Health = () => {
         {!isMobile && (
           <div className="health-button-container">
             <button className="health-button-toggle" onClick={toggleChartSize}>
-              {isFullWidth ? 'Small Graphs' : 'Full Width'}
+              {isFullWidth ? 'Small Graphs' : 'Full screen graphs'}
             </button>
           </div>
         )}
