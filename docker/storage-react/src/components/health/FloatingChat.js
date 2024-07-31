@@ -41,7 +41,7 @@ const FloatingChat = ({ data }) => {
     setErrorMsg('');
     const modelName = getTextModelName();
     // TODO - change!
-    setTextAICharacter('dietetist');
+    setTextAICharacter('sleep_expert');
 
     if (userInput.trim() === '') {
       setErrorMsg("Please provide your input");
