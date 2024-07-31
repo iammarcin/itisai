@@ -278,7 +278,7 @@ const CallChatAPI = async ({
 
     setIsLoading(false);
     manageProgressText("hide", "Text");
-    setFocusInput(true);
+    //setFocusInput(true);
 
     // only if it's current session
     if (sessionIndexForAPI === currentSessionIndex) {
