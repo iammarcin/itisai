@@ -39,5 +39,5 @@ else:  # local non docker
     defaults['AWS_S3_BUCKET'] = "myaiappess3bucketnonprod"
     # defaults['MYSQL_HOST'] = "db.goodtogreat.life"
     # defaults['MYSQL_DB'] = "aiapp_nonprod"
-    defaults['MYSQL_HOST'] = "localhost"
+    defaults['MYSQL_HOST'] = "docker-mysqlcg-1"
     defaults['MYSQL_DB'] = "aiapp"
