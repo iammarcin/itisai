@@ -1,7 +1,7 @@
 services:
   fastapibackend:
     build: fastapi
-    mem_limit: 1024m
+    mem_limit: 512m
     ports:
       - "${PORT_PYTHON_BACKEND}:8000"
     restart: on-failure
@@ -26,7 +26,7 @@ services:
   frontend:
     build: storage-react
     container_name: frontend_c
-    mem_limit: ${MEMORY_LIMIT_REACT}
+    mem_limit: 512m
     ports:
       - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
       - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
@@ -46,7 +46,7 @@ services:
       - ./storage-common:/storage
     ports:
       - "3306:3306"
-    mem_limit: 128m
+    mem_limit: 512m
     environment:
       MYSQL_DATABASE: ${MYSQL_COMPOSE_DB}
       MYSQL_ROOT_PASSWORD: ${MYSQL_COMPOSE_ROOT_PASS}
