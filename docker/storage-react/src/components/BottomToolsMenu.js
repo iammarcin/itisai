@@ -25,7 +25,7 @@ const BottomToolsMenu = ({ handleSendClick, isFloating = false }) => {
     userInput, setUserInput,
     attachedImages, setAttachedImages,
     attachedFiles, setAttachedFiles,
-    focusInput, setFocusInput,
+    focusInput, setFocusInput, isMobile,
     isLoading, setErrorMsg
   } = useContext(StateContext);
 
@@ -248,10 +248,12 @@ const BottomToolsMenu = ({ handleSendClick, isFloating = false }) => {
   }, []);
   useEffect(() => {
     if (focusInput && userInputRef.current) {
-      userInputRef.current.focus();
+      // on mobile let's put focus manually
+      if (!isMobile)
+        userInputRef.current.focus();
       setFocusInput(false);
     }
-  }, [focusInput, setFocusInput]);
+  }, [focusInput, isMobile, setFocusInput]);
 
   return (
     <div className={`bottom-tools-menu ${isFloating ? 'floating-bottom-tools-menu' : ''}`}>

@@ -23,3 +23,32 @@ services:
       MY_AUTH_BEARER_TOKEN: ${MY_AUTH_BEARER_TOKEN}
       NODE_ENV: "local"
       TZ: Europe/Madrid
+  frontend:
+    build: storage-react
+    container_name: frontend_c
+    mem_limit: ${MEMORY_LIMIT_REACT}
+    ports:
+      - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+      - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
+    volumes:
+      - ./storage-react:/app
+      - ./storage-common:/storage
+      - /app/node_modules
+    environment:
+      MY_AUTH_TOKEN: ${MY_AUTH_TOKEN}
+      NODE_ENV: ${NODE_ENV}
+      REACT_APP_MY_NODE_ENV: "local"
+  mysqlcg:
+    image: mysql:8.0.30
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./storage-common:/storage
+    ports:
+      - "3306:3306"
+    mem_limit: 128m
+    environment:
+      MYSQL_DATABASE: ${MYSQL_COMPOSE_DB}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_COMPOSE_ROOT_PASS}
+      MYSQL_USER: ${MYSQL_COMPOSE_USER}
+      MYSQL_PASSWORD: ${MYSQL_COMPOSE_PASS}
