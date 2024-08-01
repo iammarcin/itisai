@@ -42,7 +42,7 @@ services:
     image: mysql:8.0.30
     restart: always
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./storage-mysql:/var/lib/mysql
       - ./storage-common:/storage
     ports:
       - "3306:3306"
