@@ -1,7 +1,7 @@
 services:
   fastapibackend:
     build: fastapi
-    mem_limit: 512m
+    mem_limit: 256m
     ports:
       - "${PORT_PYTHON_BACKEND}:8000"
     restart: on-failure
@@ -46,7 +46,7 @@ services:
       - ./storage-common:/storage
     ports:
       - "3306:3306"
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       MYSQL_DATABASE: ${MYSQL_COMPOSE_DB}
       MYSQL_ROOT_PASSWORD: ${MYSQL_COMPOSE_ROOT_PASS}

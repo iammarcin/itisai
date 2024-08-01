@@ -17,6 +17,10 @@ import config as config
 
 logger = logconfig.logger
 
+logger.info("!!!!!!")
+logger.info(config.defaults['environment'])
+logger.info(config.defaults['MYSQL_HOST'])
+
 #################
 version = f"{sys.version_info.major}.{sys.version_info.minor}"
 
