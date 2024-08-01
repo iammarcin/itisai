@@ -182,7 +182,7 @@ export const setURLForAPICalls = () => {
     : getAppModeUseWatson()
       ? "http://192.168.1.123:8000"
       //: "http://192.168.1.150:8000";
-      : "http://localhost:8000";
+      : "http://localhost:8023";
   setAppModeApiUrl(url);
 };
 
