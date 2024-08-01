@@ -26,7 +26,7 @@ services:
   frontend:
     build: storage-react
     container_name: frontend_c
-    mem_limit: 512m
+    mem_limit: 1024m
     ports:
       - "${PORT_REACT_FRONTEND}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
       - "${PORT_REACT_FRONTEND_2}:${PORT_REACT_FRONTEND_INSIDE_CONTAINER}"
